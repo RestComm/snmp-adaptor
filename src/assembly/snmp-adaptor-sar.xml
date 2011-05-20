@@ -1,0 +1,34 @@
+<assembly>
+  <id>snmp-adaptor-sar</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>target</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>jboss-as-varia-5.1.0.GA-snmp-adaptor.jar</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>src/resources/services/snmp/deploy</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+  </fileSets>
+  <dependencySets>
+    <dependencySet>            
+      <outputDirectory>/</outputDirectory>
+      <includes>
+      	<include>org.snmp4j:snmp4j</include>
+      	<include>org.snmp4j:snmp4j-agent</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>      
+      <excludes>      	
+      	<exclude>*</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+</assembly>
