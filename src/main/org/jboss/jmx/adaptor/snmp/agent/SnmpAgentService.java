@@ -615,11 +615,8 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
 	   mpv3 = new MPv3(usm);
 	   SecurityModels.getInstance().addSecurityModel(usm);
 	   SecurityProtocols.getInstance().addDefaultProtocols();
-	   SecurityProtocols.getInstance().addPrivacyProtocol(new Priv3DES());
-	   SecurityProtocols.getInstance().addPrivacyProtocol(new PrivDES());
-	   SecurityProtocols.getInstance().addPrivacyProtocol(new PrivAES256());
-	   SecurityProtocols.getInstance().addPrivacyProtocol(new PrivAES128());
-	   SecurityProtocols.getInstance().addPrivacyProtocol(new PrivAES192());
+	   // all other privacy and authentication protocols are provided by the above method
+	   SecurityProtocols.getInstance().addPrivacyProtocol(new Priv3DES());	   
 	   dispatcher.addMessageProcessingModel(new MPv1());
 	   dispatcher.addMessageProcessingModel(new MPv2c());
 	   dispatcher.addMessageProcessingModel(mpv3);

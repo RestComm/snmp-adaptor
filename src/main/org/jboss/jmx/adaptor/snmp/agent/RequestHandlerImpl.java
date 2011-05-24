@@ -783,7 +783,14 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		//TODO: all types managed by the PDU
 		if (val instanceof Long)
         {
-			result = new Counter32((Long)val);
+			result = new OctetString(((Long)val).toString());
+		}
+		else if (val instanceof Boolean)
+        {
+			if(((Boolean)val).booleanValue())
+				result = new Integer32(1);
+			else 
+				result = new Integer32(0);
 		}
         else if (val instanceof String)
         {
