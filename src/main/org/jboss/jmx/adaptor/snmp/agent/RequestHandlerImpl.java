@@ -830,24 +830,36 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 * @throws VariableTypeException if the method was unable to convert the type of val into
 	 * a type compatible with the MBean server.
 	 */
-	private Object convertVariableToValue(final Variable val) throws VariableTypeException{
+	private Object convertVariableToValue(final Variable val, final Object attribute) throws VariableTypeException{
 		Object result = null;
 		if (val instanceof OctetString)
 		{	
-			result = val.toString();
+			if(attribute instanceof Long) {
+				result = Long.parseLong(val.toString());
+			} else {
+				result = val.toString();
+			}
 		}
 		else if (val instanceof Integer32)
 		{
-			result = new Integer(((Integer32)val).getValue());
+			if(attribute instanceof Boolean) {
+				if(((Integer32)val).getValue() == 0) {
+					result = Boolean.FALSE;
+				} else {
+					result = Boolean.TRUE;
+				}
+			} else {
+				result = Integer.valueOf(((Integer32)val).getValue());
+			}
 		}
 		else if (val instanceof Counter32)
 		{
-			result = new Long(((Counter32)val).getValue());
+			result = Long.valueOf(((Counter32)val).getValue());
 		}
 		else if (val instanceof Counter64)
 		{
-			result = new Long(((Counter64)val).getValue());
-		}
+			result = Long.valueOf(((Counter64)val).getValue());
+		}		
 		else{
 			throw new VariableTypeException(); //no instance could be created.
 		}
@@ -895,13 +907,13 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			try
 			{		
 				Object other = server.getAttribute(be.mbean, be.attr.getName());
-				Object val = convertVariableToValue(newVal);
+				Object val = convertVariableToValue(newVal, other);
 				
 				if (val.getClass() != other.getClass() ){
 					log.debug("setValueFor: attempt to set an MBean Attribute with the wrong type.");
 					ssy = newVal;
 				}
-				
+								
 				Attribute at = new Attribute(be.attr.getName(), val);
 				server.setAttribute(be.mbean, at);
 			
