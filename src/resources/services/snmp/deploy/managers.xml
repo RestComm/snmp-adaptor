@@ -10,7 +10,7 @@
     - the listening port
     - the local binding address (optional)
     - the local binding port (optional)
-    - the SNMP version to use (1 or 2)
+    - the SNMP version to use (1 or 2 or 3)
     
   More than one managers may be specified.
   

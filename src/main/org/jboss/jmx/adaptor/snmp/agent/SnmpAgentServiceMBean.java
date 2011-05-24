@@ -44,6 +44,10 @@ public interface SnmpAgentServiceMBean extends ListenerServiceMBean
    /** The name of the file containing SNMP manager specifications */
    void setManagersResName(String managersResName);
    String getManagersResName();
+   
+   /** The name of the file containing SNMPv3 users */
+   void setUsersResName(String usersResName);
+   String getUsersResName();
 
    /** The name of the file containing the notification/trap mappings */
    void setNotificationMapResName(String notificationMapResName);

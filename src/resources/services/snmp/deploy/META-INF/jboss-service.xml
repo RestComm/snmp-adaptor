@@ -94,6 +94,7 @@
     <attribute name="TrapFactoryClassName">org.jboss.jmx.adaptor.snmp.agent.TrapFactorySupport</attribute>
     <attribute name="NotificationMapResName">/notifications.xml</attribute>
     <attribute name="ManagersResName">/managers.xml</attribute>
+    <attribute name="UsersResName">/users.xml</attribute>
     <attribute name="HeartBeatPeriod">0</attribute>
     <attribute name="BindAddress">
        <!-- Get the interface from the ServiceBindingManager -->

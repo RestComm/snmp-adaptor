@@ -19,21 +19,26 @@
  */
 package org.jboss.jmx.adaptor.snmp.agent;
 
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.management.Notification;
 import javax.management.ObjectName;
 
+import org.jboss.jmx.adaptor.snmp.config.user.User;
 import org.jboss.system.ListenerServiceMBeanSupport;
+import org.jboss.xb.binding.MappingObjectModelFactory;
+import org.jboss.xb.binding.Unmarshaller;
+import org.jboss.xb.binding.UnmarshallerFactory;
 import org.snmp4j.MessageDispatcherImpl;
 import org.snmp4j.Snmp;
 import org.snmp4j.TransportMapping;
 import org.snmp4j.mp.MPv1;
 import org.snmp4j.mp.MPv2c;
 import org.snmp4j.mp.MPv3;
-import org.snmp4j.security.AuthMD5;
-import org.snmp4j.security.AuthSHA;
 import org.snmp4j.security.Priv3DES;
 import org.snmp4j.security.PrivAES128;
 import org.snmp4j.security.PrivAES192;
@@ -84,6 +89,9 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
    /** Trap counter */
    private Counter trapCounter = null;
 
+   /** Name of the file containing SNMP users */
+   private String usersResName = null;
+   
    /** Name of the file containing SNMP manager specifications */
    private String managersResName = null;  
 
@@ -649,26 +657,47 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
 	   this.session.addCommandResponder(responder);
    }
    
-   //add initial users. this will be read from an xml once a better solution is in place.
-   private void addUsmUsers(){
-	   UsmUser user = new UsmUser(new OctetString("SHADES"),
-               AuthSHA.ID,
-               new OctetString("SHADESAuthPassword"),
-               PrivDES.ID,
-               new OctetString("SHADESPrivPassword"));
-	   this.usm.addUser(user.getSecurityName(), usm.getLocalEngineID(),user);
-	   user = new UsmUser(new OctetString("TEST"),
-                AuthSHA.ID,
-                new OctetString("maplesyrup"),
-                PrivDES.ID,
-                new OctetString("maplesyrup"));
-	   this.usm.addUser(user.getSecurityName(), usm.getLocalEngineID(), user);	   	   
-	   user = new UsmUser(new OctetString("TEST"),
-               AuthMD5.ID,
-               new OctetString("maplesyrup"),
-               PrivDES.ID,
-               new OctetString("maplesyrup"));
-	   this.usm.addUser(user.getSecurityName(), usm.getLocalEngineID(), user);
+   /*
+    * Read the users from the users.xml and add them to the usm
+    */
+   private void addUsmUsers() throws Exception {
+	   MappingObjectModelFactory momf = new MappingObjectModelFactory();
+	   momf.mapElementToClass("user-list", ArrayList.class);
+	   momf.mapElementToClass("user", User.class);
+	      
+	   ArrayList<User> userList = null;
+	   InputStream is = null;
+	   try {
+		   // locate managers.xml
+		   final String resName = this.usersResName;
+		   is = SecurityActions.getThreadContextClassLoaderResource(resName);
+         
+		   // create unmarshaller
+		   Unmarshaller unmarshaller = UnmarshallerFactory.newInstance()
+               .newUnmarshaller();
+         
+		   // let JBossXB do it's magic using the MappingObjectModelFactory
+		   userList = (ArrayList<User>) unmarshaller.unmarshal(is, momf, null);         
+      } catch (Exception e) {
+    	  log.error("Accessing resource '" + usersResName + "'");
+    	  throw e;
+      } finally {
+    	  if (is != null) {
+            // close the XML stream
+            is.close();            
+    	  }
+      }
+	  
+      for (Iterator<User> userIt = userList.iterator(); userIt.hasNext(); ) {
+    	  User user = userIt.next();
+        	 
+    	  UsmUser usmUser = new UsmUser(new OctetString(user.getSecurityName()),
+               user.getAuthenticationProtocolID(),
+               new OctetString(user.getAuthenticationPassphrase()),
+               user.getPrivacyProtocolID(),
+               new OctetString(user.getPrivacyPassphrase()));
+    	  this.usm.addUser(usmUser.getSecurityName(), usm.getLocalEngineID(),usmUser);
+      }
    }
 
    //TODO: for v3 support we need to have this Snmp object have a USM (user security model) associated with it
@@ -701,5 +730,19 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
       else
          return InetAddress.getByName(host);
    }
+
+	/**
+	 * @param usersResName the usersResName to set
+	 */
+	public void setUsersResName(String usersResName) {
+		this.usersResName = usersResName;
+	}
+	
+	/**
+	 * @return the usersResName
+	 */
+	public String getUsersResName() {
+		return usersResName;
+	}
 
 }

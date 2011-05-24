@@ -23,12 +23,12 @@ package org.jboss.jmx.adaptor.snmp.agent;
 
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -39,7 +39,6 @@ import javax.management.ObjectName;
 import org.jboss.jmx.adaptor.snmp.config.attribute.AttributeMappings;
 import org.jboss.jmx.adaptor.snmp.config.attribute.ManagedBean;
 import org.jboss.jmx.adaptor.snmp.config.attribute.MappedAttribute;
-//import org.jboss.jmx.adaptor.snmp.config.attribute.MappedTable;
 import org.jboss.logging.Logger;
 import org.jboss.xb.binding.ObjectModelFactory;
 import org.jboss.xb.binding.Unmarshaller;
@@ -48,7 +47,6 @@ import org.snmp4j.PDU;
 import org.snmp4j.PDUv1;
 import org.snmp4j.ScopedPDU;
 import org.snmp4j.Snmp;
-import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.Counter32;
 import org.snmp4j.smi.Counter64;
@@ -60,7 +58,6 @@ import org.snmp4j.smi.TimeTicks;
 import org.snmp4j.smi.Variable;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.util.DefaultPDUFactory;
-import org.snmp4j.util.PDUFactory;
 
 /**
  * Implement RequestHandler with mapping of snmp get/set requests
@@ -182,20 +179,12 @@ public class RequestHandlerImpl extends RequestHandlerSupport
     */
    
    	public PDU snmpReceivedGetBulk(PDU pdu){
-   		PDU response;
+   		PDU response = getResponsePDU(pdu);
+   		if(response == null) {
+   			return response;
+   		}
    		
-		if (pdu instanceof ScopedPDU){
-			response = DefaultPDUFactory.createPDU(SnmpConstants.version3);
-		} else if (pdu instanceof PDUv1){
-			log.debug("snmpReceievedGetBulk: cannot getBulk with V1 PDU.");
-			return null;
-		} else {
-			response = new PDU();
-		} 
-		response.setType(PDU.RESPONSE);
-
 		final boolean trace = log.isTraceEnabled();
-			
 		if (trace) {
 			log.trace("requestID=" + pdu.getRequestID() + ", elementCount="
 					+ pdu.size());
@@ -317,26 +306,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		// flags the end of the MIB 
 		boolean endOfMib = false;
 		
-		if (pdu instanceof ScopedPDU){
-			/* ScopedPDUs are not fully supported. this check is here so that when
-			 * SnmpAgentService is updated to support v3 correctly, we won't have to 
-			 * add it in.*/
-			response = DefaultPDUFactory.createPDU(SnmpConstants.version3);
-			((ScopedPDU)response).setContextEngineID(((ScopedPDU) pdu).getContextEngineID());
-			/* A.3.4.  Applications that Send Responses
-			   The contextEngineID, contextName, securityModel, securityName,
-			   securityLevel, and stateReference parameters are from the initial
-			   processPdu primitive.  The PDU and statusInformation are the results
-			   of processing.*/
-			((ScopedPDU)response).setContextName(((ScopedPDU) pdu).getContextName());
-		} else if (pdu instanceof PDUv1){
-			// v1
-			response = DefaultPDUFactory.createPDU(SnmpConstants.version1);
-		} else {
-			// v2c
-			response = new PDU();
-		} 
-		response.setType(PDU.RESPONSE);
+		response = getResponsePDU(pdu); 		
 		//indicate by copying the Req ID that this response is for the PDU sent with that ReqID.
 		
 		final boolean trace = log.isTraceEnabled();
@@ -419,8 +389,8 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 	}
 		//TODO: check size constraints of the sender
 		return response;
-	}	
-		
+	}
+
 	/**
 	 * <P>
 	 * This method is defined to handle SNMP Set requests that are received by
@@ -441,20 +411,11 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 */
 	public PDU snmpReceivedSet(PDU pdu)
    {
-		PDU response;
+		PDU response = getResponsePDU(pdu);
 		// the modified OID entries so far.  
 		HashSet<VariableBinding> modified = new HashSet<VariableBinding>(); 
 		int errorIndex = 1;
 		Variable var, oldVar = null; // oldVar variable for storing into modified
-		
-		if (pdu instanceof ScopedPDU){
-			response = DefaultPDUFactory.createPDU(SnmpConstants.version3);
-		} else if (pdu instanceof PDUv1){
-			response = DefaultPDUFactory.createPDU(SnmpConstants.version1);
-		} else {
-			response = new PDU();
-		} 
-		response.setType(PDU.RESPONSE);
 		
 		final boolean trace = log.isTraceEnabled();
 		// TODO: why is this before a null check? if the pdu is null, pdu.getRequestID() and pdu.size() will both fail.
@@ -521,7 +482,40 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		}
 	return response;
    }		
-			
+	
+	/**
+	 * This method returns the correct response PDU from the given request PDU
+	 * passed in parameters.
+	 */
+	private PDU getResponsePDU(PDU pdu) {
+		PDU response;						
+		if (pdu instanceof ScopedPDU){
+			/* ScopedPDUs are not fully supported. this check is here so that when
+			 * SnmpAgentService is updated to support v3 correctly, we won't have to 
+			 * add it in.*/
+			response = DefaultPDUFactory.createPDU(SnmpConstants.version3);			
+			/* A.3.4.  Applications that Send Responses
+			   The contextEngineID, contextName, securityModel, securityName,
+			   securityLevel, and stateReference parameters are from the initial
+			   processPdu primitive.  The PDU and statusInformation are the results
+			   of processing.*/
+			((ScopedPDU)response).setContextEngineID(((ScopedPDU) pdu).getContextEngineID());
+			((ScopedPDU)response).setContextName(((ScopedPDU) pdu).getContextName());
+		} else if (pdu instanceof PDUv1){
+			if(pdu.getType() == PDU.GETBULK) {
+				log.debug("snmpReceievedGetBulk: cannot getBulk with V1 PDU.");
+				return null;			
+			}
+			// v1
+			response = DefaultPDUFactory.createPDU(SnmpConstants.version1);
+		} else {
+			// v2c
+			response = new PDU();
+		}
+		response.setType(PDU.RESPONSE);
+		return response;
+	}	
+	
 	/**
 	 * <P>
 	 * This method is defined to handle SNMP requests that are received by the
