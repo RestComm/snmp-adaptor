@@ -52,8 +52,7 @@
    </mbean>
    
    <!-- sip application dispatcher -->
-   <mbean name="jboss.web:type=SipApplicationDispatcher" oid-prefix=".1.2.3.4.1.2">
-      <attribute name="congestionControlCheckingInterval" oid=".1" mode="rw"/>
+   <mbean name="jboss.web:type=SipApplicationDispatcher" oid-prefix=".1.2.3.4.1.11">      
       <attribute name="baseTimerInterval" oid=".2" mode="rw"/>
       <attribute name="t2Interval" oid=".3" mode="rw"/>
       <attribute name="t4Interval" oid=".4" mode="rw"/>
@@ -63,10 +62,11 @@
       <attribute name="gatherStatistics" oid=".8" mode="rw"/>
       <attribute name="requestsProcessed" oid=".9" />
       <attribute name="responsesProcessed" oid=".10" />
+      <attribute name="congestionControlCheckingInterval" oid=".11" mode="rw"/>
    </mbean>
    
    <!-- sip stack -->
-   <mbean name="org.mobicents.jain.sip:name=Mobicents-SIP-Servlets,type=sip-stack" oid-prefix=".1.2.3.4.1.2.1">
+   <mbean name="org.mobicents.jain.sip:name=Mobicents-SIP-Servlets,type=sip-stack" oid-prefix=".1.2.3.4.1.11.1">
       <attribute name="NumberOfClientTransactions" oid=".1"/>
       <attribute name="NumberOfServerTransactions" oid=".2"/>
       <attribute name="NumberOfDialogs" oid=".3"/>
