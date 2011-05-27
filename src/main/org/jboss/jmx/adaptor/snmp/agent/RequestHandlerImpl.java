@@ -808,7 +808,8 @@ public class RequestHandlerImpl extends RequestHandlerSupport
         {
         	// the SNMP4J class TimeTicks default toString method is formatted horribly. This 
         	// call emulates the joesnmp SnmpTimeTicks display.
-        	result = new OctetString(((TimeTicks)val).toString("{0} d {1} h {2} m {3} s {4} hs"));
+//        	result = new OctetString(((TimeTicks)val).toString("{0} d {1} h {2} m {3} s {4} hs"));
+        	result = (TimeTicks) val;
         }
         else if (val instanceof Counter32)
         {
