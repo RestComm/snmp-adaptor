@@ -45,16 +45,18 @@ public class MIB2SystemGroupService extends ServiceMBeanSupport
 {
    // Constants -----------------------------------------------------
    
-   /** JBoss OID Prefix */
-   public static final String JBOSS_PREFIX = "1.3.6.1.4.1.18016";
+   /** JBoss OID Prefix http://www.wtcs.org/snmp4tpc/snmp.htm
+   		2312 is red hat prefix from http://www.oid-info.com/get/1.3.6.1.4.1.2312 
+   		we define 100 arbitrary as the JBoss division
+   */
+
+   public static final String JBOSS_PREFIX = "1.3.6.1.4.1.2312.100";
    
-   /** Product JBossAS */
-	public static final String PRODUCT = ".1.1";
-   
-   /** Version 4.0.x */
-	public static final String VERSION = ".2";
-   
-   // Private Data --------------------------------------------------
+   	// Private Data --------------------------------------------------
+    
+    // JBoss AS product is 1 
+   	private String product;
+   	private String version;
    
 	private String sysDescr;            // system.1
 	private OID sysObjectId;   // system.2
@@ -76,7 +78,39 @@ public class MIB2SystemGroupService extends ServiceMBeanSupport
    }
    
    // Attributes ----------------------------------------------------
-   
+	
+	/**
+	 * @param product the product to set
+	 * @jmx:managed-attribute
+	 */
+	public void setProduct(String product) {
+		this.product = product;
+	}
+
+	/**
+	 * @return the product
+	 * @jmx:managed-attribute
+	 */
+	public String getProduct() {
+		return product;
+	}
+	
+	/**
+	 * @param version the product version to set
+	 * @jmx:managed-attribute
+	 */
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	/**
+	 * @return the product version
+	 * @jmx:managed-attribute
+	 */
+	public String getVersion() {
+		return version;
+	}
+	
    /**
     * @jmx:managed-attribute
     */
@@ -205,11 +239,12 @@ public class MIB2SystemGroupService extends ServiceMBeanSupport
          String serverConfig = ServerConfigLocator.locate().getServerName();
          ObjectName name = new ObjectName(ServerInfoMBean.OBJECT_NAME_STR);
          String hostAddress = (String)server.getAttribute(name, "HostAddress");
-
+         
          this.sysName = serverConfig + "@" + hostAddress;
          log.debug("Setting sysName name to " + sysName);
       }
-      this.sysObjectId = new OID(JBOSS_PREFIX + PRODUCT + VERSION);   
+      
+      this.sysObjectId = new OID(JBOSS_PREFIX + product + version);   
    }
    
 }

@@ -41,7 +41,12 @@ public interface MIB2SystemGroupServiceMBean extends ServiceMBean
    ObjectName OBJECT_NAME = ObjectNameFactory.create("jboss.jmx:name=SnmpAgent,service=MIB2SystemGroup");
    
    // Attributes ----------------------------------------------------
-
+   void setProduct(String product);
+   String getProduct();
+   
+   void setVersion(String version);
+   String getVersion();
+   
    /** The snmp agent */
    void setSnmpAgent(ObjectName agent);
    ObjectName getSnmpAgent();

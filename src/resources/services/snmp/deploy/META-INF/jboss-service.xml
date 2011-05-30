@@ -90,7 +90,7 @@
          name="jboss.jmx:name=SnmpAgent,service=snmp,type=adaptor">
     
     <attribute name="RequestHandlerClassName">org.jboss.jmx.adaptor.snmp.agent.RequestHandlerImpl</attribute>       
-    <attribute name="RequestHandlerResName">/attributes.xml</attribute>
+    <attribute name="RequestHandlerResName">/mss-attributes.xml</attribute>
     <attribute name="TrapFactoryClassName">org.jboss.jmx.adaptor.snmp.agent.TrapFactorySupport</attribute>
     <attribute name="NotificationMapResName">/notifications.xml</attribute>
     <attribute name="ManagersResName">/managers.xml</attribute>
@@ -143,8 +143,12 @@
   	     name="jboss.jmx:name=SnmpAgent,service=MIB2SystemGroup">
     
     <attribute name="SysLocation">In The Matrix</attribute>
-    <attribute name="SysDescr">Central Computer</attribute>
-    <attribute name="SysContact">Agent Smith</attribute>
+    <attribute name="SysDescr">Mobicents Sip Servlets</attribute>
+    <attribute name="SysContact">Red Hat</attribute>
+    <!-- EAP IS 1, EPP is 2, SOAP is 3, ... JBCP is 9, JBCP Sip Servlets is 9.1 -->
+    <attribute name="Product">.9.1</attribute>
+    <!-- product version, MSS 1.6 here -->
+    <attribute name="Version">.1.6</attribute>
     <!-- attribute name="SysName"></attribute> set internally to serverConfig@hostAddress-->
     <depends optional-attribute-name="SnmpAgent">
   	   jboss.jmx:name=SnmpAgent,service=snmp,type=adaptor
