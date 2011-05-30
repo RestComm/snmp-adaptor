@@ -40,10 +40,6 @@ import org.snmp4j.mp.MPv1;
 import org.snmp4j.mp.MPv2c;
 import org.snmp4j.mp.MPv3;
 import org.snmp4j.security.Priv3DES;
-import org.snmp4j.security.PrivAES128;
-import org.snmp4j.security.PrivAES192;
-import org.snmp4j.security.PrivAES256;
-import org.snmp4j.security.PrivDES;
 import org.snmp4j.security.SecurityModels;
 import org.snmp4j.security.SecurityProtocols;
 import org.snmp4j.security.USM;
@@ -160,6 +156,8 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
    private MPv3 mpv3;
    
    private MessageDispatcherImpl dispatcher;
+   
+   private ArrayList<User> userList = null;
    
    // Constructors --------------------------------------------------
    
@@ -513,6 +511,14 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
    protected void startService()
       throws Exception
    {
+
+	  // initialise the snmp agent
+      log.debug("Starting snmp agent ...");
+      
+      startAgent();
+      
+      log.info("SNMP agent going active");
+      
       // initialize clock and trapCounter
       this.clock = new Clock();
       this.trapCounter = new Counter(0);
@@ -521,11 +527,7 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
       // ListenerServiceMBeanSupport baseclass
       
       log.debug("Instantiating trap emitter ...");
-      this.trapEmitter = new TrapEmitter(this.getTrapFactoryClassName(),
-                                         this.trapCounter,
-                                         this.clock,
-                                         this.getManagersResName(),
-                                         this.getNotificationMapResName());
+      this.trapEmitter = new TrapEmitter(this);
     
       // Start trap emitter
       log.debug("Starting trap emitter ...");        
@@ -540,14 +542,7 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
       heartbeat.start();
 
       // subscribe for notifications, with the option for dynamic subscriptions
-      super.subscribe(this.dynamicSubscriptions);
-
-      // initialise the snmp agent
-      log.debug("Starting snmp agent ...");
-      
-      startAgent();
-      
-      log.info("SNMP agent going active");
+      super.subscribe(this.dynamicSubscriptions);     
         
       // Send the cold start!
       this.sendNotification(new Notification(EventTypes.COLDSTART, this,
@@ -661,8 +656,7 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
 	   MappingObjectModelFactory momf = new MappingObjectModelFactory();
 	   momf.mapElementToClass("user-list", ArrayList.class);
 	   momf.mapElementToClass("user", User.class);
-	      
-	   ArrayList<User> userList = null;
+	      	   
 	   InputStream is = null;
 	   try {
 		   // locate managers.xml
@@ -697,8 +691,6 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
       }
    }
 
-   //TODO: for v3 support we need to have this Snmp object have a USM (user security model) associated with it
-   // as well as the appropriate MP. 
    // the new Snmp(TransportMapping) constructor already initializes a MessageDispatcherImpl with all MP's associated. 
    /**
     * Start the embedded agent 
@@ -740,6 +732,27 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
 	 */
 	public String getUsersResName() {
 		return usersResName;
+	}
+
+	/**
+	 * @return the clock
+	 */
+	public Clock getClock() {
+		return clock;
+	}
+	
+	/**
+	 * @return the trapCounter
+	 */
+	public Counter getTrapCounter() {
+		return trapCounter;
+	}
+
+	/**
+	 * @return the userList
+	 */
+	public ArrayList<User> getUserList() {
+		return userList;
 	}
 
 }

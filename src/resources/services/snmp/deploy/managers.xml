@@ -26,12 +26,30 @@
     "jboss.jmx:name=SnmpAgent,service=trapd,type=logger" MBean that
     simply outputs received traps as log4j DEBUG messages
   -->
+  <!-- v1 manager -->
   <manager>
     <address>localhost</address>
-    <port>1162</port>
+    <port>162</port>
     <local-address></local-address>
     <local-port></local-port>
     <version>1</version>
     <community-string>public</community-string>
   </manager>
+  <!-- v2c manager -->
+  <manager>
+    <address>localhost</address>
+    <port>162</port>
+    <local-address></local-address>
+    <local-port></local-port>
+    <version>2</version>
+    <community-string>public</community-string>
+  </manager>
+  <!-- v3 manager -->
+  <manager>
+    <address>localhost</address>
+    <port>162</port>
+    <local-address></local-address>
+    <local-port></local-port>
+    <version>3</version>
+  </manager>  
 </manager-list>

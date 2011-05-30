@@ -33,28 +33,31 @@ import javax.management.Notification;
 
 import org.jboss.bootstrap.spi.ServerConfig;
 import org.jboss.jmx.adaptor.snmp.config.manager.Manager;
+import org.jboss.jmx.adaptor.snmp.config.user.User;
 import org.jboss.logging.Logger;
 import org.jboss.xb.binding.MappingObjectModelFactory;
 import org.jboss.xb.binding.Unmarshaller;
 import org.jboss.xb.binding.UnmarshallerFactory;
-
 import org.snmp4j.CommunityTarget;
-import org.snmp4j.PDUv1;
 import org.snmp4j.PDU;
+import org.snmp4j.PDUv1;
 import org.snmp4j.ScopedPDU;
-import org.snmp4j.Target;
 import org.snmp4j.Snmp;
+import org.snmp4j.Target;
 import org.snmp4j.UserTarget;
-import org.snmp4j.mp.MPv3;
 import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.security.Priv3DES;
+import org.snmp4j.security.SecurityLevel;
+import org.snmp4j.security.SecurityModel;
 import org.snmp4j.security.SecurityModels;
 import org.snmp4j.security.SecurityProtocols;
 import org.snmp4j.security.USM;
+import org.snmp4j.security.UsmUser;
 import org.snmp4j.smi.Address;
-import org.snmp4j.smi.IpAddress;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.TcpAddress;
 import org.snmp4j.smi.UdpAddress;
+import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.AbstractTransportMapping;
 import org.snmp4j.transport.DefaultTcpTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
@@ -79,20 +82,7 @@ public class TrapEmitter
    /** Reference to the utilised trap factory*/
    private TrapFactory trapFactory = null;
    
-   /** The actual trap factory to instantiate */
-   private String trapFactoryClassName = null;
-
-   /** The managers resource name */
-   private String managersResName = null;
-   
-   /** The notification map resource name */
-   private String notificationMapResName = null;
-   
-   /** Provides trap count */
-   private Counter trapCount = null;
-   
-   /** Uptime clock */
-   private Clock uptime = null;
+   private SnmpAgentService snmpAgentService;
    
    /** Holds the manager subscriptions. Accessed through synch'd wrapper */
    private Set managers = Collections.synchronizedSet(new HashSet());  
@@ -100,17 +90,8 @@ public class TrapEmitter
    /**
     * Builds a TrapEmitter object for sending SNMP V1 or V2 traps. <P>
    **/
-   public TrapEmitter(String trapFactoryClassName,
-                      Counter trapCount,
-                      Clock uptime,
-                      String managersResName,
-                      String notificationMapResName)
-   {
-      this.trapFactoryClassName = trapFactoryClassName;
-      this.trapCount = trapCount;
-      this.uptime = uptime;
-      this.managersResName = managersResName;
-      this.notificationMapResName = notificationMapResName;
+   public TrapEmitter(SnmpAgentService snmpAgentService) {
+      this.snmpAgentService = snmpAgentService;
    }
     
    /**
@@ -123,14 +104,14 @@ public class TrapEmitter
       load();
       
       // Instantiate the trap factory
-      this.trapFactory = (TrapFactory) Class.forName(this.trapFactoryClassName,
+      this.trapFactory = (TrapFactory) Class.forName(this.snmpAgentService.getTrapFactoryClassName(),
                                                      true,
                                                      this.getClass().getClassLoader()).newInstance();
       
       // Initialise
-      this.trapFactory.set(this.notificationMapResName,
-                           this.uptime,
-                           this.trapCount);
+      this.trapFactory.set(this.snmpAgentService.getNotificationMapResName(),
+                           this.snmpAgentService.getClock(),
+                           this.snmpAgentService.getTrapCounter());
       
       // Start the trap factory
       this.trapFactory.start();
@@ -202,7 +183,7 @@ public class TrapEmitter
                      //v1TrapPdu.setAgentAddress((IpAddress)t.getAddress());
                    
                      // Advance the trap counter
-                     this.trapCount.advance();
+                     this.snmpAgentService.getTrapCounter().advance();
                             
                      // Send
                      //s.getSession().send(v1TrapPdu);
@@ -216,7 +197,7 @@ public class TrapEmitter
                         v2cTrapPdu = this.trapFactory.generateV2cTrap(n);
                      
                      // Advance the trap counter
-                     this.trapCount.advance();
+                     this.snmpAgentService.getTrapCounter().advance();
                             
                      // Send
                      //t.getSession().send(v2TrapPdu);
@@ -236,7 +217,7 @@ public class TrapEmitter
 //                      }
                         
                          // Advance the trap counter
-                         this.trapCount.advance();
+                         this.snmpAgentService.getTrapCounter().advance();
                                 
                          // Send
                          snmp.send(v3TrapPdu, t);
@@ -270,7 +251,7 @@ public class TrapEmitter
    **/ 
    private void load() throws Exception
    {
-      log.debug("Reading resource: '" + this.managersResName + "'");
+      log.debug("Reading resource: '" + this.snmpAgentService.getManagersResName() + "'");
       
       // configure ObjectModelFactory for mapping XML to POJOs
       // we'll be simply getting an ArrayList of Manager objects
@@ -283,7 +264,7 @@ public class TrapEmitter
       try
       {
          // locate managers.xml
-         final String resName = this.managersResName;
+         final String resName = this.snmpAgentService.getManagersResName();
          is = SecurityActions.getThreadContextClassLoaderResource(resName);
          
          // create unmarshaller
@@ -295,7 +276,7 @@ public class TrapEmitter
       }
       catch (Exception e)
       {
-         log.error("Accessing resource '" + managersResName + "'");
+         log.error("Accessing resource '" + snmpAgentService.getManagersResName() + "'");
          throw e;
       }
       finally
@@ -417,7 +398,12 @@ public class TrapEmitter
 		   else if (version == SnmpConstants.version3) {
 			   //won't be used at the moment
 			   target = new UserTarget();
+			   target.setRetries(1);
+			   target.setTimeout(8000);
 			   target.setAddress(new UdpAddress(InetAddress.getByName(m.getAddress()), m.getPort()));
+			   ((UserTarget)target).setSecurityName(new OctetString(((User)snmpAgentService.getUserList().get(0)).getSecurityName()));
+			   ((UserTarget)target).setSecurityLevel(SecurityLevel.AUTH_PRIV);
+			   ((UserTarget)target).setSecurityModel(SecurityModel.SECURITY_MODEL_USM);
 		   }
 		   else {
 			   //unrecognized version
@@ -443,10 +429,23 @@ public class TrapEmitter
 	    // transport.setAsyncMsgProcessingSupported(false);
 	    
 	    Snmp snmp =  new Snmp(transport);
-	       OctetString localEngineID =
-	       	      new OctetString(snmp.getLocalEngineID());
-	       USM usm = new USM(SecurityProtocols.getInstance(), localEngineID, 0);
-	       SecurityModels.getInstance().addSecurityModel(usm);
+	    OctetString localEngineID =new OctetString(snmp.getLocalEngineID());
+	    USM usm = new USM(SecurityProtocols.getInstance(), localEngineID, 0);	    	   
+	    SecurityProtocols.getInstance().addDefaultProtocols();
+	    // all other privacy and authentication protocols are provided by the above method
+	    SecurityProtocols.getInstance().addPrivacyProtocol(new Priv3DES());	   		   
+	    SecurityModels.getInstance().addSecurityModel(usm);
+	    
+	    for (Iterator<User> userIt = snmpAgentService.getUserList().iterator(); userIt.hasNext(); ) {
+	    	  User user = userIt.next();
+	        	 
+	    	  UsmUser usmUser = new UsmUser(new OctetString(user.getSecurityName()),
+	               user.getAuthenticationProtocolID(),
+	               new OctetString(user.getAuthenticationPassphrase()),
+	               user.getPrivacyProtocolID(),
+	               new OctetString(user.getPrivacyPassphrase()));
+	    	  usm.addUser(usmUser.getSecurityName(), usm.getLocalEngineID(),usmUser);
+	      }
 	       
 	       
 // SNMPv3 stuff ~ add and fix later

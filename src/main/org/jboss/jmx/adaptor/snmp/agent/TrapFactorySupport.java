@@ -20,8 +20,6 @@
 package org.jboss.jmx.adaptor.snmp.agent;
 
 import java.io.InputStream;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,7 +41,10 @@ import org.jboss.xb.binding.UnmarshallingContext;
 import org.snmp4j.PDU;
 import org.snmp4j.PDUv1;
 import org.snmp4j.ScopedPDU;
+import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.OID;
+import org.snmp4j.smi.TimeTicks;
+import org.snmp4j.smi.VariableBinding;
 import org.xml.sax.Attributes;
 
 /**
@@ -367,6 +368,11 @@ public class TrapFactorySupport
       PDU trapPdu = new PDU();
       trapPdu.setType(PDU.TRAP);
         
+      // Those 2 Variable Bindings are mandatory for v2c and v3 traps and inform
+      trapPdu.add(new VariableBinding(SnmpConstants.sysUpTime, new TimeTicks(this.clock.uptime())));
+      // For generic traps, values are defined in RFC 1907, for vendor specific traps snmpTrapOID is essentially a concatenation of the SNMPv1 Enterprise parameter and two additional sub-identifiers, '0', and the SNMPv1 Specific trap code parameter.
+      trapPdu.add(new VariableBinding(SnmpConstants.snmpTrapOID, new OID(m.getEnterprise() + ".0." + m.getSpecific())));
+      
       // Append the specified varbinds. Get varbinds from mapping and for
       // each one of the former use the wrapper to get data from the 
       // notification
@@ -431,8 +437,8 @@ public class TrapFactorySupport
     
     // Create trap
     ScopedPDU trapPdu = new ScopedPDU();
-    trapPdu.setType(PDU.TRAP);
-     
+    trapPdu.setType(ScopedPDU.TRAP);
+    
     // Append the specified varbinds. Get varbinds from mapping and for
     // each one of the former use the wrapper to get data from the 
     // notification
@@ -441,15 +447,18 @@ public class TrapFactorySupport
     NotificationWrapper wrapper =
        (NotificationWrapper)this.notificationWrapperCache.get(index);
       
-    if (wrapper != null)
-    {
+    // Those 2 Variable Bindings are mandatory for v2c and v3 traps and inform
+    trapPdu.add(new VariableBinding(SnmpConstants.sysUpTime, new TimeTicks(this.clock.uptime())));
+    // For generic traps, values are defined in RFC 1907, for vendor specific traps snmpTrapOID is essentially a concatenation of the SNMPv1 Enterprise parameter and two additional sub-identifiers, '0', and the SNMPv1 Specific trap code parameter.
+    trapPdu.add(new VariableBinding(SnmpConstants.snmpTrapOID, new OID(m.getEnterprise() + ".0." + m.getSpecific())));        
+    
+    if (wrapper != null) {
        // Prime the wrapper with the notification contents
        wrapper.prime(n);
           
        List vbList = m.getVarBindList().getVarBindList();
        
-       for (int i = 0; i < vbList.size(); i++)
-       {
+       for (int i = 0; i < vbList.size(); i++) {
           VarBind vb = (VarBind)vbList.get(i);
               
           // Append the var bind. Interrogate read vb for OID and 
@@ -460,9 +469,7 @@ public class TrapFactorySupport
           trapPdu.add(
           		this.snmpVBFactory.make(vb.getOid(), wrapper.get(vb.getTag())));
        }
-    }
-    else
-    {
+    } else {
        log.warn("Varbind mapping failure: null wrapper defined for " +
                 " notification type '" + m.getNotificationType() + "'" );
     }
