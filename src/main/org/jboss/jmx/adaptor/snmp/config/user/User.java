@@ -28,6 +28,7 @@ import org.snmp4j.security.PrivAES128;
 import org.snmp4j.security.PrivAES192;
 import org.snmp4j.security.PrivAES256;
 import org.snmp4j.security.PrivDES;
+import org.snmp4j.security.SecurityLevel;
 import org.snmp4j.smi.OID;
 
 /**
@@ -45,7 +46,8 @@ public class User
    private String  authenticationPassphrase;
    private String  privacyProtocol;
    private String  privacyPassphrase;
-
+   private int securityLevel;
+   
    // Constructors -------------------------------------------------
     
    /**
@@ -161,6 +163,20 @@ public class User
     */
    public String getPrivacyPassphrase() {
    	return privacyPassphrase;
+   }
+   /**
+    * Returns the given security level depending on te authentication protocol and privacy protocol chosen
+    * @return
+    */
+   public int getSecurityLevel() {
+	   if(authenticationProtocol == null) {
+		   return SecurityLevel.NOAUTH_NOPRIV;
+	   } else if(privacyProtocol == null) {
+		   return SecurityLevel.AUTH_NOPRIV;
+	   } else {
+		   return SecurityLevel.AUTH_PRIV;
+	   }
+	   
    }
    
    // Object overrides ----------------------------------------------

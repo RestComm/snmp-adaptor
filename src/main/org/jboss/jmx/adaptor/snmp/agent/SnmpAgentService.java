@@ -23,7 +23,10 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.management.Notification;
 import javax.management.ObjectName;
@@ -157,7 +160,7 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
    
    private MessageDispatcherImpl dispatcher;
    
-   private ArrayList<User> userList = null;
+   private Map<String, User> userMap = new HashMap<String, User>();
    
    // Constructors --------------------------------------------------
    
@@ -657,6 +660,7 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
 	   momf.mapElementToClass("user-list", ArrayList.class);
 	   momf.mapElementToClass("user", User.class);
 	      	   
+	   List<User> userList = null;
 	   InputStream is = null;
 	   try {
 		   // locate managers.xml
@@ -688,6 +692,7 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
                user.getPrivacyProtocolID(),
                new OctetString(user.getPrivacyPassphrase()));
     	  this.usm.addUser(usmUser.getSecurityName(), usm.getLocalEngineID(),usmUser);
+    	  this.userMap.put(user.getSecurityName(), user);
       }
    }
 
@@ -751,8 +756,8 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
 	/**
 	 * @return the userList
 	 */
-	public ArrayList<User> getUserList() {
-		return userList;
+	public Map<String, User> getUserMap() {
+		return userMap;
 	}
 
 }

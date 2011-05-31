@@ -42,6 +42,7 @@ public class Manager
    private int     localPort;
    private int     version;
    private String  communityString;
+   private String  securityName;
 
    // Constructors -------------------------------------------------
     
@@ -179,6 +180,20 @@ public class Manager
       this.communityString = communityString;
    }
    
+   /**
+    * @param securityName the securityName to set
+    */
+   public void setSecurityName(String securityName) {
+   	this.securityName = securityName;
+   }
+
+   /**
+    * @return the securityName
+    */
+   public String getSecurityName() {
+   	return securityName;
+   }
+   
    // Object overrides ----------------------------------------------
    
    public String toString()
@@ -192,6 +207,7 @@ public class Manager
       .append(", localPort=").append(localPort)
       .append(", version=").append(version)
       .append(", communityString=").append(communityString)     
+      .append(", securityName=").append(securityName)
       .append(']');
       
       return sbuf.toString();      

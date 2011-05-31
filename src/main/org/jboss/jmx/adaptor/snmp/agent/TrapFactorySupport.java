@@ -368,6 +368,10 @@ public class TrapFactorySupport
       PDU trapPdu = new PDU();
       trapPdu.setType(PDU.TRAP);
         
+      // Get the coresponding wrapper
+      NotificationWrapper wrapper =
+         (NotificationWrapper)this.notificationWrapperCache.get(index);
+      
       // Those 2 Variable Bindings are mandatory for v2c and v3 traps and inform
       trapPdu.add(new VariableBinding(SnmpConstants.sysUpTime, new TimeTicks(this.clock.uptime())));
       // For generic traps, values are defined in RFC 1907, for vendor specific traps snmpTrapOID is essentially a concatenation of the SNMPv1 Enterprise parameter and two additional sub-identifiers, '0', and the SNMPv1 Specific trap code parameter.
@@ -376,11 +380,6 @@ public class TrapFactorySupport
       // Append the specified varbinds. Get varbinds from mapping and for
       // each one of the former use the wrapper to get data from the 
       // notification
-
-      // Get the coresponding wrapper
-      NotificationWrapper wrapper =
-         (NotificationWrapper)this.notificationWrapperCache.get(index);
-        
       if (wrapper != null)
       {
          // Prime the wrapper with the notification contents
@@ -437,11 +436,7 @@ public class TrapFactorySupport
     
     // Create trap
     ScopedPDU trapPdu = new ScopedPDU();
-    trapPdu.setType(ScopedPDU.TRAP);
-    
-    // Append the specified varbinds. Get varbinds from mapping and for
-    // each one of the former use the wrapper to get data from the 
-    // notification
+    trapPdu.setType(ScopedPDU.TRAP);    
 
     // Get the coresponding wrapper
     NotificationWrapper wrapper =
@@ -452,6 +447,9 @@ public class TrapFactorySupport
     // For generic traps, values are defined in RFC 1907, for vendor specific traps snmpTrapOID is essentially a concatenation of the SNMPv1 Enterprise parameter and two additional sub-identifiers, '0', and the SNMPv1 Specific trap code parameter.
     trapPdu.add(new VariableBinding(SnmpConstants.snmpTrapOID, new OID(m.getEnterprise() + ".0." + m.getSpecific())));        
     
+    // Append the specified varbinds. Get varbinds from mapping and for
+    // each one of the former use the wrapper to get data from the 
+    // notification
     if (wrapper != null) {
        // Prime the wrapper with the notification contents
        wrapper.prime(n);

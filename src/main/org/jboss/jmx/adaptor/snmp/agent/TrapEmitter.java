@@ -57,7 +57,6 @@ import org.snmp4j.smi.Address;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.TcpAddress;
 import org.snmp4j.smi.UdpAddress;
-import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.AbstractTransportMapping;
 import org.snmp4j.transport.DefaultTcpTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
@@ -138,9 +137,7 @@ public class TrapEmitter
     * @throws Exception if an error occurs during the preparation or
     * sending of the trap
    **/    
-   public void send(Notification n)
-      throws Exception
-   {
+   public void send(Notification n) throws Exception {
       // Beeing paranoid
       synchronized(this.trapFactory) {
          if(this.trapFactory == null) {
@@ -160,89 +157,83 @@ public class TrapEmitter
       //The target to send to
       Target t = null;
       
-      // Send trap. Synchronise on the subscription collection while 
-      // iterating 
-      synchronized(this.managers) { 	  
-    	  
-         // Iterate over sessions and emit the trap on each one
-         Iterator i = this.managers.iterator();
-         while (i.hasNext()) {
-            //ManagerRecord t = (ManagerRecord)i.next();
-        	 t = (Target)i.next();
-        	 
-            try {
-            	snmp = createSnmpSession(t.getAddress());
-            	switch (t.getVersion()) {
-            		case SnmpConstants.version1:
-                  //case SnmpAgentService.SNMPV1:
-                     if (v1TrapPdu == null)
-                        v1TrapPdu = this.trapFactory.generateV1Trap(n);
-                     
-                     // fix the agent ip in the trap depending on which local address is bound
-                     //Should work, but need to upgrade to snmp4j v.1.10.2
-                     //v1TrapPdu.setAgentAddress((IpAddress)t.getAddress());
-                   
-                     // Advance the trap counter
-                     this.snmpAgentService.getTrapCounter().advance();
-                            
-                     // Send
-                     //s.getSession().send(v1TrapPdu);
-                     log.debug("Sending trap: "+v1TrapPdu.toString() + "\n to target: "+ t.toString());
-                     snmp.send(v1TrapPdu, t);
-                     break;
-                  
-               		case SnmpConstants.version2c:
-                  //case SnmpAgentService.SNMPV2:
-                     if (v2cTrapPdu == null)
-                        v2cTrapPdu = this.trapFactory.generateV2cTrap(n);
-                     
-                     // Advance the trap counter
-                     this.snmpAgentService.getTrapCounter().advance();
-                            
-                     // Send
-                     //t.getSession().send(v2TrapPdu);
-                     snmp.send(v2cTrapPdu, t);
-                     break;
-                     
-               		case SnmpConstants.version3:
-
-                        if (v3TrapPdu == null)
-                            v3TrapPdu = this.trapFactory.generateV3Trap(n);
-                        
-//                      if (contextEngineID != null) {
-//                    	trapPdu.setContextEngineID(contextEngineID);
-//                      }
-//                      if (contextName != null) {
-//                    	  trapPdu.setContextName(contextName);
-//                      }
-                        
-                         // Advance the trap counter
-                         this.snmpAgentService.getTrapCounter().advance();
-                                
-                         // Send
-                         snmp.send(v3TrapPdu, t);
-                	 break;
-                     
-                  default:    
-                     log.error("Skipping session: Unknown SNMP version found");    
-               }            
-            } 
-            catch(MappingFailedException e) {
-              log.error("Translating notification - " + e.getMessage());
-            }    
-            catch(Exception e) {
-              log.error("SNMP send error for " + 
-                        t.getAddress().toString() + ":" +
-                        ": <" + e +
-                        ">");                    
-            }
-         }
-         if (snmp != null){
-        	 snmp.close();
-         }
-         else {
-        	 log.warn("No SNMP managers to send traps to");
-         }
+      if(managers.size() > 0) {
+	      // Send trap. Synchronise on the subscription collection while 
+	      // iterating 
+	      synchronized(this.managers) {     	  
+	         // Iterate over sessions and emit the trap on each one
+	         Iterator i = this.managers.iterator();
+	         while (i.hasNext()) {
+	            //ManagerRecord t = (ManagerRecord)i.next();
+	        	 t = (Target)i.next();
+	        	 
+	            try {  
+	            	snmp = createSnmpSession(t.getAddress());
+	            	switch (t.getVersion()) {
+	            		case SnmpConstants.version1:
+		                    if (v1TrapPdu == null)
+		                    	v1TrapPdu = this.trapFactory.generateV1Trap(n);
+		                     
+		                    //Should work, but need to upgrade to snmp4j v.1.10.2
+//		                    v1TrapPdu.setAgentAddress((IpAddress)t.getAddress());
+		                   
+		                    // Advance the trap counter
+		                    this.snmpAgentService.getTrapCounter().advance();
+		                            
+		                    // Send
+		                    log.debug("Sending trap: "+v1TrapPdu.toString() + "\n to target: "+ t.toString());
+		                    snmp.send(v1TrapPdu, t);
+		                    break;
+		                  
+	               		case SnmpConstants.version2c:
+	               			if (v2cTrapPdu == null)
+	               				v2cTrapPdu = this.trapFactory.generateV2cTrap(n);
+	                     
+	               			// Advance the trap counter
+	               			this.snmpAgentService.getTrapCounter().advance();
+	                            
+	               			// Send
+	               			snmp.send(v2cTrapPdu, t);
+	               			break;
+	                     
+	               		case SnmpConstants.version3:
+	                        if (v3TrapPdu == null)
+	                            v3TrapPdu = this.trapFactory.generateV3Trap(n);
+	                        
+	//                      if (contextEngineID != null) {
+	//                    	trapPdu.setContextEngineID(contextEngineID);
+	//                      }
+	//                      if (contextName != null) {
+	//                    	  trapPdu.setContextName(contextName);
+	//                      }
+	                        
+	                         // Advance the trap counter
+	                        this.snmpAgentService.getTrapCounter().advance();
+	                                
+	                        // Send
+	                        snmp.send(v3TrapPdu, t);
+	                	 break;
+	                     
+	                  default:    
+	                     log.error("Skipping session: Unknown SNMP version found");    
+	               }        
+	               if (snmp != null){
+	            	   snmp.close();
+	               }
+	            } 
+	            catch(MappingFailedException e) {
+	              log.error("Translating notification - " + e.getMessage());
+	            }    
+	            catch(Exception e) {
+	              log.error("SNMP send error for " + 
+	                        t.getAddress().toString() + ":" +
+	                        ": <" + e +
+	                        ">");                    
+	            }
+	         }
+	      }
+      } else {
+    	 log.warn("No SNMP managers to send traps to");
       }
    }
 
@@ -294,40 +285,22 @@ public class TrapEmitter
          // Read the monitoring manager's particulars
          Manager m = (Manager)i.next();
          fixManagerVersion(m);
-//         try
-//         {
-            // Create a record of the manager's interest
-        	 
-        	 Target target = createTarget(m);
-        	 if (target == null){
-        		 log.warn("createTarget: manager m: "+m.toString() + " is null!");
-        	 	continue;
-        	 }
-        	 
-//            ManagerRecord mr = new ManagerRecord(
-//                    InetAddress.getByName(m.getAddress()),
-//                    m.getPort(),
-//                    toInetAddressWithDefaultBinding(m.getLocalAddress()),
-//                    m.getLocalPort(),
-//                    m.getVersion()
-//                );
-                
-            // Add the record to the list of monitoring managers. If 
-            // successfull open the session to the manager as well.
-            if (this.managers.add(target) == false)
-            {
-               log.warn("Ignoring duplicate manager: " + m);  
-            }
-            //else
-            //{            
-               // Open the session to the manager
-               //mr.openSession();
-            //}                
-//         }
-//         catch (Exception e)
-//         {
-//            log.warn("Error enabling monitoring manager: " + m, e);                
-//         } 
+         if(m.getVersion() == 3 && m.getSecurityName() != null && snmpAgentService.getUserMap().get(m.getSecurityName()) == null) {
+        	 throw new IllegalArgumentException("Manager Security Name " + m.getSecurityName() + " doesn't match any user defined in users.xml");
+         }
+         
+    	 Target target = createTarget(m);
+    	 if (target == null){
+    		 log.warn("createTarget: manager m: "+m.toString() + " is null!");
+    	 	continue;
+    	 }
+    	                 
+    	 // Add the record to the list of monitoring managers. If 
+    	 // successfull open the session to the manager as well.
+    	 if (this.managers.add(target) == false)
+    	 {
+           log.warn("Ignoring duplicate manager: " + m);  
+    	 }            
       }
    }
    
@@ -370,46 +343,31 @@ public class TrapEmitter
    
    private Target createTarget(Manager m){
 	   Target target = null;
-//	   String newAddr;
-//	   if (m.getAddress() != null){
-//		   System.out.println("*************************************");
-//		   System.out.println("Address" + m.getAddress());
-//		   System.out.println("Port" + m.getPort());
-//		   System.out.println("*************************************");
-//		   newAddr = m.getAddress()+"/"+m.getPort();		   
-//	   }
-//	   else {return null;}
-	   
+  
 	   int version = m.getVersion();
 	   try{
 		   if (version == SnmpConstants.version1 || version == SnmpConstants.version2c){
-			   
-			   //change 'public' to a constant somewhere
-			   //target = new CommunityTarget(new TcpAddress(newAddr), new OctetString("public"));
-			   
-				   if (m.getAddress() != null){
-			   target = new CommunityTarget(new UdpAddress(InetAddress.getByName(m.getAddress()), m.getPort()), new OctetString(m.getCommunityString()));
-			   //try defining retries/timeout period in notifications.xml
-			   //Timeout and Retries needs to be a field later on
-			   //target.setRetries(3);
-			   target.setTimeout(8000);
-				   }
+			   if (m.getAddress() != null){
+				   target = new CommunityTarget(new UdpAddress(InetAddress.getByName(m.getAddress()), m.getPort()), new OctetString(m.getCommunityString()));
+				   //try defining retries/timeout period in notifications.xml
+				   //Timeout and Retries needs to be a field later on
+				   //target.setRetries(3);
+				   target.setTimeout(8000);
+			   }
 		   }
 		   else if (version == SnmpConstants.version3) {
-			   //won't be used at the moment
 			   target = new UserTarget();
 			   target.setRetries(1);
 			   target.setTimeout(8000);
 			   target.setAddress(new UdpAddress(InetAddress.getByName(m.getAddress()), m.getPort()));
-			   ((UserTarget)target).setSecurityName(new OctetString(((User)snmpAgentService.getUserList().get(0)).getSecurityName()));
-			   ((UserTarget)target).setSecurityLevel(SecurityLevel.AUTH_PRIV);
+			   ((UserTarget)target).setSecurityName(new OctetString(m.getSecurityName()));
+			   ((UserTarget)target).setSecurityLevel(snmpAgentService.getUserMap().get(m.getSecurityName()).getSecurityLevel());
 			   ((UserTarget)target).setSecurityModel(SecurityModel.SECURITY_MODEL_USM);
 		   }
 		   else {
 			   //unrecognized version
-			   return null;
+			   throw new IllegalArgumentException("version " + version + " is not supported in managers.xml, only 1, 2 and 3 are valid values");
 		   }
-	   
 	   } catch (UnknownHostException e) {} //something goes here
 	   if (target != null){
 		   target.setVersion(version);
@@ -436,7 +394,7 @@ public class TrapEmitter
 	    SecurityProtocols.getInstance().addPrivacyProtocol(new Priv3DES());	   		   
 	    SecurityModels.getInstance().addSecurityModel(usm);
 	    
-	    for (Iterator<User> userIt = snmpAgentService.getUserList().iterator(); userIt.hasNext(); ) {
+	    for (Iterator<User> userIt = snmpAgentService.getUserMap().values().iterator(); userIt.hasNext(); ) {
 	    	  User user = userIt.next();
 	        	 
 	    	  UsmUser usmUser = new UsmUser(new OctetString(user.getSecurityName()),
@@ -447,19 +405,6 @@ public class TrapEmitter
 	    	  usm.addUser(usmUser.getSecurityName(), usm.getLocalEngineID(),usmUser);
 	      }
 	       
-	       
-// SNMPv3 stuff ~ add and fix later
-//	    
-//	    ((MPv3)snmp.getMessageProcessingModel(MPv3.ID)).
-//	        setLocalEngineID(localEngineID.getValue());
-//
-//	    if (version == SnmpConstants.version3) {
-//	      USM usm = new USM(SecurityProtocols.getInstance(),
-//	                        localEngineID,
-//	                        engineBootCount);
-//	      SecurityModels.getInstance().addSecurityModel(usm);
-//	      addUsmUser(snmp);
-//	    }
 	    return snmp;
 	  }
    

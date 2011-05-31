@@ -51,5 +51,6 @@
     <local-address></local-address>
     <local-port></local-port>
     <version>3</version>
+    <security-name>TEST</security-name>
   </manager>  
 </manager-list>
