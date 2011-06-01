@@ -21,6 +21,7 @@ package org.jboss.jmx.adaptor.snmp.agent;
 
 import javax.management.Notification;
 
+import org.jboss.jmx.adaptor.snmp.config.notification.Mapping;
 import org.snmp4j.PDUv1;
 import org.snmp4j.PDU;
 import org.snmp4j.ScopedPDU;
@@ -69,7 +70,7 @@ public interface TrapFactory
     * Sets the name of the file containing the notification/trap mappings,
     * the uptime clock and the trap counter
    **/ 
-   public void set(String notificationMapResName, Clock uptime, Counter count);
+   public void set(Clock uptime, Counter count);
    
    /**
     * Performs all the required initialisation in order for the mapper to 
@@ -84,7 +85,7 @@ public interface TrapFactory
     *
     * @param the notification to be translated
    **/
-   public PDUv1 generateV1Trap(Notification n) 
+   public PDUv1 generateV1Trap(Notification n, Mapping m, NotificationWrapper wrapper) 
    throws MappingFailedException;
    
    /**
@@ -94,7 +95,7 @@ public interface TrapFactory
    **/
 //   public SnmpPduPacket generateV2Trap(Notification n) 
 //      throws MappingFailedException;
-   public PDU generateV2cTrap(Notification n) 
+   public PDU generateV2cTrap(Notification n, Mapping m, NotificationWrapper wrapper) 
    throws MappingFailedException;
 
    /**
@@ -102,7 +103,7 @@ public interface TrapFactory
     *
     * @param the notification to be translated
    **/
-   public ScopedPDU generateV3Trap(Notification n) 
+   public ScopedPDU generateV3Trap(Notification n, Mapping m, NotificationWrapper wrapper) 
    throws MappingFailedException;
           
 } // TrapFactory

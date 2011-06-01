@@ -50,7 +50,6 @@
     <port>162</port>
     <local-address></local-address>
     <local-port></local-port>
-    <version>3</version>
-    <security-name>TEST</security-name>
+    <version>3</version>    
   </manager>  
 </manager-list>

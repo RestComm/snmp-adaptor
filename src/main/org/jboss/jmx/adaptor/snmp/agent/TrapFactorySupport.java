@@ -19,13 +19,8 @@
 **/
 package org.jboss.jmx.adaptor.snmp.agent;
 
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import javax.management.Notification;
 
@@ -34,9 +29,6 @@ import org.jboss.jmx.adaptor.snmp.config.notification.VarBind;
 import org.jboss.jmx.adaptor.snmp.config.notification.VarBindList;
 import org.jboss.logging.Logger;
 import org.jboss.xb.binding.GenericObjectModelFactory;
-import org.jboss.xb.binding.ObjectModelFactory;
-import org.jboss.xb.binding.Unmarshaller;
-import org.jboss.xb.binding.UnmarshallerFactory;
 import org.jboss.xb.binding.UnmarshallingContext;
 import org.snmp4j.PDU;
 import org.snmp4j.PDUv1;
@@ -93,23 +85,11 @@ public class TrapFactorySupport
    /** Reference to SNMP variable binding factory */
    private SnmpVarBindFactory snmpVBFactory = null;
    
-   /** File that contains notification mappings */
-   private String notificationMapResName = null;
-   
    /** Uptime clock */
    private Clock clock = null;
    
    /** Trap counter */
-   private Counter trapCount = null;
-   
-   /** Contains the read in mappings */
-   private ArrayList notificationMapList = null;
-    
-   /** Contains the compiled regular expression type specifications */
-   private ArrayList mappingRegExpCache = null;
-   
-   /** Contains instances of the notification wrappers */
-   private ArrayList notificationWrapperCache = null;
+   private Counter trapCount = null;   
    
    /**
     * Create TrapFactorySupport
@@ -123,9 +103,8 @@ public class TrapFactorySupport
     * Sets the name of the file containing the notification/trap mappings,
     * the uptime clock and the trap counter
    **/ 
-   public void set(String notificationMapResName, Clock clock, Counter count)
+   public void set(Clock clock, Counter count)
    {
-      this.notificationMapResName = notificationMapResName;
       this.clock = clock;
       this.trapCount = count;
    }
@@ -142,151 +121,18 @@ public class TrapFactorySupport
    public void start()
       throws Exception
    {
-      log.debug("Reading resource: '" + notificationMapResName + "'");
       
-      ObjectModelFactory omf = new NotificationBinding();
-      InputStream is = null;
-      try
-      {
-         // locate notifications.xml
-         final String resName = notificationMapResName;
-         is = SecurityActions.getThreadContextClassLoaderResource(resName);
-         
-         // create unmarshaller
-         Unmarshaller unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
-
-         // let JBossXB do it's magic using the MappingObjectModelFactory
-         this.notificationMapList = (ArrayList)unmarshaller.unmarshal(is, omf, null);         
-      }
-      catch (Exception e)
-      {
-         log.error("Accessing resource '" + notificationMapResName + "'");
-         throw e;
-      }
-      finally
-      {
-         if (is != null)
-         {
-            // close the XML stream
-            is.close();            
-         }
-      }
-      log.debug("Found " + notificationMapList.size() + " notification mappings");   
-      
-      // Initialise the cache with the compiled regular expressions denoting 
-      // notification type specifications
-      this.mappingRegExpCache = 
-         new ArrayList(notificationMapList.size());
-        
-      // Initialise the cache with the instantiated notification wrappers
-      this.notificationWrapperCache =
-         new ArrayList(notificationMapList.size());
-        
-      for (Iterator i = notificationMapList.iterator(); i.hasNext(); )
-      {
-         Mapping mapping = (Mapping)i.next();
-         
-         // Compile and add the regular expression
-         String notificationType = mapping.getNotificationType();
-         
-         try
-         {
-            Pattern re = Pattern.compile(notificationType);
-            this.mappingRegExpCache.add(re);
-         }
-         catch (PatternSyntaxException e)
-         {
-            // Fill the slot to keep index count correct
-            this.mappingRegExpCache.add(null);
-                
-            log.warn("Error compiling notification mapping for type: " + notificationType, e); 
-         }
-            
-         // Instantiate and add the wrapper
-         // Read wrapper class name 
-         String wrapperClassName = mapping.getVarBindList().getWrapperClass();
-                
-         log.debug("notification wrapper class: " + wrapperClassName);
-         
-         try
-         {
-            NotificationWrapper wrapper =
-               (NotificationWrapper)Class.forName(wrapperClassName, true, this.getClass().getClassLoader()).newInstance();
-                
-            // Initialise it
-            wrapper.set(this.clock, this.trapCount);
-            
-            // Add the wrapper to the cache
-            this.notificationWrapperCache.add(wrapper);
-         }
-         catch (Exception e)
-         {
-            // Fill the slot to keep index count correct
-            this.notificationWrapperCache.add(null);
-                
-            log.warn("Error compiling notification mapping for type: " + notificationType, e);  
-         }
-      }
       log.debug("Trap factory going active");                                                       
-   }
-    
-   /**
-    * Locate mapping applicable for the incoming notification. Key is the
-    * notification's type
-    *
-    * @param n the notification to be examined
-    * @return the index of the mapping
-    * @throws IndexOutOfBoundsException if no mapping found
-   **/ 
-   private int findMappingIndex(Notification n)
-      throws IndexOutOfBoundsException
-   {
-      // Sequentially check the notification type against the compiled 
-      // regular expressions. On first match return the coresponding mapping
-      // index
-      for (int i = 0; i < notificationMapList.size(); i++)
-      {
-         Pattern p = (Pattern) this.mappingRegExpCache.get(i);
-            
-         if (p != null)
-         {
-            Matcher m = p.matcher(n.getType());
-            
-            if (m.matches())
-            {
-               if (log.isTraceEnabled())
-                  log.trace("Match for '" + n.getType() + "' on mapping " + i);
-               return i;
-            }
-         }
-      }
-      // Signal "no mapping found"
-      throw new IndexOutOfBoundsException();
    }
     
    /**
     * Traslates a Notification to an SNMP V1 trap.
    **/
-   public PDUv1 generateV1Trap(Notification n) 
+   public PDUv1 generateV1Trap(Notification n, Mapping m, NotificationWrapper wrapper) 
       throws MappingFailedException
    {
       if (log.isTraceEnabled())
-         log.trace("generateV1Trap");
-        
-      // Locate mapping for incomming event
-      int index = -1;
-        
-      try
-      {
-         index = findMappingIndex(n);
-      }
-      catch (IndexOutOfBoundsException e)
-      {
-         throw new MappingFailedException("No mapping found for notification type: '" + 
-                    n.getType() + "'");
-      }
-        
-      Mapping m = (Mapping)this.notificationMapList.get(index);
+         log.trace("generateV1Trap");             
         
       // Create trap
       PDUv1 trapPdu = new PDUv1();
@@ -301,11 +147,7 @@ public class TrapFactorySupport
         
       // Append the specified varbinds. Get varbinds from mapping and for
       // each one of the former use the wrapper to get the corresponding
-      // values
-
-      // Get the coresponding wrapper to get access to notification payload
-      NotificationWrapper wrapper =
-         (NotificationWrapper)this.notificationWrapperCache.get(index);
+      // values      
         
       if(wrapper != null)
       {
@@ -343,35 +185,20 @@ public class TrapFactorySupport
     *
     * TODO: how do you get timestamp, generic, and specific stuff in the trap
    **/
-   public PDU generateV2cTrap(Notification n) 
+   public PDU generateV2cTrap(Notification n, Mapping m, NotificationWrapper wrapper) 
       throws MappingFailedException
    {
       if (log.isTraceEnabled())
          log.trace("generateV2cTrap");
-        
-      // Locate mapping for incomming event
-      int index = -1;
-        
-      try
-      {
-         index = findMappingIndex(n);
-      }
-      catch (IndexOutOfBoundsException e)
-      {
-         throw new MappingFailedException(
-            "No mapping found for notification type: '" + n.getType() + "'");
-      }
-        
-      Mapping m = (Mapping)this.notificationMapList.get(index);
       
       // Create trap
       PDU trapPdu = new PDU();
-      trapPdu.setType(PDU.TRAP);
+      if(m.isInform()) {
+      	trapPdu.setType(ScopedPDU.INFORM);    	
+      } else {
+      	trapPdu.setType(ScopedPDU.TRAP);
+      }
         
-      // Get the coresponding wrapper
-      NotificationWrapper wrapper =
-         (NotificationWrapper)this.notificationWrapperCache.get(index);
-      
       // Those 2 Variable Bindings are mandatory for v2c and v3 traps and inform
       trapPdu.add(new VariableBinding(SnmpConstants.sysUpTime, new TimeTicks(this.clock.uptime())));
       // For generic traps, values are defined in RFC 1907, for vendor specific traps snmpTrapOID is essentially a concatenation of the SNMPv1 Enterprise parameter and two additional sub-identifiers, '0', and the SNMPv1 Specific trap code parameter.
@@ -413,34 +240,19 @@ public class TrapFactorySupport
     *
     * TODO: how do you get timestamp, generic, and specific stuff in the trap
    **/
-   public ScopedPDU generateV3Trap(Notification n) 
+   public ScopedPDU generateV3Trap(Notification n, Mapping m, NotificationWrapper wrapper) 
       throws MappingFailedException
    {
 	   if (log.isTraceEnabled())
        log.trace("generateV3Trap");
-      
-    // Locate mapping for incomming event
-    int index = -1;
-      
-    try
-    {
-       index = findMappingIndex(n);
-    }
-    catch (IndexOutOfBoundsException e)
-    {
-       throw new MappingFailedException(
-          "No mapping found for notification type: '" + n.getType() + "'");
-    }
-      
-    Mapping m = (Mapping)this.notificationMapList.get(index);
     
     // Create trap
     ScopedPDU trapPdu = new ScopedPDU();
-    trapPdu.setType(ScopedPDU.TRAP);    
-
-    // Get the coresponding wrapper
-    NotificationWrapper wrapper =
-       (NotificationWrapper)this.notificationWrapperCache.get(index);
+    if(m.isInform()) {
+    	trapPdu.setType(ScopedPDU.INFORM);    	
+    } else {
+    	trapPdu.setType(ScopedPDU.TRAP);
+    }
       
     // Those 2 Variable Bindings are mandatory for v2c and v3 traps and inform
     trapPdu.add(new VariableBinding(SnmpConstants.sysUpTime, new TimeTicks(this.clock.uptime())));
@@ -472,150 +284,6 @@ public class TrapFactorySupport
                 " notification type '" + m.getNotificationType() + "'" );
     }
     return trapPdu;
-   }
-   
-   /**
-    * Utility class used by JBossXB to help parse notifications.xml 
-    */
-   private static class NotificationBinding implements GenericObjectModelFactory
-   {
-      // GenericObjectModelFactory implementation ----------------------
-
-      public Object completeRoot(Object root, UnmarshallingContext ctx,
-            String uri, String name)
-      {
-         return root;
-      }
-
-      public Object newRoot(Object root, UnmarshallingContext navigator, String namespaceURI,
-                            String localName, Attributes attrs)
-      {
-         ArrayList notifList;
-         
-         if (root == null)
-         {
-            root = notifList = new ArrayList();
-         }
-         else
-         {
-            notifList = (ArrayList) root;
-         }
-         return root;
-      }
-      
-      public Object newChild(Object parent, UnmarshallingContext navigator, String namespaceURI,
-                             String localName, Attributes attrs)
-      {
-         Object child = null;
-
-         if ("mapping".equals(localName))
-         {
-            Mapping m = new Mapping();
-            child = m;
-         }
-         else if ("var-bind-list".equals(localName))
-         {
-            VarBindList vblist = new VarBindList();
-            child = vblist;
-            if (attrs.getLength() > 0)
-            {
-               for (int i = 0; i < attrs.getLength(); i++)
-               {
-                  if ("wrapper-class".equals(attrs.getLocalName(i)))
-                  {
-                     vblist.setWrapperClass(attrs.getValue(i));
-                  }
-               }
-            }
-            // check that wrapper-class is set
-            if (vblist.getWrapperClass() == null)
-            {
-               throw new RuntimeException("'wrapper-class' must be set at 'var-bind-list' element");
-            }
-         }
-         else if ("var-bind".equals(localName))
-         {
-            VarBind vb = new VarBind();
-            child = vb;
-         }
-         return child;
-      }
-
-      public void addChild(Object parent, Object child, UnmarshallingContext navigator,
-                           String namespaceURI, String localName)
-      {
-         if (parent instanceof ArrayList)
-         {
-            ArrayList notifList = (ArrayList)parent;
-            
-            if (child instanceof Mapping)
-            {
-               notifList.add(child);
-            }
-         }
-         else if (parent instanceof Mapping)
-         {
-            Mapping m = (Mapping)parent;
-            
-            if (child instanceof VarBindList)
-            {
-               m.setVarBindList((VarBindList)child);
-            }
-         }
-         else if (parent instanceof VarBindList)
-         {
-            VarBindList vblist = (VarBindList)parent;
-            
-            if (child instanceof VarBind)
-            {
-               vblist.addVarBind((VarBind)child);
-            }
-         }
-      }
-      
-      public void setValue(Object o, UnmarshallingContext navigator, String namespaceURI,
-                           String localName, String value)
-      {
-         if (o instanceof Mapping)
-         {
-            Mapping m = (Mapping)o;
-            
-            if ("notification-type".equals(localName))
-            {
-               m.setNotificationType(value);
-            }
-            else if ("generic".equals(localName))
-            {
-               m.setGeneric(Integer.parseInt(value));
-            }
-            else if ("specific".equals(localName))
-            {
-               m.setSpecific(Integer.parseInt(value));
-            }
-            else if ("enterprise".equals(localName))
-            {
-               m.setEnterprise(value);
-            }
-         }
-         else if (o instanceof VarBind)
-         {
-            VarBind vb = (VarBind)o;
-            
-            if ("tag".equals(localName))
-            {
-               vb.setTag(value);
-            }
-            else if ("oid".equals(localName))
-            {
-               vb.setOid(value);
-            }
-         }
-      }
-
-      public Object completedRoot(Object root, UnmarshallingContext navigator, String namespaceURI, String localName)
-      {
-         return root;
-      }      
    }
    
 } // class TrapFactorySupport

@@ -52,6 +52,8 @@
     <generic>0</generic>
     <specific>0</specific>
     <enterprise>1.2.3.4.5.6.7</enterprise>
+    <!--inform>true</inform-->
+    <security-name>TEST</security-name>    
     <var-bind-list wrapper-class="org.jboss.jmx.adaptor.snmp.agent.NotificationWrapperSupport">
       <var-bind>
         <tag>a:startTime</tag>
@@ -63,58 +65,4 @@
       </var-bind>
     </var-bind-list>               
   </mapping>
-
-<!-- Used for internal testing -ignore -->
-  <mapping>
-    <notification-type>jboss.snmp.agent.v1test</notification-type>
-    <generic>10</generic>
-    <specific>0</specific>
-    <enterprise>1.2.3.4.5.6.7</enterprise>
-    <var-bind-list wrapper-class="org.jboss.jmx.adaptor.snmp.agent.NotificationWrapperSupport">
-      <var-bind>
-        <tag>a:startTime</tag>
-        <oid>1.2.3.4.5.6.7.9</oid>
-      </var-bind>
-      <var-bind>
-        <tag>a:trapCount</tag>
-        <oid>1.2.3.4.5.6.7.6</oid>
-      </var-bind>
-    </var-bind-list>
-  </mapping>
-
-  <mapping>
-    <notification-type>jboss.snmp.agent.v2test</notification-type>
-    <generic>11</generic>
-    <specific>0</specific>
-    <enterprise>1.2.3.4.5.6.7</enterprise>
-    <var-bind-list wrapper-class="org.jboss.jmx.adaptor.snmp.agent.NotificationWrapperSupport">
-      <var-bind>
-        <tag>a:startTime</tag>
-        <oid>1.2.3.4.5.6.7.9</oid>
-      </var-bind>
-      <var-bind>
-        <tag>a:trapCount</tag>
-        <oid>1.2.3.4.5.6.7.6</oid>
-      </var-bind>
-    </var-bind-list>
-  </mapping>
-
-  <mapping>
-    <notification-type>jboss.snmp.agent.v3test</notification-type>
-    <generic>12</generic>
-    <specific>0</specific>
-    <enterprise>1.2.3.4.5.6.7</enterprise>
-    <var-bind-list wrapper-class="org.jboss.jmx.adaptor.snmp.agent.NotificationWrapperSupport">
-      <var-bind>
-        <tag>a:startTime</tag>
-        <oid>1.2.3.4.5.6.7.9</oid>
-      </var-bind>
-      <var-bind>
-        <tag>a:trapCount</tag>
-        <oid>1.2.3.4.5.6.7.6</oid>
-      </var-bind>
-    </var-bind-list>
-  </mapping>
-
-
 </notification-map-list>

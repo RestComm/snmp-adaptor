@@ -28,28 +28,37 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.management.Notification;
 
 import org.jboss.bootstrap.spi.ServerConfig;
 import org.jboss.jmx.adaptor.snmp.config.manager.Manager;
+import org.jboss.jmx.adaptor.snmp.config.notification.Mapping;
+import org.jboss.jmx.adaptor.snmp.config.notification.VarBind;
+import org.jboss.jmx.adaptor.snmp.config.notification.VarBindList;
 import org.jboss.jmx.adaptor.snmp.config.user.User;
 import org.jboss.logging.Logger;
+import org.jboss.xb.binding.GenericObjectModelFactory;
 import org.jboss.xb.binding.MappingObjectModelFactory;
+import org.jboss.xb.binding.ObjectModelFactory;
 import org.jboss.xb.binding.Unmarshaller;
 import org.jboss.xb.binding.UnmarshallerFactory;
+import org.jboss.xb.binding.UnmarshallingContext;
 import org.snmp4j.CommunityTarget;
+import org.snmp4j.MessageDispatcherImpl;
 import org.snmp4j.PDU;
 import org.snmp4j.PDUv1;
 import org.snmp4j.ScopedPDU;
 import org.snmp4j.Snmp;
 import org.snmp4j.Target;
 import org.snmp4j.UserTarget;
+import org.snmp4j.mp.MPv2c;
+import org.snmp4j.mp.MPv3;
 import org.snmp4j.mp.SnmpConstants;
-import org.snmp4j.security.Priv3DES;
-import org.snmp4j.security.SecurityLevel;
 import org.snmp4j.security.SecurityModel;
-import org.snmp4j.security.SecurityModels;
 import org.snmp4j.security.SecurityProtocols;
 import org.snmp4j.security.USM;
 import org.snmp4j.security.UsmUser;
@@ -60,6 +69,7 @@ import org.snmp4j.smi.UdpAddress;
 import org.snmp4j.transport.AbstractTransportMapping;
 import org.snmp4j.transport.DefaultTcpTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
+import org.xml.sax.Attributes;
 
 /**
  * <tt>TrapEmitter</tt> is a class that manages SNMP trap emission.
@@ -86,6 +96,15 @@ public class TrapEmitter
    /** Holds the manager subscriptions. Accessed through synch'd wrapper */
    private Set managers = Collections.synchronizedSet(new HashSet());  
     
+   /** Contains the read in mappings */
+   private ArrayList notificationMapList = null;
+    
+   /** Contains the compiled regular expression type specifications */
+   private ArrayList mappingRegExpCache = null;
+   
+   /** Contains instances of the notification wrappers */
+   private ArrayList notificationWrapperCache = null;
+   
    /**
     * Builds a TrapEmitter object for sending SNMP V1 or V2 traps. <P>
    **/
@@ -108,8 +127,7 @@ public class TrapEmitter
                                                      this.getClass().getClassLoader()).newInstance();
       
       // Initialise
-      this.trapFactory.set(this.snmpAgentService.getNotificationMapResName(),
-                           this.snmpAgentService.getClock(),
+      this.trapFactory.set(this.snmpAgentService.getClock(),
                            this.snmpAgentService.getTrapCounter());
       
       // Start the trap factory
@@ -151,13 +169,25 @@ public class TrapEmitter
       PDU v2cTrapPdu = null; 
       ScopedPDU v3TrapPdu = null;
       
-      //The snmp session
-      Snmp snmp = null;
-      
-      //The target to send to
-      Target t = null;
-      
       if(managers.size() > 0) {
+    	  // Locate mapping for incomming event
+          int index = -1;
+            
+          try
+          {
+             index = findMappingIndex(n);
+          }
+          catch (IndexOutOfBoundsException e)
+          {
+             throw new MappingFailedException("No mapping found for notification type: '" + 
+                        n.getType() + "'");
+          }
+            
+          Mapping m = (Mapping)this.notificationMapList.get(index);
+          // Get the coresponding wrapper to get access to notification payload
+          NotificationWrapper wrapper =
+             (NotificationWrapper)this.notificationWrapperCache.get(index);
+          
 	      // Send trap. Synchronise on the subscription collection while 
 	      // iterating 
 	      synchronized(this.managers) {     	  
@@ -165,40 +195,30 @@ public class TrapEmitter
 	         Iterator i = this.managers.iterator();
 	         while (i.hasNext()) {
 	            //ManagerRecord t = (ManagerRecord)i.next();
-	        	 t = (Target)i.next();
-	        	 
-	            try {  
-	            	snmp = createSnmpSession(t.getAddress());
+	        	Target t = (Target)i.next();	        		        	
+	        	
+	            try {  	            	
 	            	switch (t.getVersion()) {
 	            		case SnmpConstants.version1:
 		                    if (v1TrapPdu == null)
-		                    	v1TrapPdu = this.trapFactory.generateV1Trap(n);
+		                    	v1TrapPdu = this.trapFactory.generateV1Trap(n, m, wrapper);
 		                     
 		                    //Should work, but need to upgrade to snmp4j v.1.10.2
 //		                    v1TrapPdu.setAgentAddress((IpAddress)t.getAddress());
 		                   
-		                    // Advance the trap counter
-		                    this.snmpAgentService.getTrapCounter().advance();
-		                            
-		                    // Send
-		                    log.debug("Sending trap: "+v1TrapPdu.toString() + "\n to target: "+ t.toString());
-		                    snmp.send(v1TrapPdu, t);
+		                    sendTrap(v1TrapPdu, t, m.getSecurityName());
 		                    break;
 		                  
 	               		case SnmpConstants.version2c:
 	               			if (v2cTrapPdu == null)
-	               				v2cTrapPdu = this.trapFactory.generateV2cTrap(n);
+	               				v2cTrapPdu = this.trapFactory.generateV2cTrap(n, m, wrapper);
 	                     
-	               			// Advance the trap counter
-	               			this.snmpAgentService.getTrapCounter().advance();
-	                            
-	               			// Send
-	               			snmp.send(v2cTrapPdu, t);
+	               			sendTrap(v2cTrapPdu, t, m.getSecurityName());
 	               			break;
 	                     
 	               		case SnmpConstants.version3:
 	                        if (v3TrapPdu == null)
-	                            v3TrapPdu = this.trapFactory.generateV3Trap(n);
+	                            v3TrapPdu = this.trapFactory.generateV3Trap(n, m, wrapper);
 	                        
 	//                      if (contextEngineID != null) {
 	//                    	trapPdu.setContextEngineID(contextEngineID);
@@ -207,19 +227,13 @@ public class TrapEmitter
 	//                    	  trapPdu.setContextName(contextName);
 	//                      }
 	                        
-	                         // Advance the trap counter
-	                        this.snmpAgentService.getTrapCounter().advance();
-	                                
-	                        // Send
-	                        snmp.send(v3TrapPdu, t);
+	                        sendTrap(v3TrapPdu, t, m.getSecurityName());
+	                        
 	                	 break;
 	                     
 	                  default:    
 	                     log.error("Skipping session: Unknown SNMP version found");    
 	               }        
-	               if (snmp != null){
-	            	   snmp.close();
-	               }
 	            } 
 	            catch(MappingFailedException e) {
 	              log.error("Translating notification - " + e.getMessage());
@@ -235,6 +249,84 @@ public class TrapEmitter
       } else {
     	 log.warn("No SNMP managers to send traps to");
       }
+   }
+   
+   void sendTrap(PDU trap, Target target, String securityName) throws IOException {
+	   // Advance the trap counter
+       this.snmpAgentService.getTrapCounter().advance();
+       
+	   if(target instanceof UserTarget) {
+		   if(securityName != null) {
+			   if(snmpAgentService.getUserMap().get(securityName) == null) {
+		        	 throw new IllegalArgumentException("Notification Security Name " +securityName + " doesn't match any user defined in users.xml");
+		       } else {			   
+				   OctetString userSecurityName = new OctetString(securityName);
+				   
+				   ((UserTarget)target).setSecurityName(userSecurityName);
+				   ((UserTarget)target).setSecurityLevel(snmpAgentService.getUserMap().get(securityName).getSecurityLevel());
+				   ((UserTarget)target).setSecurityModel(SecurityModel.SECURITY_MODEL_USM);	
+				   
+				   if(trap.getType() == PDU.INFORM) { 
+					   User user = snmpAgentService.getUserMap().get(securityName);        	 
+					   UsmUser usmUser = new UsmUser(userSecurityName,
+			                 user.getAuthenticationProtocolID(),
+			                 new OctetString(user.getAuthenticationPassphrase()),
+			                 user.getPrivacyProtocolID(),
+			                 new OctetString(user.getPrivacyPassphrase()));
+					   Snmp snmp = createSnmpSession(target.getAddress());
+					   byte[] authorativeEngine = snmp.discoverAuthoritativeEngineID(target.getAddress(), 8000);
+					   if(authorativeEngine != null) {		      
+						   OctetString authorativeEngineID = new OctetString(authorativeEngine);
+						   snmp.getUSM().addUser(usmUser.getSecurityName(), authorativeEngineID, usmUser);
+						   ((UserTarget)target).setAuthoritativeEngineID(authorativeEngine);					   
+						   
+						   snmp.send(trap, target);	    		
+			    	  } else {
+			    		  log.warn("Couldn't discover the AuthoritativeEngineID for INFORM notification " + trap);
+			    	  }
+			    	  snmp.close();
+			    	  return;
+				   }
+			   }
+		   }
+	   }
+	   // Send v2 traps or inform without users
+	   snmpAgentService.getSession().send(trap, target);
+   }
+   
+   
+   /**
+    * Locate mapping applicable for the incoming notification. Key is the
+    * notification's type
+    *
+    * @param n the notification to be examined
+    * @return the index of the mapping
+    * @throws IndexOutOfBoundsException if no mapping found
+   **/ 
+   private int findMappingIndex(Notification n)
+      throws IndexOutOfBoundsException
+   {
+      // Sequentially check the notification type against the compiled 
+      // regular expressions. On first match return the coresponding mapping
+      // index
+      for (int i = 0; i < notificationMapList.size(); i++)
+      {
+         Pattern p = (Pattern) this.mappingRegExpCache.get(i);
+            
+         if (p != null)
+         {
+            Matcher m = p.matcher(n.getType());
+            
+            if (m.matches())
+            {
+               if (log.isTraceEnabled())
+                  log.trace("Match for '" + n.getType() + "' on mapping " + i);
+               return i;
+            }
+         }
+      }
+      // Signal "no mapping found"
+      throw new IndexOutOfBoundsException();
    }
 
    /**
@@ -284,16 +376,13 @@ public class TrapEmitter
       {
          // Read the monitoring manager's particulars
          Manager m = (Manager)i.next();
-         fixManagerVersion(m);
-         if(m.getVersion() == 3 && m.getSecurityName() != null && snmpAgentService.getUserMap().get(m.getSecurityName()) == null) {
-        	 throw new IllegalArgumentException("Manager Security Name " + m.getSecurityName() + " doesn't match any user defined in users.xml");
-         }
+         fixManagerVersion(m);                
          
     	 Target target = createTarget(m);
     	 if (target == null){
     		 log.warn("createTarget: manager m: "+m.toString() + " is null!");
     	 	continue;
-    	 }
+    	 }    	 
     	                 
     	 // Add the record to the list of monitoring managers. If 
     	 // successfull open the session to the manager as well.
@@ -301,6 +390,91 @@ public class TrapEmitter
     	 {
            log.warn("Ignoring duplicate manager: " + m);  
     	 }            
+      }
+      
+      log.debug("Reading resource: '" + snmpAgentService.getNotificationMapResName() + "'");
+      
+      ObjectModelFactory omf = new NotificationBinding();
+      try
+      {
+         // locate notifications.xml
+         final String resName = snmpAgentService.getNotificationMapResName();
+         is = SecurityActions.getThreadContextClassLoaderResource(resName);
+         
+         // create unmarshaller
+         Unmarshaller unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
+
+         // let JBossXB do it's magic using the MappingObjectModelFactory
+         this.notificationMapList = (ArrayList)unmarshaller.unmarshal(is, omf, null);         
+      }
+      catch (Exception e)
+      {
+         log.error("Accessing resource '" + snmpAgentService.getNotificationMapResName() + "'");
+         throw e;
+      }
+      finally
+      {
+         if (is != null)
+         {
+            // close the XML stream
+            is.close();            
+         }
+      }
+      log.debug("Found " + notificationMapList.size() + " notification mappings");   
+      
+      // Initialise the cache with the compiled regular expressions denoting 
+      // notification type specifications
+      this.mappingRegExpCache = 
+         new ArrayList(notificationMapList.size());
+        
+      // Initialise the cache with the instantiated notification wrappers
+      this.notificationWrapperCache =
+         new ArrayList(notificationMapList.size());
+        
+      for (Iterator i = notificationMapList.iterator(); i.hasNext(); )
+      {
+         Mapping mapping = (Mapping)i.next();
+         
+         // Compile and add the regular expression
+         String notificationType = mapping.getNotificationType();
+         
+         try
+         {
+            Pattern re = Pattern.compile(notificationType);
+            this.mappingRegExpCache.add(re);
+         }
+         catch (PatternSyntaxException e)
+         {
+            // Fill the slot to keep index count correct
+            this.mappingRegExpCache.add(null);
+                
+            log.warn("Error compiling notification mapping for type: " + notificationType, e); 
+         }
+            
+         // Instantiate and add the wrapper
+         // Read wrapper class name 
+         String wrapperClassName = mapping.getVarBindList().getWrapperClass();
+                
+         log.debug("notification wrapper class: " + wrapperClassName);
+         
+         try
+         {
+            NotificationWrapper wrapper =
+               (NotificationWrapper)Class.forName(wrapperClassName, true, this.getClass().getClassLoader()).newInstance();
+                
+            // Initialise it
+            wrapper.set(snmpAgentService.getClock(), snmpAgentService.getTrapCounter());
+            
+            // Add the wrapper to the cache
+            this.notificationWrapperCache.add(wrapper);
+         }
+         catch (Exception e)
+         {
+            // Fill the slot to keep index count correct
+            this.notificationWrapperCache.add(null);
+                
+            log.warn("Error compiling notification mapping for type: " + notificationType, e);  
+         }
       }
    }
    
@@ -359,16 +533,15 @@ public class TrapEmitter
 			   target = new UserTarget();
 			   target.setRetries(1);
 			   target.setTimeout(8000);
-			   target.setAddress(new UdpAddress(InetAddress.getByName(m.getAddress()), m.getPort()));
-			   ((UserTarget)target).setSecurityName(new OctetString(m.getSecurityName()));
-			   ((UserTarget)target).setSecurityLevel(snmpAgentService.getUserMap().get(m.getSecurityName()).getSecurityLevel());
-			   ((UserTarget)target).setSecurityModel(SecurityModel.SECURITY_MODEL_USM);
+			   target.setAddress(new UdpAddress(InetAddress.getByName(m.getAddress()), m.getPort()));			   
 		   }
 		   else {
 			   //unrecognized version
 			   throw new IllegalArgumentException("version " + version + " is not supported in managers.xml, only 1, 2 and 3 are valid values");
 		   }
-	   } catch (UnknownHostException e) {} //something goes here
+	   } catch (UnknownHostException e) {
+		   log.error("A problem occured creating the target towards " + m.getAddress() + ":" + m.getPort(), e);
+	   } //something goes here
 	   if (target != null){
 		   target.setVersion(version);
 	   }
@@ -379,33 +552,135 @@ public class TrapEmitter
 	    AbstractTransportMapping transport;
 	    if (address instanceof TcpAddress) {
 	      transport = new DefaultTcpTransportMapping();
-	    }
-	    else {
+	    } else {
 	      transport = new DefaultUdpTransportMapping();
 	    }
 	    // Could save some CPU cycles:
 	    // transport.setAsyncMsgProcessingSupported(false);
 	    
-	    Snmp snmp =  new Snmp(transport);
-	    OctetString localEngineID =new OctetString(snmp.getLocalEngineID());
-	    USM usm = new USM(SecurityProtocols.getInstance(), localEngineID, 0);	    	   
-	    SecurityProtocols.getInstance().addDefaultProtocols();
-	    // all other privacy and authentication protocols are provided by the above method
-	    SecurityProtocols.getInstance().addPrivacyProtocol(new Priv3DES());	   		   
-	    SecurityModels.getInstance().addSecurityModel(usm);
-	    
-	    for (Iterator<User> userIt = snmpAgentService.getUserMap().values().iterator(); userIt.hasNext(); ) {
-	    	  User user = userIt.next();
-	        	 
-	    	  UsmUser usmUser = new UsmUser(new OctetString(user.getSecurityName()),
-	               user.getAuthenticationProtocolID(),
-	               new OctetString(user.getAuthenticationPassphrase()),
-	               user.getPrivacyProtocolID(),
-	               new OctetString(user.getPrivacyPassphrase()));
-	    	  usm.addUser(usmUser.getSecurityName(), usm.getLocalEngineID(),usmUser);
-	      }
-	       
+	   	MessageDispatcherImpl dispatcher = new MessageDispatcherImpl();
+	    Snmp snmp =  new Snmp(dispatcher, transport);
+	    OctetString localEngineID= new OctetString(MPv3.createLocalEngineID());	    
+	    USM usm = new USM(SecurityProtocols.getInstance(), localEngineID, 0);
+	    MPv3 mpv3 = new MPv3(usm);			   		   	    
+		dispatcher.addMessageProcessingModel(new MPv2c());
+		dispatcher.addMessageProcessingModel(mpv3);		
+		
+		snmp.listen();
+		
 	    return snmp;
 	  }
-   
+
+	/**
+	 * Utility class used by JBossXB to help parse notifications.xml
+	 */
+	private static class NotificationBinding implements
+			GenericObjectModelFactory {
+		// GenericObjectModelFactory implementation ----------------------
+
+		public Object completeRoot(Object root, UnmarshallingContext ctx,
+				String uri, String name) {
+			return root;
+		}
+
+		public Object newRoot(Object root, UnmarshallingContext navigator,
+				String namespaceURI, String localName, Attributes attrs) {
+			ArrayList notifList;
+
+			if (root == null) {
+				root = notifList = new ArrayList();
+			} else {
+				notifList = (ArrayList) root;
+			}
+			return root;
+		}
+
+		public Object newChild(Object parent, UnmarshallingContext navigator,
+				String namespaceURI, String localName, Attributes attrs) {
+			Object child = null;
+
+			if ("mapping".equals(localName)) {
+				Mapping m = new Mapping();
+				child = m;
+			} else if ("var-bind-list".equals(localName)) {
+				VarBindList vblist = new VarBindList();
+				child = vblist;
+				if (attrs.getLength() > 0) {
+					for (int i = 0; i < attrs.getLength(); i++) {
+						if ("wrapper-class".equals(attrs.getLocalName(i))) {
+							vblist.setWrapperClass(attrs.getValue(i));
+						}
+					}
+				}
+				// check that wrapper-class is set
+				if (vblist.getWrapperClass() == null) {
+					throw new RuntimeException(
+							"'wrapper-class' must be set at 'var-bind-list' element");
+				}
+			} else if ("var-bind".equals(localName)) {
+				VarBind vb = new VarBind();
+				child = vb;
+			}
+			return child;
+		}
+
+		public void addChild(Object parent, Object child,
+				UnmarshallingContext navigator, String namespaceURI,
+				String localName) {
+			if (parent instanceof ArrayList) {
+				ArrayList notifList = (ArrayList) parent;
+
+				if (child instanceof Mapping) {
+					notifList.add(child);
+				}
+			} else if (parent instanceof Mapping) {
+				Mapping m = (Mapping) parent;
+
+				if (child instanceof VarBindList) {
+					m.setVarBindList((VarBindList) child);
+				}
+			} else if (parent instanceof VarBindList) {
+				VarBindList vblist = (VarBindList) parent;
+
+				if (child instanceof VarBind) {
+					vblist.addVarBind((VarBind) child);
+				}
+			}
+		}
+
+		public void setValue(Object o, UnmarshallingContext navigator,
+				String namespaceURI, String localName, String value) {
+			if (o instanceof Mapping) {
+				Mapping m = (Mapping) o;
+
+				if ("notification-type".equals(localName)) {
+					m.setNotificationType(value);
+				} else if ("generic".equals(localName)) {
+					m.setGeneric(Integer.parseInt(value));
+				} else if ("specific".equals(localName)) {
+					m.setSpecific(Integer.parseInt(value));
+				} else if ("enterprise".equals(localName)) {
+					m.setEnterprise(value);
+				} else if ("inform".equals(localName)) {
+					m.setInform(Boolean.parseBoolean(value));
+				} else if ("security-name".equals(localName)) {
+					m.setSecurityName(value);
+				}
+			} else if (o instanceof VarBind) {
+				VarBind vb = (VarBind) o;
+
+				if ("tag".equals(localName)) {
+					vb.setTag(value);
+				} else if ("oid".equals(localName)) {
+					vb.setOid(value);
+				}
+			}
+		}
+
+		public Object completedRoot(Object root,
+				UnmarshallingContext navigator, String namespaceURI,
+				String localName) {
+			return root;
+		}
+	}
 } // class TrapEmitter

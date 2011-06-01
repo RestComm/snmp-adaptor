@@ -34,6 +34,8 @@
                      <xsd:element name="generic" type="xsd:integer" />
                      <xsd:element name="specific" type="xsd:integer" />
                      <xsd:element name="enterprise" type="xsd:string" />
+                     <xsd:element name="inform" type="xsd:boolean" />
+                     <xsd:element name="securityName" type="xsd:string" />
                      <xsd:element name="var-bind-list">
                         <xsd:complexType>
                            <xsd:sequence>
@@ -46,7 +48,7 @@
                                  </xsd:complexType>
                               </xsd:element>
                            </xsd:sequence>
-                           <xsd:attribute name="wrapper-class" type="string" use="required"/>
+                           <xsd:attribute name="wrapper-class" type="xsd:string" use="required"/>
                         </xsd:complexType>
                      </xsd:element>
                   </xsd:sequence>

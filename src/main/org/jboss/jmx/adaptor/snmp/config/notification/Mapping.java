@@ -36,6 +36,8 @@ public class Mapping
    private int         generic;
    private int         specific;
    private String      enterprise;
+   private boolean 	   inform;
+   private String  securityName;
    private VarBindList varBindList;
 
    // Constructors -------------------------------------------------
@@ -100,6 +102,34 @@ public class Mapping
       this.varBindList = varBindList;
    }
    
+   /**
+    * @param inform the inform to set
+    */
+   public void setInform(boolean inform) {
+	   	this.inform = inform;
+   }
+	
+   /**
+    * @return the inform
+    */
+   public boolean isInform() {
+	   	return inform;
+   }
+   
+   /**
+    * @param securityName the securityName to set
+    */
+   public void setSecurityName(String securityName) {
+   	this.securityName = securityName;
+   }
+
+   /**
+    * @return the securityName
+    */
+   public String getSecurityName() {
+   	return securityName;
+   }
+   
    // Object overrides ----------------------------------------------
    
    public String toString()
@@ -111,6 +141,8 @@ public class Mapping
       .append(", generic=").append(generic)
       .append(", specific=").append(specific)
       .append(", enterprise=").append(enterprise)
+      .append(", inform=").append(inform)
+      .append(", securityName=").append(securityName)
       .append(", varBindList=").append(varBindList)      
       .append(']');
       

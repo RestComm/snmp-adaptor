@@ -24,4 +24,11 @@
     <privacyProtocol>DES</privacyProtocol>
     <privacyPassphrase>maplesyrup</privacyPassphrase>
   </user>
+  <user>
+    <securityName>myuser</securityName>
+    <authenticationProtocol>MD5</authenticationProtocol>
+    <authenticationPassphrase>password</authenticationPassphrase>
+    <privacyProtocol>DES</privacyProtocol>
+    <privacyPassphrase>password</privacyPassphrase>
+  </user>
 </user-list>

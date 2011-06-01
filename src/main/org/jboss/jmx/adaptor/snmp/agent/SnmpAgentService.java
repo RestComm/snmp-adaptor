@@ -759,5 +759,33 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
 	public Map<String, User> getUserMap() {
 		return userMap;
 	}
+	
+	/**
+	 * @return the session
+	 */
+	public Snmp getSession() {
+		return session;
+	}
+
+	/**
+	 * @return the responder
+	 */
+	public SnmpRequest getResponder() {
+		return responder;
+	}
+
+	/**
+	 * @return the requestHandler
+	 */
+	public RequestHandler getRequestHandler() {
+		return requestHandler;
+	}
+
+	/**
+	 * @return the transportMappings
+	 */
+	public TransportMapping[] getTransportMappings() {
+		return transportMappings;
+	}
 
 }
