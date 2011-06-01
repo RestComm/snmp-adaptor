@@ -60,6 +60,11 @@ public class NotificationProducerService
    implements NotificationProducerServiceMBean
 {
 
+	/** Notification types for testing */ 
+	   public final String V1_TEST_NOTIFICATION = "jboss.snmp.agent.v1test";
+	   public final String V2_TEST_NOTIFICATION = "jboss.snmp.agent.v2test";
+	   public final String V3_TEST_NOTIFICATION = "jboss.snmp.agent.v3test";
+	   
    /**
     * Sends a test Notification of type "V1"
     *
@@ -71,7 +76,7 @@ public class NotificationProducerService
 	   log.debug("Sending SnmpV1 test notification");
 	   
 	   sendNotification(
-         new Notification(EventTypes.V1_TEST_NOTIFICATION, this, getNextNotificationSequenceNumber(),
+         new Notification(V1_TEST_NOTIFICATION, this, getNextNotificationSequenceNumber(),
                           "V1 test notifications")); 
    }
 
@@ -85,7 +90,7 @@ public class NotificationProducerService
    {
 	   log.debug("Sending SnmpV2 test notification");
 	   sendNotification(
-         new Notification(EventTypes.V2_TEST_NOTIFICATION, this, getNextNotificationSequenceNumber(),
+         new Notification(V2_TEST_NOTIFICATION, this, getNextNotificationSequenceNumber(),
                           "V2 test notifications"));        
    }
    
@@ -99,7 +104,7 @@ public class NotificationProducerService
    {
 	   log.debug("Sending SnmpV3 test notification");
 	   sendNotification(
-         new Notification(EventTypes.V3_TEST_NOTIFICATION, this, getNextNotificationSequenceNumber(),
+         new Notification(V3_TEST_NOTIFICATION, this, getNextNotificationSequenceNumber(),
                           "V3 test notifications"));        
    }
    

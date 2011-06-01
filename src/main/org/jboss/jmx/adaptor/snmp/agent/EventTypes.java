@@ -16,25 +16,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * This package and its source code is available at www.jboss.org
-**/
+ **/
 package org.jboss.jmx.adaptor.snmp.agent;
 
 /**
  * Constant types for notifications
- *
+ * 
  * @version $Revision: 110455 $
- *
- * @author  <a href="mailto:spol@intracom.gr">Spyros Pollatos</a>
- * @author  <a href="mailto:dimitris@jboss.org">Dimitris Andreadis</a>
-**/
-public interface EventTypes
-{
-   public final String COLDSTART = "jboss.snmp.agent.coldstart";
-   public final String HEARTBEAT = "jboss.snmp.agent.heartbeat";
-
-	/** Notification types for testing */ 
-   public final String V1_TEST_NOTIFICATION = "jboss.snmp.agent.v1test";
-   public final String V2_TEST_NOTIFICATION = "jboss.snmp.agent.v2test";
-   public final String V3_TEST_NOTIFICATION = "jboss.snmp.agent.v3test";
-
-} 
+ * 
+ * @author <a href="mailto:spol@intracom.gr">Spyros Pollatos</a>
+ * @author <a href="mailto:dimitris@jboss.org">Dimitris Andreadis</a>
+ **/
+public interface EventTypes {
+	public final String COLDSTART = "jboss.snmp.agent.coldstart";
+	public final String HEARTBEAT = "jboss.snmp.agent.heartbeat";
+}
