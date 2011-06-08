@@ -1,0 +1,77 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	 <modelVersion>4.0.0</modelVersion>
+	<groupId>org.jboss.jbossas.snmp.examples</groupId>
+	<artifactId>snmp-servlet</artifactId>
+	<version>5.1.0.GA</version>
+	<packaging>war</packaging>
+	<name>Simple SNMP Servlet Example</name>
+	<dependencies>
+		<!-- test dependencies -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- j2ee dependencies -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-j2se</artifactId>
+			<version>5.1.0.GA</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+  			<artifactId>jboss-as-varia</artifactId>
+			<version>5.1.0.GA</version>
+			<scope>provided</scope>
+		</dependency>		
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+					<warSourceDirectory>
+						${basedir}/src/main/webapp
+					</warSourceDirectory>
+				</configuration>
+			</plugin>			
+		</plugins>
+	</build>
+
+	<!-- repositories -->
+	<repositories>
+		<repository>
+		  <id>jboss-public-repository-group</id>
+		  <name>JBoss Public Maven Repository Group</name>
+		  <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+		  <layout>default</layout>
+		  <releases>
+		    <enabled>true</enabled>
+		    <updatePolicy>never</updatePolicy>
+		  </releases>
+		  <snapshots>
+		    <enabled>true</enabled>
+		    <updatePolicy>never</updatePolicy>
+		  </snapshots>
+		</repository>
+	</repositories>
+</project>
