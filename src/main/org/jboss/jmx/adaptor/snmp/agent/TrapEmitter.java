@@ -163,30 +163,25 @@ public class TrapEmitter
             return;     
          }
       }
-           
+      
+      // Locate mapping for incomming event
+      int index = findMappingIndex(n);
+      if(index < 0) {
+    	  log.debug("No SNMP notifications configured for Notification " + n.getType() + " doing nothing");
+    	  return;
+      }
+        
+      Mapping m = (Mapping)this.notificationMapList.get(index);
+      // Get the coresponding wrapper to get access to notification payload
+      NotificationWrapper wrapper =
+         (NotificationWrapper)this.notificationWrapperCache.get(index);     
+      
       // Cache the translated notification
       PDUv1 v1TrapPdu = null; 
       PDU v2cTrapPdu = null; 
       ScopedPDU v3TrapPdu = null;
       
       if(managers.size() > 0) {
-    	  // Locate mapping for incomming event
-          int index = -1;
-            
-          try
-          {
-             index = findMappingIndex(n);
-          }
-          catch (IndexOutOfBoundsException e)
-          {
-             throw new MappingFailedException("No mapping found for notification type: '" + 
-                        n.getType() + "'");
-          }
-            
-          Mapping m = (Mapping)this.notificationMapList.get(index);
-          // Get the coresponding wrapper to get access to notification payload
-          NotificationWrapper wrapper =
-             (NotificationWrapper)this.notificationWrapperCache.get(index);
           
 	      // Send trap. Synchronise on the subscription collection while 
 	      // iterating 
@@ -234,15 +229,10 @@ public class TrapEmitter
 	                  default:    
 	                     log.error("Skipping session: Unknown SNMP version found");    
 	               }        
-	            } 
-	            catch(MappingFailedException e) {
-	              log.error("Translating notification - " + e.getMessage());
-	            }    
-	            catch(Exception e) {
-	              log.error("SNMP send error for " + 
-	                        t.getAddress().toString() + ":" +
-	                        ": <" + e +
-	                        ">");                    
+	            } catch(MappingFailedException e) {
+	              log.error("Translating notification failed ", e);
+	            } catch(Exception e) {
+	              log.error("SNMP send error for " + t.getAddress().toString(), e);                    
 	            }
 	         }
 	      }
@@ -325,8 +315,7 @@ public class TrapEmitter
             }
          }
       }
-      // Signal "no mapping found"
-      throw new IndexOutOfBoundsException();
+      return -1;
    }
 
    /**

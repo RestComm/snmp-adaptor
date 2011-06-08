@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jboss.logging.Logger;
-import org.snmp4j.smi.Counter32;
 import org.snmp4j.smi.Counter64;
 import org.snmp4j.smi.Integer32;
 import org.snmp4j.smi.OID;
@@ -49,7 +48,7 @@ public class SnmpVarBindFactory
    private static final Logger log = Logger.getLogger(SnmpVarBindFactory.class);
    
    /** Contains "type - maker" tupples */
-   private Map makers = new HashMap();
+   private Map<String, Maker> makers = new HashMap<String, Maker>();
 
    /** Default Maker */
    private final Maker defaultMaker = new SnmpObjectMaker();
@@ -60,9 +59,10 @@ public class SnmpVarBindFactory
    **/        
    public SnmpVarBindFactory()
    {
+	  makers.put("java.lang.Boolean", new SnmpBooleanMaker());
       makers.put("java.lang.String", new SnmpOctetStringMaker());
       makers.put("java.lang.Integer", new SnmpInt32Maker());
-      makers.put("java.lang.Long", new SnmpCounter32Maker());
+      makers.put("java.lang.Long", new SnmpLongMaker());
       makers.put("java.math.BigInteger", new SnmpCounter64Maker());
       makers.put("java.util.Date", new SnmpDateMaker());
    }
@@ -116,9 +116,30 @@ public class SnmpVarBindFactory
    } // class SnmpInt32Maker
    
    /**
+    * Generates unsigned integer SNMP variable bindings
+   **/         
+   class SnmpBooleanMaker
+      implements Maker
+   {
+      public VariableBinding make(String oid, Object value) 
+         throws MappingFailedException
+      {
+         Boolean b = (Boolean)value;
+         
+         Integer32 result;
+         if(((Boolean)b).booleanValue())
+        	 result = new Integer32(1);
+         else 
+        	 result = new Integer32(0);
+         
+         return new VariableBinding(new OID(oid), result);
+      }
+   } // class SnmpBooleanMaker
+   
+   /**
     * Generates unsigned long integer SNMP variable bindings
    **/         
-   class SnmpCounter32Maker
+   class SnmpLongMaker
       implements Maker
    {
       public VariableBinding make(String oid, Object value) 
@@ -127,7 +148,7 @@ public class SnmpVarBindFactory
          Long l = (Long)value;
             
          return new VariableBinding(new OID(oid), 
-                                new Counter32(l.longValue()));
+                                new OctetString(l.toString()));
       }
    } // class SnmpCounter64Maker    
 

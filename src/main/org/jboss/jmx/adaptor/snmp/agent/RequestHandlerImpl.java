@@ -444,33 +444,32 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 					var = setValueFor(oid,newVal);
 				}
 				else{
-					log.debug("snmpReceivedSet: no object for SET request");
+					log.error("snmpReceivedSet: no object for SET request");
 					undoSets(modified);
 					makeErrorPdu(response, pdu, errorIndex, PDU.noAccess);
 					return response;
 				}
 			}
 			catch (NoSuchInstanceException e){
-				log.debug("snmpReceivedSet: attempt to set a non-existent instance: " + oid.last() + " of object: " + oid.trim());
+				log.error("snmpReceivedSet: attempt to set a non-existent instance: " + oid.last() + " of object: " + oid.trim(), e);
 				undoSets(modified);
 				makeErrorPdu(response, pdu, errorIndex, PDU.noCreation);
 				return response;
 			}
 			catch (VariableTypeException e){
-				log.debug("snmpReceievedSet: could not convert the given value into an appropriate type: " +newVal);
+				log.error("snmpReceievedSet: could not convert the given value into an appropriate type: " +newVal, e);
 				undoSets(modified);
 				makeErrorPdu(response, pdu, errorIndex, PDU.wrongType);
 				return response;
 			}
 			catch (ReadOnlyException e){
-				log.debug("snmpReceivedSet: attempt to set a read-only attribute: " + newVB);
+				log.error("snmpReceivedSet: attempt to set a read-only attribute: " + newVB, e);
 				undoSets(modified);
 				makeErrorPdu(response, pdu, errorIndex, PDU.notWritable);
 				return response;
 			}
 			catch (Exception e){
-				log.debug("snmpReceivedSet: catastrophe!!! General variable validation error." + " " + e);
-				e.printStackTrace();
+				log.error("snmpReceivedSet: catastrophe!!! General variable validation error.", e);
 				undoSets(modified);
 				makeErrorPdu(response, pdu, errorIndex, PDU.genErr);
 				return response;
@@ -735,36 +734,26 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 
 		BindEntry be = findBindEntryForOid(oid);
 		Variable ssy = null;
-		if (be != null)
-     {
+		if (be != null) {
 			if (log.isTraceEnabled())
 				log.debug("getValueFor: Found entry " + be.toString() + " for oid " + oid);
         
-			try
-        {
+			try {
 			   Object val = server.getAttribute(be.mbean, be.attr.getName());
 			   ssy = prepForPdu(val);
-		}
-		catch (VariableTypeException e){
-			log.debug("getValueFor: didn't find a suitable data type for the requested data");
-			throw e;
-		}
-        catch (Exception e)
-        {
-				log.warn("getValueFor: (" + be.mbean.toString() + ", "
-						+ be.attr.getName() + ": " + e.toString());
-        }
-     }
-     else
-     {		
-    	 	
+			} catch (VariableTypeException e){
+				log.debug("getValueFor: didn't find a suitable data type for the requested data");
+				throw e;
+			} catch (Exception e) {
+					log.warn("getValueFor: (" + be.mbean.toString() + ", "
+							+ be.attr.getName() + ": " + e.toString());
+	        }
+		} else {		
 			log.debug("getValueFor: " + NO_ENTRY_FOUND_FOR_OID + oid);
 			throw new NoSuchInstanceException();
 		}
 		return ssy;
 	}
-
-	
 	
 	/**This method takes an Object that is typically going to be 
 	 * put into a VariableBinding for use in a PDU, and thus must be converted
@@ -779,44 +768,31 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 */
 	
 	private Variable prepForPdu(final Object val) throws VariableTypeException{
-		Variable result = null;
+		Variable result = null;		
 		//TODO: all types managed by the PDU
-		if (val instanceof Long)
-        {
+		if(val == null) {
+			result = new Null();
+		} else if (val instanceof Long) {
 			result = new OctetString(((Long)val).toString());
-		}
-		else if (val instanceof Boolean)
-        {
+		} else if (val instanceof Boolean) {
 			if(((Boolean)val).booleanValue())
 				result = new Integer32(1);
 			else 
 				result = new Integer32(0);
-		}
-        else if (val instanceof String)
-        {
+		} else if (val instanceof String) {
         	result = new OctetString((String) val);
-		}
-        else if (val instanceof Integer)
-        {
+		} else if (val instanceof Integer) {
 			result = new Integer32((Integer)val);
-		}
-        else if (val instanceof OID)     
-        {
+		} else if (val instanceof OID) {
         	result = new OID((OID)val);
-        }
-        else if (val instanceof TimeTicks)
-        {
+        } else if (val instanceof TimeTicks) {
         	// the SNMP4J class TimeTicks default toString method is formatted horribly. This 
         	// call emulates the joesnmp SnmpTimeTicks display.
 //        	result = new OctetString(((TimeTicks)val).toString("{0} d {1} h {2} m {3} s {4} hs"));
         	result = (TimeTicks) val;
-        }
-        else if (val instanceof Counter32)
-        {
+        } else if (val instanceof Counter32) {
      	   	result = (Counter32) val;
-        }
-        else
-        {
+        } else {
         	throw new VariableTypeException(); // no instance of an SNMP Variable could be created for type
         }
 		return result;
@@ -910,7 +886,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				Object other = server.getAttribute(be.mbean, be.attr.getName());
 				Object val = convertVariableToValue(newVal, other);
 				
-				if (val.getClass() != other.getClass() ){
+				if (other != null && val.getClass() != other.getClass() ){
 					log.debug("setValueFor: attempt to set an MBean Attribute with the wrong type.");
 					ssy = newVal;
 				}

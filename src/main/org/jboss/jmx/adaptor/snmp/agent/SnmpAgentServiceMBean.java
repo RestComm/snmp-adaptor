@@ -22,7 +22,9 @@
 package org.jboss.jmx.adaptor.snmp.agent;
 
 import java.net.UnknownHostException;
+import java.util.Map;
 
+import javax.management.Notification;
 import javax.management.ObjectName;
 
 import org.jboss.mx.util.ObjectNameFactory;
@@ -109,7 +111,11 @@ public interface SnmpAgentServiceMBean extends ListenerServiceMBean
    long getTrapCount();
 
    // Operations ----------------------------------------------------
-
+   
+   /**
+    * 
+    */
+   void sendSNMPNotification(String type, Map<String, Object> userData);
    /**
     * Reconfigures the RequestHandler, that is 
     * reponsible for handling get requests etc.

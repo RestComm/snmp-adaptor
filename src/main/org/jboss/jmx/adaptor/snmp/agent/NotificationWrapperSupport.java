@@ -38,7 +38,7 @@ public class NotificationWrapperSupport
    implements NotificationWrapper
 {
     /** Holds the notification payload keyed on the attibute name */
-    protected Map payload = new HashMap();
+    protected Map<String, Object> payload = new HashMap<String, Object>();
     
     /** Provides uptime */
     protected Clock clock;
@@ -70,7 +70,7 @@ public class NotificationWrapperSupport
            new DynamicContentAccessor() {
               public Object get()
               {
-                 return new Long(NotificationWrapperSupport.this.clock.uptime());
+                 return Long.valueOf(NotificationWrapperSupport.this.clock.uptime());
               }
            });
 
@@ -78,7 +78,7 @@ public class NotificationWrapperSupport
            new DynamicContentAccessor() {
               public Object get()
               {
-                 return new Long(NotificationWrapperSupport.this.trapCount.peek());
+                 return Long.valueOf(NotificationWrapperSupport.this.trapCount.peek());
               }
            });
    }
@@ -106,9 +106,9 @@ public class NotificationWrapperSupport
       // that previous content may be overwritten if the same keys as above 
       // are used
       Object userData = n.getUserData();
-      if (userData instanceof HashMap) {
+      if (userData instanceof Map) {
          // Copy all of the user data in the payload
-         this.payload.putAll((HashMap)userData);    
+         this.payload.putAll((Map)userData);    
       }
    } // prime
 
