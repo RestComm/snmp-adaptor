@@ -22,11 +22,16 @@
 package org.jboss.jmx.adaptor.snmp.agent;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.management.Notification;
 import javax.management.ObjectName;
 
+import org.jboss.jmx.adaptor.snmp.config.attribute.AttributeMappings;
+import org.jboss.jmx.adaptor.snmp.config.attribute.ManagedBean;
+import org.jboss.jmx.adaptor.snmp.config.notification.Mapping;
 import org.jboss.mx.util.ObjectNameFactory;
 import org.jboss.system.ListenerServiceMBean;
 
@@ -116,6 +121,13 @@ public interface SnmpAgentServiceMBean extends ListenerServiceMBean
     * 
     */
    void sendSNMPNotification(String type, Map<String, Object> userData);
+   
+   void addAttributeMappings(List<ManagedBean> mappings);
+   void removeAttributeMappings(List<ManagedBean> mappings);
+   
+   void addNotifications(List<Mapping> notifications);
+   void removeNotifications(List<Mapping> notifications);
+   
    /**
     * Reconfigures the RequestHandler, that is 
     * reponsible for handling get requests etc.

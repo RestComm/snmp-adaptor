@@ -24,68 +24,63 @@ package org.jboss.jmx.adaptor.snmp.config.notification;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+
 /**
  * Simple POJO class to model XML data
  * 
- * @author  <a href="mailto:dimitris@jboss.org">Dimitris Andreadis</a>
+ * @author <a href="mailto:dimitris@jboss.org">Dimitris Andreadis</a>
  * 
  * @version $Revision: 81038 $
  */
-public class VarBindList
-{
-   // Private Data --------------------------------------------------
+public class VarBindList {
+	// Private Data --------------------------------------------------
 
-   private String wrapperClass;
-   private List varBindList = new ArrayList(); 
+	private String wrapperClass = "org.jboss.jmx.adaptor.snmp.agent.NotificationWrapperSupport";
+	private List<VarBind> varBindList = new ArrayList<VarBind>();
 
-   // Constructors -------------------------------------------------
-   
-   /**
-    * Default CTOR
-    */
-   public VarBindList()
-   {
-      // empty
-   }
+	// Constructors -------------------------------------------------
 
-   // Accessors/Modifiers ------------------------------------------- 
+	/**
+	 * Default CTOR
+	 */
+	public VarBindList() {
+		// empty
+	}
 
-   public String getWrapperClass()
-   {
-      return wrapperClass;
-   }
-   
-   public List getVarBindList()
-   {
-      return varBindList;
-   }
-   
-   public void setWrapperClass(String wrapperClass)
-   {
-      this.wrapperClass = wrapperClass;
-   }
-   
-   public void setVarBindList(List varBindList)
-   {
-      this.varBindList = varBindList;
-   }
-   
-   public void addVarBind(VarBind varBind)
-   {
-      varBindList.add(varBind);
-   }
+	// Accessors/Modifiers -------------------------------------------
 
-   // Object overrides ----------------------------------------------
-   
-   public String toString()
-   {
-      StringBuffer sbuf = new StringBuffer(256);
-      
-      sbuf.append('[')
-      .append("wrapperClass=").append(wrapperClass)
-      .append(", varBindList=").append(varBindList)
-      .append(']');
-      
-      return sbuf.toString();      
-   }   
+	public String getWrapperClass() {
+		return wrapperClass;
+	}
+
+	public List<VarBind> getVarBindList() {
+		return varBindList;
+	}
+
+	@XmlAttribute(name = "wrapper-class")
+	public void setWrapperClass(String wrapperClass) {
+		this.wrapperClass = wrapperClass;
+	}
+
+	@XmlElement(name = "var-bind")
+	public void setVarBindList(List<VarBind> varBindList) {
+		this.varBindList = varBindList;
+	}
+	
+	public void addVarBind(VarBind child) {
+		this.varBindList.add(child);
+	}
+
+	// Object overrides ----------------------------------------------
+
+	public String toString() {
+		StringBuffer sbuf = new StringBuffer(256);
+
+		sbuf.append('[').append("wrapperClass=").append(wrapperClass)
+				.append(", varBindList=").append(varBindList).append(']');
+
+		return sbuf.toString();
+	}	
 }

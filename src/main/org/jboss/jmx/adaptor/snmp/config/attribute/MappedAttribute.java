@@ -21,53 +21,62 @@
  */
 package org.jboss.jmx.adaptor.snmp.config.attribute;
 
+import javax.xml.bind.annotation.XmlAttribute;
+
 /**
  * An attribute mapping, by default readonly.
  * 
  * @author <a href="mailto:hwr@pilhuhn.de">Heiko W. Rupp</a>
  * @version $Revision: 110494 $
  */
-public class MappedAttribute
-{
+public class MappedAttribute {
 	private String name;
 	private String oid;
+	private String mode;
 	private boolean isReadWrite = false;
-	
+
+	public MappedAttribute() {
+	}
+
 	/** Attribute name */
-	public String getName()
-   {
+	public String getName() {
 		return name;
 	}
-   
-	public void setName(String name)
-   {
+
+	@XmlAttribute(name="name")
+	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	/** Attribute oid */
-	public String getOid()
-   {
+	public String getOid() {
 		return oid;
 	}
-   
-	public void setOid(String oid)
-   {
+
+	@XmlAttribute(name="oid")
+	public void setOid(String oid) {
 		this.oid = oid;
 	}
 
-   /** Attribute mode (ro/rw) */
-   public boolean isReadWrite()
-   {
-      return isReadWrite;
-   }
-   
-   public void setReadWrite(boolean mode)
-   {
-      isReadWrite = mode;
-   }
-   
-	public String toString()
-   {
+	/** Attribute mode (ro/rw) */
+	public boolean isReadWrite() {
+		return isReadWrite;
+	}
+	
+	/** Attribute mode (ro/rw) */
+	public String getMode() {
+		return mode;
+	}
+
+	@XmlAttribute(name="mode")
+	public void setMode(String mode) {
+		this.mode = mode;
+		if(mode != null && mode.equalsIgnoreCase("rw")) {
+			isReadWrite = true;
+		}
+	}
+
+	public String toString() {
 		StringBuffer buf = new StringBuffer();
 		buf.append("[name=").append(name);
 		buf.append(", oid=").append(oid);

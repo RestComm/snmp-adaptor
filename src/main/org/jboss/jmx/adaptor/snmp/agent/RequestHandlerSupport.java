@@ -39,7 +39,7 @@ import org.snmp4j.smi.OctetString;
  * @author <a href="mailto:dimitris@jboss.org">Dimitris Andreadis</a>
  * @version $Revision: 110496 $
  */
-public class RequestHandlerSupport implements RequestHandler
+public abstract class RequestHandlerSupport implements RequestHandler
 {
    // Protected Data ------------------------------------------------
    

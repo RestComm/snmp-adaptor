@@ -21,10 +21,12 @@
  */
 package org.jboss.jmx.adaptor.snmp.agent;
 
+import java.util.List;
+
 import javax.management.MBeanServer;
 
+import org.jboss.jmx.adaptor.snmp.config.attribute.ManagedBean;
 import org.jboss.logging.Logger;
-//import org.opennms.protocols.snmp.SnmpAgentHandler;
 
 /**
  * Interface that must be implemented by classes
@@ -45,7 +47,10 @@ public interface RequestHandler extends SnmpAgentRequestHandler
     * @param uptime the snmp agent uptime
     * @throws Exception in case of initialization problem
     */
-   public void initialize(String resourceName, MBeanServer server, Logger loggger, Clock uptime)
+   void initialize(String resourceName, MBeanServer server, Logger loggger, Clock uptime)
       throws Exception;
+
+   void addAttributeMappings(List<ManagedBean> mappings);
+   void removeAttributeMappings(List<ManagedBean> mappings);
 
 } // RequestHandler

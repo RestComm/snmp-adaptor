@@ -31,6 +31,9 @@ import java.util.Map;
 import javax.management.Notification;
 import javax.management.ObjectName;
 
+import org.jboss.jmx.adaptor.snmp.config.attribute.AttributeMappings;
+import org.jboss.jmx.adaptor.snmp.config.attribute.ManagedBean;
+import org.jboss.jmx.adaptor.snmp.config.notification.Mapping;
 import org.jboss.jmx.adaptor.snmp.config.user.User;
 import org.jboss.system.ListenerServiceMBeanSupport;
 import org.jboss.xb.binding.MappingObjectModelFactory;
@@ -797,6 +800,26 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
 	    } catch (Exception e) {
 	         log.error("Problem occured while Sending trap", e);
 	    }   		
+	}
+
+	@Override
+	public void addAttributeMappings(List<ManagedBean> mappings) {
+		requestHandler.addAttributeMappings(mappings);
+	}
+
+	@Override
+	public void removeAttributeMappings(List<ManagedBean> mappings) {
+		requestHandler.removeAttributeMappings(mappings);
+	}
+
+	@Override
+	public void addNotifications(List<Mapping> notifications) {
+		trapEmitter.addNotifications(notifications);
+	}
+
+	@Override
+	public void removeNotifications(List<Mapping> notifications) {
+		trapEmitter.removeNotifications(notifications);		
 	}
 
 }

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -394,78 +395,85 @@ public class TrapEmitter
          Unmarshaller unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
 
          // let JBossXB do it's magic using the MappingObjectModelFactory
-         this.notificationMapList = (ArrayList)unmarshaller.unmarshal(is, omf, null);         
-      }
-      catch (Exception e)
-      {
+         List<Mapping> notifications = (List<Mapping>)unmarshaller.unmarshal(is, omf, null);     
+         log.debug("Found " + notifications.size() + " notification mappings");   
+         
+         // Initialise the cache with the compiled regular expressions denoting 
+         // notification type specifications
+         this.mappingRegExpCache = 
+            new ArrayList(notifications.size());
+           
+         // Initialise the cache with the instantiated notification wrappers
+         this.notificationWrapperCache =
+            new ArrayList(notifications.size());
+         
+         this.notificationMapList =
+             new ArrayList(notifications.size());
+           
+         addNotifications(notifications);
+      } catch (Exception e) {
          log.error("Accessing resource '" + snmpAgentService.getNotificationMapResName() + "'");
          throw e;
-      }
-      finally
-      {
-         if (is != null)
-         {
+      } finally {
+         if (is != null) {
             // close the XML stream
             is.close();            
          }
-      }
-      log.debug("Found " + notificationMapList.size() + " notification mappings");   
-      
-      // Initialise the cache with the compiled regular expressions denoting 
-      // notification type specifications
-      this.mappingRegExpCache = 
-         new ArrayList(notificationMapList.size());
-        
-      // Initialise the cache with the instantiated notification wrappers
-      this.notificationWrapperCache =
-         new ArrayList(notificationMapList.size());
-        
-      for (Iterator i = notificationMapList.iterator(); i.hasNext(); )
-      {
-         Mapping mapping = (Mapping)i.next();
-         
-         // Compile and add the regular expression
-         String notificationType = mapping.getNotificationType();
-         
-         try
-         {
-            Pattern re = Pattern.compile(notificationType);
-            this.mappingRegExpCache.add(re);
-         }
-         catch (PatternSyntaxException e)
-         {
-            // Fill the slot to keep index count correct
-            this.mappingRegExpCache.add(null);
-                
-            log.warn("Error compiling notification mapping for type: " + notificationType, e); 
-         }
-            
-         // Instantiate and add the wrapper
-         // Read wrapper class name 
-         String wrapperClassName = mapping.getVarBindList().getWrapperClass();
-                
-         log.debug("notification wrapper class: " + wrapperClassName);
-         
-         try
-         {
-            NotificationWrapper wrapper =
-               (NotificationWrapper)Class.forName(wrapperClassName, true, this.getClass().getClassLoader()).newInstance();
-                
-            // Initialise it
-            wrapper.set(snmpAgentService.getClock(), snmpAgentService.getTrapCounter());
-            
-            // Add the wrapper to the cache
-            this.notificationWrapperCache.add(wrapper);
-         }
-         catch (Exception e)
-         {
-            // Fill the slot to keep index count correct
-            this.notificationWrapperCache.add(null);
-                
-            log.warn("Error compiling notification mapping for type: " + notificationType, e);  
-         }
-      }
+      }      
    }
+
+	public void addNotifications(List<Mapping> notifications) {
+		for (Iterator<Mapping> i = notifications.iterator(); i.hasNext();) {
+			Mapping mapping = i.next();
+
+			// Compile and add the regular expression
+			String notificationType = mapping.getNotificationType();
+
+			try {
+				Pattern re = Pattern.compile(notificationType);
+				this.mappingRegExpCache.add(re);
+			} catch (PatternSyntaxException e) {
+				// Fill the slot to keep index count correct
+				this.mappingRegExpCache.add(null);
+
+				log.warn("Error compiling notification mapping for type: "
+						+ notificationType, e);
+			}
+
+			// Instantiate and add the wrapper
+			// Read wrapper class name
+			String wrapperClassName = mapping.getVarBindList()
+					.getWrapperClass();
+
+			log.debug("notification wrapper class: " + wrapperClassName);
+
+			try {
+				NotificationWrapper wrapper = (NotificationWrapper) Class
+						.forName(wrapperClassName, true,
+								this.getClass().getClassLoader()).newInstance();
+
+				// Initialise it
+				wrapper.set(snmpAgentService.getClock(),
+						snmpAgentService.getTrapCounter());
+
+				// Add the wrapper to the cache
+				this.notificationWrapperCache.add(wrapper);
+			} catch (Exception e) {
+				// Fill the slot to keep index count correct
+				this.notificationWrapperCache.add(null);
+
+				log.warn("Error compiling notification mapping for type: "
+						+ notificationType, e);
+			}
+			
+			notificationMapList.add(mapping);
+		}
+	}
+	
+	public void removeNotifications(List<Mapping> notifications) {
+		// TODO Auto-generated method stub
+		
+	}
    
    /**
     * Function used to change the SNMP versions received from managers
@@ -672,4 +680,5 @@ public class TrapEmitter
 			return root;
 		}
 	}
+
 } // class TrapEmitter

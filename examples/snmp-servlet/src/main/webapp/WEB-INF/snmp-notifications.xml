@@ -1,18 +1,10 @@
 <?xml version="1.0"?>
 <notification-map-list>   
         
-  <mapping>
-    <notification-type>snmp.servlet.test.coldstart</notification-type>
-    <generic>6</generic>
-    <specific>10</specific>
-    <enterprise>1.3.6.1.4.1.2312.100</enterprise>
-    <!--inform>true</inform-->
-    <security-name>TEST</security-name>    
+  <mapping notification-type="snmp.servlet.test.coldstart" generic="6" specific="10" enterprise="1.3.6.1.4.1.2312.100" security-name="TEST">
+    <!--inform>true</inform-->        
     <var-bind-list wrapper-class="org.jboss.jmx.adaptor.snmp.agent.NotificationWrapperSupport">
-      <var-bind>
-        <tag>u:startTime</tag>
-        <oid>1.3.6.1.4.1.2312.100.10.1</oid>
-      </var-bind>      
+      <var-bind tag="u:startTime" oid="1.3.6.1.4.1.2312.100.10.1"/>      
     </var-bind-list>               
   </mapping>
 </notification-map-list>

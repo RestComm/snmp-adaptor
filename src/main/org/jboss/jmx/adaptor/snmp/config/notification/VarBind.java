@@ -21,63 +21,58 @@
  */
 package org.jboss.jmx.adaptor.snmp.config.notification;
 
+import javax.xml.bind.annotation.XmlAttribute;
+
 /**
  * Simple POJO class to model XML data
  * 
- * @author  <a href="mailto:dimitris@jboss.org">Dimitris Andreadis</a>
+ * @author <a href="mailto:dimitris@jboss.org">Dimitris Andreadis</a>
  * 
  * @version $Revision: 81038 $
  */
-public class VarBind
-{
-   // Private Data --------------------------------------------------
+public class VarBind {
+	// Private Data --------------------------------------------------
 
-   private String tag;
-   private String oid;
+	private String tag;
+	private String oid;
 
-   // Constructors -------------------------------------------------
-   
-   /**
-    * Default CTOR
-    */
-   public VarBind()
-   {
-      // empty
-   }
+	// Constructors -------------------------------------------------
 
-   // Accessors/Modifiers -------------------------------------------
-  
-   public String getOid()
-   {
-      return oid;
-   } 
+	/**
+	 * Default CTOR
+	 */
+	public VarBind() {
+		// empty
+	}
 
-   public String getTag()
-   {
-      return tag;
-   }
+	// Accessors/Modifiers -------------------------------------------
 
-   public void setOid(String oid)
-   {
-      this.oid = oid;
-   }
-   
-   public void setTag(String tag)
-   {
-      this.tag = tag;
-   }
+	public String getOid() {
+		return oid;
+	}
 
-   // Object overrides ----------------------------------------------
-   
-   public String toString()
-   {
-      StringBuffer sbuf = new StringBuffer(256);
-      
-      sbuf.append('[')
-      .append("tag=").append(tag)
-      .append(", oid=").append(oid)
-      .append(']');
-      
-      return sbuf.toString();      
-   }      
+	public String getTag() {
+		return tag;
+	}
+
+	@XmlAttribute(name = "oid")
+	public void setOid(String oid) {
+		this.oid = oid;
+	}
+
+	@XmlAttribute(name = "tag")
+	public void setTag(String tag) {
+		this.tag = tag;
+	}
+
+	// Object overrides ----------------------------------------------
+
+	public String toString() {
+		StringBuffer sbuf = new StringBuffer(256);
+
+		sbuf.append('[').append("tag=").append(tag).append(", oid=")
+				.append(oid).append(']');
+
+		return sbuf.toString();
+	}
 }

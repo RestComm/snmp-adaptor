@@ -112,9 +112,8 @@ public class AttributeMappingsBinding implements ObjectModelFactory
 			String oid = attrs.getValue("oid");
 			String name = attrs.getValue("name");
 			String mode = attrs.getValue("mode");
-			attribute = new MappedAttribute();
-			if ("rw".equalsIgnoreCase(mode))
-            attribute.setReadWrite(true);
+			attribute = new MappedAttribute();		
+            attribute.setMode(mode);
 			attribute.setName(name);
 			attribute.setOid(oid);
 		}

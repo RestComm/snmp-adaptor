@@ -298,8 +298,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 * 		   error indications. Both the error type (ErrorStatus) and error index (the binding in the 
 	 * 		   PDU being processed that caused the error are returned.)
 	 */
-	public PDU snmpReceivedGet (PDU pdu)
-	{
+	public PDU snmpReceivedGet (PDU pdu) {
 		PDU response;
 		// this counts the number of VariableBindings and indicates which one caused a problem, if any
 		int errorIndex = 1;
@@ -344,12 +343,10 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 					newVB = new VariableBinding(noid);
 					try {
 						var = getValueFor(noid);
-					}
-					catch (NoSuchInstanceException e) {
+					} catch (NoSuchInstanceException e) {
 						log.debug("snmpReceivedGet: GETNEXT operation returned null. No such OID.");
 						var = Null.noSuchInstance;
-					}
-					catch (VariableTypeException e) {
+					} catch (VariableTypeException e) {
 						log.debug("snmpReceivedGet: GETNEXT operation could not convert the returned value for " + noid + " into an appropriate type.");
 						makeErrorPdu(response, pdu, errorIndex, PDU.genErr);
 						return response;
@@ -364,17 +361,15 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				if (checkObject(oid)){				
 					try {
 						var = getValueFor(oid);
-					}
-					catch (NoSuchInstanceException e) {
+					} catch (NoSuchInstanceException e) {
 						log.debug("snmpReceivedGet: GET operation returned null. No such Instance.");
 						var = Null.noSuchInstance;
-					}
-					catch (VariableTypeException e) {
+					} catch (VariableTypeException e) {
 						log.debug("snmpReceivedGet: GET operation could not convert the returned value for " + oid + " into an appropriate type.");
 						makeErrorPdu(response, pdu, errorIndex, PDU.genErr);
 						return response;
 						
-						}
+					}
 					
 				}
 				// if we get here, there's no such object.
@@ -630,37 +625,46 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		 * We have the MBeans now. Put them into the bindungs.
 		 */
 
-		Iterator it = mappings.iterator();
-		while (it.hasNext())
-      {
-		   ManagedBean mmb = (ManagedBean)it.next();
-		   String oidPrefix = mmb.getOidPrefix();
-		   List attrs = mmb.getAttributes();
-		   Iterator aIt = attrs.iterator();
-		   while (aIt.hasNext())
-		   {
-			  Object check = aIt.next();
- 
-			  
-			  MappedAttribute ma = (MappedAttribute)check;
-			  		  
-			  String oid;
-			  if (oidPrefix != null){
-				  oid = oidPrefix + ma.getOid();
-				  addObjectEntry(new OID(oidPrefix));
-			  }
-			  else{
-				  oid = ma.getOid();
-				  OID objectOID = new OID(oid);
-      			  addObjectEntry(objectOID.trim());
-			  }
-			 
-			  addBindEntry(oid, mmb.getName(), ma.getName(),ma.isReadWrite());
-
-			  
-  		   }
-      }
+		addAttributeMappings(mappings);
    }
+
+	/**
+	 * @param mappings
+	 */
+	public void addAttributeMappings(List<ManagedBean> mappings) {
+		Iterator<ManagedBean> it = mappings.iterator();
+		while (it.hasNext()) {
+			ManagedBean mmb = it.next();
+			String oidPrefix = mmb.getOidPrefix();
+			List attrs = mmb.getAttributes();
+			Iterator aIt = attrs.iterator();
+			while (aIt.hasNext()) {
+				Object check = aIt.next();
+
+				MappedAttribute ma = (MappedAttribute) check;
+
+				String oid;
+				if (oidPrefix != null) {
+					oid = oidPrefix + ma.getOid();
+					addObjectEntry(new OID(oidPrefix));
+				} else {
+					oid = ma.getOid();
+					OID objectOID = new OID(oid);
+					addObjectEntry(objectOID.trim());
+				}
+
+				addBindEntry(oid, mmb.getName(), ma.getName(), ma.isReadWrite());
+
+			}
+		}
+	}
+	
+	/**
+	 * @param mappings
+	 */
+	public void removeAttributeMappings(List<ManagedBean> mappings) {
+		
+	}
 	
 	/** This method adds a new ObjectEntry to the set of Object OIDs.
 	 * @param String representation of the OID to add. 

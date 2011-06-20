@@ -1,32 +1,10 @@
 <?xml version="1.0"?>
-<!--
-  $Id$
-  
-  This configuration file controls the mapping of JMX mbean attributes
-  to SNMP OIDs accessible through the snmp-adapter.
-  
-  For each MBean listed, you can add an oid-prefix, that will be
-  prepended to the attribute oid. If no oid-prefix is defined,
-  the attribute oid is used literally.
--->  
+
 <attribute-mappings>
    
-   
-   <!-- DefaultDS statistics -->
-   <mbean name="jboss.jca:name=DefaultDS,service=ManagedConnectionPool" oid-prefix=".1.3.6.1.4.1.2312.100.1">
-      <attribute name="InUseConnectionCount" oid=".9"/>
-	  <attribute name="MaxConnectionsInUseCount" oid=".10"/>
-   </mbean>
-
-   <!-- system information group see RFC-1213 -->
-   <mbean name="jboss.jmx:name=SnmpAgent,service=MIB2SystemGroup" oid-prefix=".1.3.6.1.2.1.1">
-      <attribute name="SysDescr" oid=".1" mode="rw"/> <!-- can be modified over snmp -->
-      <attribute name="SysObjectId" oid=".2"/>
-      <attribute name="SysUpTime" oid=".3"/>
-      <attribute name="SysContact" oid=".4"/>
-      <attribute name="SysName" oid=".5"/>
-      <attribute name="SysLocation" oid=".6"/>
-      <attribute name="SysServices" oid=".7"/>
+   <mbean name="test.com:service=SnmpTest" oid-prefix=".1.3.6.1.4.1.2312.100.10.10">
+      <attribute name="Message" oid=".1" mode="rw"/>
+      <attribute name="Count" oid=".2"/>
    </mbean>
    
 </attribute-mappings>

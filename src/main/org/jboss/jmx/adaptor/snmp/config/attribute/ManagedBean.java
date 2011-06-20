@@ -21,8 +21,10 @@
  */
 package org.jboss.jmx.adaptor.snmp.config.attribute;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * ManagedBean holding list of MappedAttributes
@@ -30,44 +32,46 @@ import java.util.List;
  * @author Heiko W. Rupp <pilhuhn@user.sf.net>
  * @version $Release:$
  */
-public class ManagedBean
-{
+public class ManagedBean {
 	private String name;
 	private String oidPrefix;
-	private List attributes = new ArrayList();
-	
-	public List getAttributes()
-   {
+	private List<MappedAttribute> attributes;
+
+	/**
+	 * Default CTOR
+	 */
+	public ManagedBean() {
+		// empty
+	}
+
+	public List<MappedAttribute> getAttributes() {
 		return attributes;
 	}
-   
-	public void setAttributes(List attributes)
-   {
+
+	@XmlElement(name="attribute")
+	public void setAttributes(List<MappedAttribute> attributes) {
 		this.attributes = attributes;
 	}
-   
-	public String getName()
-   {
+
+	public String getName() {
 		return name;
 	}
-   
-	public void setName(String name)
-   {
+
+	@XmlAttribute(name="name")
+	public void setName(String name) {
 		this.name = name;
 	}
-   
-	public String getOidPrefix()
-   {
+
+	public String getOidPrefix() {
 		return oidPrefix;
 	}
-   
-	public void setOidPrefix(String oid_prefix)
-   {
+
+	@XmlAttribute(name="oid-prefix")
+	public void setOidPrefix(String oid_prefix) {
 		this.oidPrefix = oid_prefix;
 	}
-	
-	public String toString()
-   {
+
+	public String toString() {
 		StringBuffer buf = new StringBuffer();
 		buf.append("[name=").append(name);
 		buf.append(", oidPrefix=").append(oidPrefix);

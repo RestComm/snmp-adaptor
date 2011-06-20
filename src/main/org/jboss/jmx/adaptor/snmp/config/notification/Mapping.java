@@ -21,6 +21,9 @@
  */
 package org.jboss.jmx.adaptor.snmp.config.notification;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+
 /**
  * Simple POJO class to model XML data
  * 
@@ -30,122 +33,114 @@ package org.jboss.jmx.adaptor.snmp.config.notification;
  */
 public class Mapping
 {
-   // Private Data --------------------------------------------------
+	private String notificationType;
+	private int generic;
+	private int specific;
+	private String enterprise;
+	private boolean inform;
+	private String securityName;
+	private VarBindList varBindList;
 
-   private String      notificationType;
-   private int         generic;
-   private int         specific;
-   private String      enterprise;
-   private boolean 	   inform;
-   private String  securityName;
-   private VarBindList varBindList;
+	// Constructors -------------------------------------------------
 
-   // Constructors -------------------------------------------------
-   
-  /**
-   * Default CTOR
-   */
-  public Mapping()
-  {
-     // empty
-  }
+	/**
+	 * Default CTOR
+	 */
+	public Mapping() {
+		// empty
+	}
 
-  // Accessors/Modifiers -------------------------------------------  
-  
-   public String getEnterprise()
-   {
-      return enterprise;
-   }
+	// Accessors/Modifiers -------------------------------------------
 
-   public int getGeneric()
-   {
-      return generic;
-   }
+	public String getEnterprise() {
+		return enterprise;
+	}
 
-   public String getNotificationType()
-   {
-      return notificationType;
-   }
+	public int getGeneric() {
+		return generic;
+	}
 
-   public int getSpecific()
-   {
-      return specific;
-   }
+	public String getNotificationType() {
+		return notificationType;
+	}
 
-   public VarBindList getVarBindList()
-   {
-      return varBindList;
-   }
+	public int getSpecific() {
+		return specific;
+	}
 
-   public void setEnterprise(String enterprise)
-   {
-      this.enterprise = enterprise;
-   }
-
-   public void setGeneric(int generic)
-   {
-      this.generic = generic;
-   }
-   
-   public void setNotificationType(String notificationType)
-   {
-      this.notificationType = notificationType;
-   }
-
-   public void setSpecific(int specific)
-   {
-      this.specific = specific;
-   }
-
-   public void setVarBindList(VarBindList varBindList)
-   {
-      this.varBindList = varBindList;
-   }
-   
-   /**
-    * @param inform the inform to set
-    */
-   public void setInform(boolean inform) {
-	   	this.inform = inform;
-   }
+	public VarBindList getVarBindList() {
+		return varBindList;
+	}
 	
-   /**
-    * @return the inform
-    */
-   public boolean isInform() {
-	   	return inform;
-   }
-   
-   /**
-    * @param securityName the securityName to set
-    */
-   public void setSecurityName(String securityName) {
-   	this.securityName = securityName;
-   }
+	@XmlAttribute(name="enterprise")
+	public void setEnterprise(String enterprise) {
+		this.enterprise = enterprise;
+	}
 
-   /**
-    * @return the securityName
-    */
-   public String getSecurityName() {
-   	return securityName;
-   }
-   
-   // Object overrides ----------------------------------------------
-   
-   public String toString()
-   {
-      StringBuffer sbuf = new StringBuffer(256);
-      
-      sbuf.append('[')
-      .append("notificationType=").append(notificationType)
-      .append(", generic=").append(generic)
-      .append(", specific=").append(specific)
-      .append(", enterprise=").append(enterprise)
-      .append(", inform=").append(inform)
-      .append(", securityName=").append(securityName)
-      .append(", varBindList=").append(varBindList)      
-      .append(']');
-      
-      return sbuf.toString();      
-   }   
+	@XmlAttribute(name="generic")
+	public void setGeneric(int generic) {
+		this.generic = generic;
+	}
+
+	@XmlAttribute(name="notification-type")
+	public void setNotificationType(String notificationType) {
+		this.notificationType = notificationType;
+	}
+
+	@XmlAttribute(name="specific")
+	public void setSpecific(int specific) {
+		this.specific = specific;
+	}
+
+	@XmlElement(name="var-bind-list")
+	public void setVarBindList(VarBindList varBindList) {
+		this.varBindList = varBindList;
+	}
+
+	/**
+	 * @param inform
+	 *            the inform to set
+	 */
+	@XmlAttribute(name="inform")
+	public void setInform(boolean inform) {
+		this.inform = inform;
+	}
+
+	/**
+	 * @return the inform
+	 */
+	public boolean isInform() {
+		return inform;
+	}
+
+	/**
+	 * @param securityName
+	 *            the securityName to set
+	 */
+	@XmlAttribute(name="security-name")
+	public void setSecurityName(String securityName) {
+		this.securityName = securityName;
+	}
+
+	/**
+	 * @return the securityName
+	 */
+	public String getSecurityName() {
+		return securityName;
+	}
+
+	// Object overrides ----------------------------------------------
+
+	public String toString() {
+		StringBuffer sbuf = new StringBuffer(256);
+
+		sbuf.append('[').append("notificationType=").append(notificationType)
+				.append(", generic=").append(generic).append(", specific=")
+				.append(specific).append(", enterprise=").append(enterprise)
+				.append(", inform=").append(inform).append(", securityName=")
+				.append(securityName).append(", varBindList=")
+				.append(varBindList).append(']');
+
+		return sbuf.toString();
+	}   
 }
