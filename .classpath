@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<classpath> 
+<classpath>
 	<classpathentry excluding="org/jboss/jdo/castor/|org/jboss/varia/stats/" including="**/*.java" kind="src" path="src/main"/>
+	<classpathentry kind="src" output="deployer/target/classes" path="deployer/src/main/resources"/>
+	<classpathentry kind="src" output="deployer/target/classes" path="deployer/src/main/java"/>
 	<classpathentry kind="src" output="examples/snmp-servlet/src/main/webapp/WEB-INF/classes" path="examples/snmp-servlet/src/main/java"/>
 	<classpathentry excluding="**/*.java" kind="src" path="src/resources"/>
 	<classpathentry kind="var" path="M2_REPO/javax/activation/activation/1.1/activation-1.1.jar" sourcepath="M2_REPO/javax/activation/activation/1.1/activation-1.1-sources.jar"/>
