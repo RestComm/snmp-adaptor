@@ -471,8 +471,10 @@ public class TrapEmitter
 	}
 	
 	public void removeNotifications(List<Mapping> notifications) {
-		// TODO Auto-generated method stub
-		
+		for (Iterator<Mapping> i = notifications.iterator(); i.hasNext();) {
+			Mapping mapping = i.next();
+			notificationMapList.remove(mapping);
+		}
 	}
    
    /**

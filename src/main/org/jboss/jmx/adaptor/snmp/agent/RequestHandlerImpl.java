@@ -663,7 +663,32 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 * @param mappings
 	 */
 	public void removeAttributeMappings(List<ManagedBean> mappings) {
-		
+		Iterator<ManagedBean> it = mappings.iterator();
+		while (it.hasNext()) {
+			ManagedBean mmb = it.next();
+			String oidPrefix = mmb.getOidPrefix();
+			List attrs = mmb.getAttributes();
+			Iterator aIt = attrs.iterator();
+			while (aIt.hasNext()) {
+				Object check = aIt.next();
+
+				MappedAttribute ma = (MappedAttribute) check;
+
+				String oid;
+				if (oidPrefix != null) {
+					oid = oidPrefix + ma.getOid();
+					objectKeys.remove(new OID(oidPrefix));
+				} else {
+					oid = ma.getOid();
+					OID objectOID = new OID(oid);
+					objectKeys.remove(objectOID.trim());
+				}
+				OID coid = new OID(oid);
+				oidKeys.remove(coid);
+				bindings.remove(coid);
+
+			}
+		}
 	}
 	
 	/** This method adds a new ObjectEntry to the set of Object OIDs.
