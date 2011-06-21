@@ -5,14 +5,12 @@
 -->
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
 
-   <bean name="SnmpAttributesParsingDeployer" class="org.jboss.jmx.adaptor.snmp.deployer.metadata.attributes.SnmpAttributesParsingDeployer"/>
-   <bean name="SnmpNotificationsParsingDeployer" class="org.jboss.jmx.adaptor.snmp.deployer.metadata.notifications.SnmpNotificationsParsingDeployer"/>
+   	<bean name="SnmpAttributesParsingDeployer" class="org.jboss.jmx.adaptor.snmp.deployer.SnmpAttributesParsingDeployer"/>
+   	
+   	<bean name="SnmpNotificationsParsingDeployer" class="org.jboss.jmx.adaptor.snmp.deployer.SnmpNotificationsParsingDeployer"/>
 
-	<bean name="MergedSnmpMetaDataDeployer" 
-          class="org.jboss.jmx.adaptor.snmp.deployer.metadata.MergedSnmpMetaDataDeployer">
-   </bean>
-   
-  <!-- Responsible for discovering Snmp files -->
-  <bean name="SnmpFilesDeployer" class="org.jboss.jmx.adaptor.snmp.deployer.metadata.SnmpFilesDeployer"/>
-  
+	<bean name="MergedSnmpMetaDataDeployer" class="org.jboss.jmx.adaptor.snmp.deployer.MergedSnmpMetaDataDeployer"/>
+   	
+  	<bean name="SnmpFilesDeployer" class="org.jboss.jmx.adaptor.snmp.deployer.SnmpFilesDeployer"/>
+  	
 </deployment>

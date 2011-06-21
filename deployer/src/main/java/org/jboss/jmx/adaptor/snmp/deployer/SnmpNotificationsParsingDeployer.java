@@ -20,45 +20,46 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.jmx.adaptor.snmp.deployer.metadata.attributes;
+package org.jboss.jmx.adaptor.snmp.deployer;
 
 
 import org.jboss.deployers.vfs.spi.deployer.SchemaResolverDeployer;
+import org.jboss.jmx.adaptor.snmp.deployer.metadata.notifications.SnmpNotificationsMetaData;
 
 /**
- * An ObjectModelFactoryDeployer for translating snmp-attribtues.xml descriptors into
- * SnmpAttributesMetaData instances.
+ * An ObjectModelFactoryDeployer for translating snmp-notifications.xml descriptors into
+ * SnmpNotificationsMetaData instances.
  * 
  * @author jean.deruelle@gmail.com
  */
-public class SnmpAttributesParsingDeployer  extends SchemaResolverDeployer<SnmpAttributesMetaData>
+public class SnmpNotificationsParsingDeployer  extends SchemaResolverDeployer<SnmpNotificationsMetaData>
 {
-   public SnmpAttributesParsingDeployer ()
+   public SnmpNotificationsParsingDeployer ()
    {
-      super(SnmpAttributesMetaData.class);
-      setName("snmp-attributes.xml");
+      super(SnmpNotificationsMetaData.class);
+      setName("snmp-notifications.xml");
    }
 
    /**
     * Get the virtual file path for the sip-app descriptor in the
     * DeploymentContext.getMetaDataPath.
     * 
-    * @return the current virtual file path for the snmp-attributes descriptor
+    * @return the current virtual file path for the snmp-notifications descriptor
     */
-   public String getSnmpAttributesXmlPath()
+   public String getSnmpNotificationsXmlPath()
    {
       return getName();
    }
    /**
     * Set the virtual file path for the sip-app descriptor in the
-    * DeploymentContext.getMetaDataLocation. The standard path is snmp-attributes.xml
+    * DeploymentContext.getMetaDataLocation. The standard path is snmp-notifications.xml
     * to be found in the META-INF metdata path.
     * 
     * @param sipXmlPath - new virtual file path for the sip-notifications descriptor
     */
-   public void setSnmpAttributesXmlPath(String snmpAttributesXmlPath)
+   public void setSnmpNotificationsXmlPath(String snmpNotificationsXmlPath)
    {
-      setName(snmpAttributesXmlPath);
+      setName(snmpNotificationsXmlPath);
    }
 
 }

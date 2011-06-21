@@ -1,4 +1,4 @@
-package org.jboss.jmx.adaptor.snmp.deployer.metadata;
+package org.jboss.jmx.adaptor.snmp.deployer;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
@@ -8,6 +8,7 @@ import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.vfs.spi.deployer.AbstractSimpleVFSRealDeployer;
 import org.jboss.deployers.vfs.spi.structure.VFSDeploymentUnit;
 import org.jboss.jmx.adaptor.snmp.agent.SnmpAgentServiceMBean;
+import org.jboss.jmx.adaptor.snmp.deployer.metadata.SnmpMetaData;
 import org.jboss.mx.util.MBeanServerLocator;
 
 /**

@@ -19,12 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.jmx.adaptor.snmp.deployer.metadata;
+package org.jboss.jmx.adaptor.snmp.deployer;
 
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.spi.deployer.DeploymentStages;
 import org.jboss.deployers.spi.deployer.helpers.AbstractDeployer;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
+import org.jboss.jmx.adaptor.snmp.deployer.metadata.SnmpMetaData;
 import org.jboss.jmx.adaptor.snmp.deployer.metadata.attributes.SnmpAttributesMetaData;
 import org.jboss.jmx.adaptor.snmp.deployer.metadata.notifications.SnmpNotificationsMetaData;
 
