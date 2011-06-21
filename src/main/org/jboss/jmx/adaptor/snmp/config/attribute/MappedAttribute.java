@@ -34,6 +34,11 @@ public class MappedAttribute {
 	private String oid;
 	private String mode;
 	private boolean isReadWrite = false;
+	private String type = "";
+	private String mbName = ""; //the name of the mBean this MappedAttribute is associated with
+	private String snmpType = ""; //the type for the MIB we should use, if provided
+	private String oidPrefix = "";
+	private String oidDefName = "";
 
 	public MappedAttribute() {
 	}
@@ -74,6 +79,50 @@ public class MappedAttribute {
 		if(mode != null && mode.equalsIgnoreCase("rw")) {
 			isReadWrite = true;
 		}
+	}
+	
+	public String getType(){
+		return type;
+	}
+		
+	public void setType(String type){
+		this.type = type;
+	}
+	
+	public String getMbean(){
+		return this.mbName;
+	}
+	
+	@XmlAttribute(name="name")
+	public void setMbean(String mbName){
+		this.mbName = mbName;
+	}
+	
+	public String getSnmpType(){
+		return this.snmpType;
+	}
+	
+	public void setSnmpType(String snmpType){
+		this.snmpType=snmpType;
+	}
+	
+	public String getOidPrefix(){
+		return this.oidPrefix;
+	}
+	
+	public void setOidPrefix(String oidPrefix){
+		if (oidPrefix.charAt(0) == '.')
+			this.oidPrefix = oidPrefix.substring(1);
+		else
+			this.oidPrefix = oidPrefix;
+	}
+	
+	public String getOidDefName(){
+		return this.oidDefName;
+	}
+	
+	public void setOidDefName(String oidDefName){
+		this.oidDefName = oidDefName;
 	}
 
 	public String toString() {

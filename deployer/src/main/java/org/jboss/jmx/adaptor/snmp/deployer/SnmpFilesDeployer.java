@@ -28,15 +28,19 @@ public class SnmpFilesDeployer extends  AbstractSimpleVFSRealDeployer<SnmpMetaDa
 	public void deploy(VFSDeploymentUnit unit, SnmpMetaData snmp)
 			throws DeploymentException {
 		if(snmp != null) {
-			MBeanServer server = MBeanServerLocator.locateJBoss();		
-			SnmpAgentServiceMBean snmpAgentServiceMBean = MBeanServerInvocationHandler.newProxyInstance(server, SnmpAgentServiceMBean.OBJECT_NAME, SnmpAgentServiceMBean.class, true);
-			if(snmpAgentServiceMBean != null) {
-				if(snmp.getAttributesMetaData() != null) {
-					snmpAgentServiceMBean.addAttributeMappings(snmp.getAttributesMetaData().getManagedBeans());
+			MBeanServer server = MBeanServerLocator.locateJBoss();	
+			try {
+				SnmpAgentServiceMBean snmpAgentServiceMBean = MBeanServerInvocationHandler.newProxyInstance(server, SnmpAgentServiceMBean.OBJECT_NAME, SnmpAgentServiceMBean.class, true);
+				if(snmpAgentServiceMBean != null) {
+					if(snmp.getAttributesMetaData() != null) {
+						snmpAgentServiceMBean.addAttributeMappings(snmp.getAttributesMetaData().getManagedBeans());
+					}
+					if(snmp.getNotificationsMetaData() != null) {
+						snmpAgentServiceMBean.addNotifications(snmp.getNotificationsMetaData().getMappings());
+					}
 				}
-				if(snmp.getNotificationsMetaData() != null) {
-					snmpAgentServiceMBean.addNotifications(snmp.getNotificationsMetaData().getMappings());
-				}
+			} catch (Exception e) {
+				logger.warn("cannot access the snmp agent service for unit " + unit.getRelativePath());
 			}
 		}
 	}
@@ -44,15 +48,19 @@ public class SnmpFilesDeployer extends  AbstractSimpleVFSRealDeployer<SnmpMetaDa
 	@Override
 	public void undeploy(VFSDeploymentUnit unit, SnmpMetaData snmp) {
 		if(snmp != null) {
-			MBeanServer server = MBeanServerLocator.locateJBoss();		
-			SnmpAgentServiceMBean snmpAgentServiceMBean = MBeanServerInvocationHandler.newProxyInstance(server, SnmpAgentServiceMBean.OBJECT_NAME, SnmpAgentServiceMBean.class, true);
-			if(snmpAgentServiceMBean != null) {
-				if(snmp.getAttributesMetaData() != null) {
-					snmpAgentServiceMBean.removeAttributeMappings(snmp.getAttributesMetaData().getManagedBeans());
+			try {
+				MBeanServer server = MBeanServerLocator.locateJBoss();		
+				SnmpAgentServiceMBean snmpAgentServiceMBean = MBeanServerInvocationHandler.newProxyInstance(server, SnmpAgentServiceMBean.OBJECT_NAME, SnmpAgentServiceMBean.class, true);
+				if(snmpAgentServiceMBean != null) {
+					if(snmp.getAttributesMetaData() != null) {
+						snmpAgentServiceMBean.removeAttributeMappings(snmp.getAttributesMetaData().getManagedBeans());
+					}
+					if(snmp.getNotificationsMetaData() != null) {
+						snmpAgentServiceMBean.removeNotifications(snmp.getNotificationsMetaData().getMappings());
+					}
 				}
-				if(snmp.getNotificationsMetaData() != null) {
-					snmpAgentServiceMBean.removeNotifications(snmp.getNotificationsMetaData().getMappings());
-				}
+			} catch (Exception e) {
+				logger.warn("cannot access the snmp agent service for unit " + unit.getRelativePath());
 			}
 		}
 	}

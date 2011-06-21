@@ -600,6 +600,20 @@ public class TrapEmitter
 
 			if ("mapping".equals(localName)) {
 				Mapping m = new Mapping();
+				
+				String notificationType = attrs.getValue("notification-type");
+				String generic = attrs.getValue("generic");
+				String specific = attrs.getValue("specific");
+				String enterprise = attrs.getValue("enterprise");
+				String inform = attrs.getValue("inform");
+				String securityName = attrs.getValue("security-name");
+				m.setNotificationType(notificationType);
+				m.setGeneric(Integer.parseInt(generic));
+				m.setSpecific(Integer.parseInt(specific));
+				m.setEnterprise(enterprise);
+				m.setInform(Boolean.parseBoolean(inform));
+				m.setSecurityName(securityName);
+				
 				child = m;
 			} else if ("var-bind-list".equals(localName)) {
 				VarBindList vblist = new VarBindList();
@@ -618,6 +632,13 @@ public class TrapEmitter
 				}
 			} else if ("var-bind".equals(localName)) {
 				VarBind vb = new VarBind();
+				String oid = attrs.getValue("oid");
+				String tag = attrs.getValue("tag");
+				String type = attrs.getValue("type");
+				vb.setOid(oid);
+				vb.setTag(tag);
+				vb.setType(type);
+				
 				child = vb;
 			}
 			return child;

@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.XmlElement;
 public class ManagedBean {
 	private String name;
 	private String oidPrefix;
+	private String oidDefinition;
 	private List<MappedAttribute> attributes;
 
 	/**
@@ -69,6 +70,17 @@ public class ManagedBean {
 	@XmlAttribute(name="oid-prefix")
 	public void setOidPrefix(String oid_prefix) {
 		this.oidPrefix = oid_prefix;
+	}
+	
+	public String getOidDefinition()
+	{
+		return oidDefinition;
+	}
+	   
+	@XmlAttribute(name="definition-name")
+	public void setOidDefinition(String oidDefinition)
+	{
+		this.oidDefinition = oidDefinition;
 	}
 
 	public String toString() {

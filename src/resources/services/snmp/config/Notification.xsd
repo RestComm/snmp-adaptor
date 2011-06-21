@@ -30,20 +30,21 @@
             <xsd:element name="mapping" maxOccurs="unbounded">
                <xsd:complexType>
                   <xsd:sequence>
-                     <xsd:element name="notification-type" type="xsd:string"/>
-                     <xsd:element name="generic" type="xsd:integer" />
-                     <xsd:element name="specific" type="xsd:integer" />
-                     <xsd:element name="enterprise" type="xsd:string" />
-                     <xsd:element name="inform" type="xsd:boolean" />
-                     <xsd:element name="securityName" type="xsd:string" />
+                     <xsd:attribute name="notification-type" type="xsd:string"/>
+                     <xsd:attribute name="generic" type="xsd:integer" />
+                     <xsd:attribute name="specific" type="xsd:integer" />
+                     <xsd:attribute name="enterprise" type="xsd:string" />
+                     <xsd:attribute name="inform" type="xsd:boolean" />
+                     <xsd:attribute name="securityName" type="xsd:string" />
                      <xsd:element name="var-bind-list">
                         <xsd:complexType>
                            <xsd:sequence>
                               <xsd:element name="var-bind" maxOccurs="unbounded">
                                  <xsd:complexType>
                                     <xsd:sequence>
-                                       <xsd:element name="tag" type="xsd:string" />
-                                       <xsd:element name="oid" type="xsd:string" />
+                                       <xsd:attribute name="tag" type="xsd:string" />
+                                       <xsd:attribute name="oid" type="xsd:string" />
+                                       <xsd:attribute name="type" type="xsd:string" />
                                     </xsd:sequence>
                                  </xsd:complexType>
                               </xsd:element>

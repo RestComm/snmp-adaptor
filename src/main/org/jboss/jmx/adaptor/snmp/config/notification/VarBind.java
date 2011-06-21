@@ -35,6 +35,7 @@ public class VarBind {
 
 	private String tag;
 	private String oid;
+	private String type;
 
 	// Constructors -------------------------------------------------
 
@@ -64,6 +65,18 @@ public class VarBind {
 	public void setTag(String tag) {
 		this.tag = tag;
 	}
+	
+	@XmlAttribute(name = "type")
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
+	}
 
 	// Object overrides ----------------------------------------------
 
@@ -71,7 +84,8 @@ public class VarBind {
 		StringBuffer sbuf = new StringBuffer(256);
 
 		sbuf.append('[').append("tag=").append(tag).append(", oid=")
-				.append(oid).append(']');
+				.append(oid).append(", type=")
+				.append(type).append(']');
 
 		return sbuf.toString();
 	}
