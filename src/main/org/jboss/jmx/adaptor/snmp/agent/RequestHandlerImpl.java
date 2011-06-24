@@ -23,9 +23,12 @@ package org.jboss.jmx.adaptor.snmp.agent;
 
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -86,6 +89,10 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	
 	/** keep track of the objects created */
 	private SortedSet objectKeys = null;
+	
+	/** keep an index of the OID from attributes.xml for mbean name defined a pattern (with a wildcard in it)
+	 * and the corresponding ManagedBean. The OID will be the OID defined in the oid-prefix minus the last .X as this will be used as the entry */
+	private SortedMap<OID, ManagedBean> tables = new TreeMap<OID, ManagedBean>();
 
 	/** Has this RequestHandler instance been initialized? */
 	private boolean initialized = false;
@@ -327,7 +334,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			if (pdu.getType()==PDU.GETNEXT){
 				// we get the lexicographically next OID from the given one.
 				try{
-				noid = getNextOid(oid);
+					noid = getNextOid(oid);
 				}
 				// if there are no lexicographically larger OIDs than this one
 				catch(EndOfMibViewException e){
@@ -356,6 +363,8 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			else {
 				newVB = new VariableBinding(oid);
 				var = null;
+				//TODO will be called for each get, not performing well, to be optimized
+				checkTables(oid);
 				// check the existence of the object for the requested instance
 				// the object is the OID with the last number removed.
 				if (checkObject(oid)){				
@@ -433,6 +442,8 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			VariableBinding newVB = new VariableBinding(oid,newVal);
 			
 			try{
+				//TODO will be called for each set, not performing well, to be optimized
+				checkTables(oid);
 				oldVar = getValueFor(oid);
 				modified.add(new VariableBinding(oid, oldVar)); // keep a record of the old variable binding.
 				if (checkObject(oid)){
@@ -627,7 +638,53 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 
 		addAttributeMappings(mappings);
    }
+	
+	/**
+	 * hacked together method that iterates through a list of object names and adds metrics to the 
+	 * bind entry set 
+	 * @param mbeanNames Set of ObjectNames associated with a wildcard ObjectName
+	 * @param attrs List of attributes that we want to know about for each entry in mbeanNames
+	 * @param oidPrefix the oidPrefix for each of these, because Ideally we are creating a table.
+	 */
+	
+	private void createTableRows(Set<ObjectName> mbeanNames, List<MappedAttribute> attrs, String tableOid){
+		List<String> onameStrings = new ArrayList<String>(1);
+		for (ObjectName oname : mbeanNames){
+			onameStrings.add(oname.toString());
+		}
+		
+		for (String mbeanRealName : onameStrings){
+			for (MappedAttribute ma : attrs){
+				String oid;
+				if (tableOid != null){
+					oid = tableOid + ma.getOid() + ".'" + mbeanRealName + "'";
+					addObjectEntry(new OID(tableOid));
+				}else{
+					oid = ma.getOid();
+					OID objectOID = new OID(oid + ".'" + mbeanRealName + "'");
+					addObjectEntry(objectOID.trim());
+				}
+				addBindEntry(oid, mbeanRealName, ma.getName(), ma.isReadWrite());
+			}
+		}
+	}
 
+	// To be optimized to call only the app needed
+	private void checkTables(OID oid) {
+		for(Entry<OID, ManagedBean> tableEntry : tables.entrySet()) {
+			ManagedBean managedBean = tableEntry.getValue();
+			if(oid.startsWith(tableEntry.getKey())) {		
+				ObjectName oname = null;
+				try{
+					oname = new ObjectName(managedBean.getName());
+				} catch (Exception e) {}
+				Set<ObjectName> mbeanNames = server.queryNames(oname, null); // get all ObjectNames of MBeans matched by the given name. they should be treated
+				// as Rows of the table defined which will have the oid oidPrefix.
+				createTableRows(mbeanNames, managedBean.getAttributes(), managedBean.getOidPrefix());				
+			}
+		}
+	}
+	
 	/**
 	 * @param mappings
 	 */
@@ -635,26 +692,33 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		Iterator<ManagedBean> it = mappings.iterator();
 		while (it.hasNext()) {
 			ManagedBean mmb = it.next();
-			String oidPrefix = mmb.getOidPrefix();
-			List attrs = mmb.getAttributes();
-			Iterator aIt = attrs.iterator();
-			while (aIt.hasNext()) {
-				Object check = aIt.next();
-
-				MappedAttribute ma = (MappedAttribute) check;
-
-				String oid;
-				if (oidPrefix != null) {
-					oid = oidPrefix + ma.getOid();
-					addObjectEntry(new OID(oidPrefix));
-				} else {
-					oid = ma.getOid();
-					OID objectOID = new OID(oid);
-					addObjectEntry(objectOID.trim());
+			ObjectName oname = null;
+			try{
+				oname = new ObjectName(mmb.getName());
+			} catch (Exception e) {}
+			if (oname.isPattern()){ //it is a pattern. the mat
+				tables.put(new OID(mmb.getOidPrefix().substring(0, mmb.getOidPrefix().length() -2)), mmb);
+				Set<ObjectName> mbeanNames = server.queryNames(oname, null); // get all ObjectNames of MBeans matched by the given name. they should be treated
+				// as Rows of the table defined which will have the oid oidPrefix.
+				createTableRows(mbeanNames, mmb.getAttributes(), mmb.getOidPrefix());
+ 			} else {
+				String oidPrefix = mmb.getOidPrefix();
+				List attrs = mmb.getAttributes();
+				Iterator aIt = attrs.iterator();
+				while (aIt.hasNext()) {
+					Object check = aIt.next();
+					MappedAttribute ma = (MappedAttribute) check;
+					String oid;
+					if (oidPrefix != null) {
+						oid = oidPrefix + ma.getOid();
+						addObjectEntry(new OID(oidPrefix));
+					} else {
+						oid = ma.getOid();
+						OID objectOID = new OID(oid);
+						addObjectEntry(objectOID.trim());
+					}
+					addBindEntry(oid, mmb.getName(), ma.getName(), ma.isReadWrite());
 				}
-
-				addBindEntry(oid, mmb.getName(), ma.getName(), ma.isReadWrite());
-
 			}
 		}
 	}
@@ -749,7 +813,12 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	
 	private boolean checkObject(final OID oid) {
 		OID coid = oid.trim(); 
-		return objectKeys.contains(coid);
+		boolean exists = objectKeys.contains(coid);
+		if(!exists) {
+			//needed for table
+			exists = oidKeys.contains(oid);
+		}
+		return exists;
 	}	
 	
 	/**
@@ -1024,7 +1093,8 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 */
 	private OID getNextOid(final OID oid) throws EndOfMibViewException {
 		OID coid = new OID(oid);
-
+		//TODO will be called for each get, not performing well, to be optimized		
+		checkTables(oid);
 
 		SortedSet ret;
 		ret=oidKeys.tailSet(oid);  // get oids >= oid
