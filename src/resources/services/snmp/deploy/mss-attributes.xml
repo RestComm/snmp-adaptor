@@ -70,7 +70,7 @@
    </mbean>
    
    <!-- Web Apps -->
-   <mbean name="jboss.web:host=localhost,path=/*,type=Manager" oid-prefix=".1.3.6.1.4.1.2312.100.1">
+   <mbean name="jboss.web:host=localhost,path=/*,type=Manager" oid-prefix=".1.3.6.1.4.1.2312.100.10.1">
    	  <attribute name="distributable" oid=".1"/>
    	  <attribute name="sessionCounter" oid=".2"/>
    	  <attribute name="activeSessions" oid=".3"/>
@@ -83,7 +83,7 @@
    </mbean>
    
    <!-- Sip or Converged Web+Sip Apps -->
-   <mbean name="jboss.web:host=localhost,path=/*,type=SipManager" oid-prefix=".1.3.6.1.4.1.2312.101.1">
+   <mbean name="jboss.web:host=localhost,path=/*,type=SipManager" oid-prefix=".1.3.6.1.4.1.2312.100.11.1">
    	  <attribute name="distributable" oid=".1"/>
    	  <attribute name="sessionCounter" oid=".2"/>
    	  <attribute name="activeSessions" oid=".3"/>

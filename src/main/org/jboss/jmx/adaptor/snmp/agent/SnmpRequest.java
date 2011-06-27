@@ -51,7 +51,9 @@ public class SnmpRequest implements CommandResponder {
 			return;
 		}
 			
-		log.info("Received Snmp request of type: "+PDU.getTypeString(pdu.getType()));
+		if(log.isDebugEnabled()) {
+			log.debug("Received Snmp request of type: "+PDU.getTypeString(pdu.getType()));
+		}
 		int type = pdu.getType();
 		
 		PDU response = null;

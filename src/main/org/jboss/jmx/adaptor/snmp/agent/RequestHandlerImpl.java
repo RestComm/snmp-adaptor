@@ -23,12 +23,9 @@ package org.jboss.jmx.adaptor.snmp.agent;
 
 import java.io.InputStream;
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -75,28 +72,23 @@ import org.snmp4j.util.DefaultPDUFactory;
 public class RequestHandlerImpl extends RequestHandlerSupport
    implements Reconfigurable
 {
+	public static final String NO_ENTRY_FOUND_FOR_OID = "No bind entry found for oid ";
+	public static final String SKIP_ENTRY = " - skipping entry";
+
 	// Protected Data ------------------------------------------------
-
-	private static final String NO_ENTRY_FOUND_FOR_OID = "No bind entry found for oid ";
-	private static final String SKIP_ENTRY = " - skipping entry";
-
-
 	/** Bindings from oid to mbean */
-	protected SortedMap bindings = new TreeMap();
+	protected SortedMap<OID, BindEntry> bindings = new TreeMap<OID, BindEntry>();
 	
 	/** keep track of the instances of variables */
-	private SortedSet oidKeys = null;
+	private SortedSet<OID> oidKeys = null;
 	
 	/** keep track of the objects created */
-	private SortedSet objectKeys = null;
+	private SortedSet<OID> objectKeys = null;
 	
-	/** keep an index of the OID from attributes.xml for mbean name defined a pattern (with a wildcard in it)
-	 * and the corresponding ManagedBean. The OID will be the OID defined in the oid-prefix minus the last .X as this will be used as the entry */
-	private SortedMap<OID, ManagedBean> tables = new TreeMap<OID, ManagedBean>();
-
+	private TableMapper tableMapper = null;
+	
 	/** Has this RequestHandler instance been initialized? */
 	private boolean initialized = false;
-
 
 	// Constructors --------------------------------------------------
 
@@ -105,9 +97,9 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 */
 	public RequestHandlerImpl() 
 	{
-		bindings = new TreeMap();
-		oidKeys = new TreeSet();
-		objectKeys = new TreeSet();
+		bindings = new TreeMap<OID, BindEntry>();
+		oidKeys = new TreeSet<OID>();
+		objectKeys = new TreeSet<OID>();
 	}
 
 	// RequestHandler Implementation ---------------------------------
@@ -125,11 +117,11 @@ public class RequestHandlerImpl extends RequestHandlerSupport
    {
       log.debug("initialize() with res=" + resourceName);
 	   super.initialize(resourceName, server, log, uptime);
+	   tableMapper = new TableMapper(server, log);
 		if (resourceName != null)
 			initializeBindings();
 		else
-			log.warn("No RequestHandlerResName configured, disabling snmp-get");
-
+			log.warn("No RequestHandlerResName configured, disabling snmp-get");		
 		initialized = true;
 	}
 
@@ -364,7 +356,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				newVB = new VariableBinding(oid);
 				var = null;
 				//TODO will be called for each get, not performing well, to be optimized
-				checkTables(oid);
+				tableMapper.checkTables(oid);
 				// check the existence of the object for the requested instance
 				// the object is the OID with the last number removed.
 				if (checkObject(oid)){				
@@ -443,7 +435,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			
 			try{
 				//TODO will be called for each set, not performing well, to be optimized
-				checkTables(oid);
+				tableMapper.checkTables(oid);
 				oldVar = getValueFor(oid);
 				modified.add(new VariableBinding(oid, oldVar)); // keep a record of the old variable binding.
 				if (checkObject(oid)){
@@ -640,52 +632,6 @@ public class RequestHandlerImpl extends RequestHandlerSupport
    }
 	
 	/**
-	 * hacked together method that iterates through a list of object names and adds metrics to the 
-	 * bind entry set 
-	 * @param mbeanNames Set of ObjectNames associated with a wildcard ObjectName
-	 * @param attrs List of attributes that we want to know about for each entry in mbeanNames
-	 * @param oidPrefix the oidPrefix for each of these, because Ideally we are creating a table.
-	 */
-	
-	private void createTableRows(Set<ObjectName> mbeanNames, List<MappedAttribute> attrs, String tableOid){
-		List<String> onameStrings = new ArrayList<String>(1);
-		for (ObjectName oname : mbeanNames){
-			onameStrings.add(oname.toString());
-		}
-		
-		for (String mbeanRealName : onameStrings){
-			for (MappedAttribute ma : attrs){
-				String oid;
-				if (tableOid != null){
-					oid = tableOid + ma.getOid() + ".'" + mbeanRealName + "'";
-					addObjectEntry(new OID(tableOid));
-				}else{
-					oid = ma.getOid();
-					OID objectOID = new OID(oid + ".'" + mbeanRealName + "'");
-					addObjectEntry(objectOID.trim());
-				}
-				addBindEntry(oid, mbeanRealName, ma.getName(), ma.isReadWrite());
-			}
-		}
-	}
-
-	// To be optimized to call only the app needed
-	private void checkTables(OID oid) {
-		for(Entry<OID, ManagedBean> tableEntry : tables.entrySet()) {
-			ManagedBean managedBean = tableEntry.getValue();
-			if(oid.startsWith(tableEntry.getKey())) {		
-				ObjectName oname = null;
-				try{
-					oname = new ObjectName(managedBean.getName());
-				} catch (Exception e) {}
-				Set<ObjectName> mbeanNames = server.queryNames(oname, null); // get all ObjectNames of MBeans matched by the given name. they should be treated
-				// as Rows of the table defined which will have the oid oidPrefix.
-				createTableRows(mbeanNames, managedBean.getAttributes(), managedBean.getOidPrefix());				
-			}
-		}
-	}
-	
-	/**
 	 * @param mappings
 	 */
 	public void addAttributeMappings(List<ManagedBean> mappings) {
@@ -697,17 +643,13 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				oname = new ObjectName(mmb.getName());
 			} catch (Exception e) {}
 			if (oname.isPattern()){ //it is a pattern. the mat
-				tables.put(new OID(mmb.getOidPrefix().substring(0, mmb.getOidPrefix().length() -2)), mmb);
-				Set<ObjectName> mbeanNames = server.queryNames(oname, null); // get all ObjectNames of MBeans matched by the given name. they should be treated
-				// as Rows of the table defined which will have the oid oidPrefix.
-				createTableRows(mbeanNames, mmb.getAttributes(), mmb.getOidPrefix());
+				tableMapper.addTableMapping(mmb, oname);
  			} else {
 				String oidPrefix = mmb.getOidPrefix();
-				List attrs = mmb.getAttributes();
-				Iterator aIt = attrs.iterator();
+				List<MappedAttribute> attrs = mmb.getAttributes();
+				Iterator<MappedAttribute> aIt = attrs.iterator();
 				while (aIt.hasNext()) {
-					Object check = aIt.next();
-					MappedAttribute ma = (MappedAttribute) check;
+					MappedAttribute ma = aIt.next();
 					String oid;
 					if (oidPrefix != null) {
 						oid = oidPrefix + ma.getOid();
@@ -730,28 +672,33 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		Iterator<ManagedBean> it = mappings.iterator();
 		while (it.hasNext()) {
 			ManagedBean mmb = it.next();
-			String oidPrefix = mmb.getOidPrefix();
-			List attrs = mmb.getAttributes();
-			Iterator aIt = attrs.iterator();
-			while (aIt.hasNext()) {
-				Object check = aIt.next();
-
-				MappedAttribute ma = (MappedAttribute) check;
-
-				String oid;
-				if (oidPrefix != null) {
-					oid = oidPrefix + ma.getOid();
-					objectKeys.remove(new OID(oidPrefix));
-				} else {
-					oid = ma.getOid();
-					OID objectOID = new OID(oid);
-					objectKeys.remove(objectOID.trim());
+			ObjectName oname = null;
+			try{
+				oname = new ObjectName(mmb.getName());
+			} catch (Exception e) {}
+			if (oname.isPattern()){ //it is a pattern. the mat
+				tableMapper.removeTableMapping(mmb, oname);
+ 			} else {
+				String oidPrefix = mmb.getOidPrefix();
+				List<MappedAttribute> attrs = mmb.getAttributes();
+				Iterator<MappedAttribute> aIt = attrs.iterator();
+				while (aIt.hasNext()) {
+					MappedAttribute ma = aIt.next();
+					String oid;
+					if (oidPrefix != null) {
+						oid = oidPrefix + ma.getOid();
+						objectKeys.remove(new OID(oidPrefix));
+					} else {
+						oid = ma.getOid();
+						OID objectOID = new OID(oid);
+						objectKeys.remove(objectOID.trim());
+					}
+					OID coid = new OID(oid);
+					oidKeys.remove(coid);
+					bindings.remove(coid);
+	
 				}
-				OID coid = new OID(oid);
-				oidKeys.remove(coid);
-				bindings.remove(coid);
-
-			}
+ 			}
 		}
 	}
 	
@@ -776,10 +723,9 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 * @param ma the name of the MBeam attribute the OID is concerning
 	 * @param rw indicates whether this Attribute is read-write or not (readonly if false)
 	 */
-	
 	private void addBindEntry(String oid, String mmb, String ma, boolean rw){
 	  BindEntry be = new BindEntry(oid, mmb, ma);
-	  be.isReadWrite = rw;
+	  be.setReadWrite(rw);
 	  
 	  OID coid = new OID(oid);
 	  if (log.isTraceEnabled())
@@ -816,7 +762,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		boolean exists = objectKeys.contains(coid);
 		if(!exists) {
 			//needed for table
-			exists = oidKeys.contains(oid);
+			exists = tableMapper.belongsToTable(oid);
 		}
 		return exists;
 	}	
@@ -837,14 +783,14 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				log.debug("getValueFor: Found entry " + be.toString() + " for oid " + oid);
         
 			try {
-			   Object val = server.getAttribute(be.mbean, be.attr.getName());
+			   Object val = server.getAttribute(be.getMbean(), be.getAttr().getName());
 			   ssy = prepForPdu(val);
 			} catch (VariableTypeException e){
 				log.debug("getValueFor: didn't find a suitable data type for the requested data");
 				throw e;
 			} catch (Exception e) {
-					log.warn("getValueFor: (" + be.mbean.toString() + ", "
-							+ be.attr.getName() + ": " + e.toString());
+					log.warn("getValueFor: (" + be.getMbean().toString() + ", "
+							+ be.getAttr().getName() + ": " + e.toString());
 	        }
 		} else {		
 			log.debug("getValueFor: " + NO_ENTRY_FOUND_FOR_OID + oid);
@@ -972,7 +918,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			if (trace)
 				log.trace("setValueFor: " + be.toString());
          
-			if (be.isReadWrite == false)
+			if (be.isReadWrite() == false)
 			{
 				if (trace)
 					log.trace("setValueFor: this is marked read only");
@@ -981,7 +927,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			}
 			try
 			{		
-				Object other = server.getAttribute(be.mbean, be.attr.getName());
+				Object other = server.getAttribute(be.getMbean(), be.getAttr().getName());
 				Object val = convertVariableToValue(newVal, other);
 				
 				if (other != null && val.getClass() != other.getClass() ){
@@ -989,8 +935,8 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 					ssy = newVal;
 				}
 								
-				Attribute at = new Attribute(be.attr.getName(), val);
-				server.setAttribute(be.mbean, at);
+				Attribute at = new Attribute(be.getAttr().getName(), val);
+				server.setAttribute(be.getMbean(), at);
 			
 				if (trace)
 					log.trace("setValueFor: set attribute in mbean server");
@@ -1020,15 +966,15 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 * 
 	 * @param modified HashSet containing OID,Val mappings
 	 */
-	private void undoSets(HashSet modified){
+	private void undoSets(HashSet<VariableBinding> modified){
 		Iterator<VariableBinding> iter = modified.iterator();
 		
 		while (iter.hasNext()){
 			try{
-			VariableBinding vb = iter.next();
-			OID oid = vb.getOid();
-			Variable var = vb.getVariable();
-			setValueFor(oid,var);// this will not fail, because it succeeded earlier.
+				VariableBinding vb = iter.next();
+				OID oid = vb.getOid();
+				Variable var = vb.getVariable();
+				setValueFor(oid,var);// this will not fail, because it succeeded earlier.
 			}
 			catch(NoSuchInstanceException e){
 				//impossible
@@ -1062,6 +1008,10 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			coid.removeLast();
 		}*/
 		BindEntry be = (BindEntry)bindings.get(coid);
+		if(be == null) {
+			//needed for tables
+			be = tableMapper.getTableBinding(coid);
+		}
 
 		return be;
 	}
@@ -1094,11 +1044,14 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	private OID getNextOid(final OID oid) throws EndOfMibViewException {
 		OID coid = new OID(oid);
 		//TODO will be called for each get, not performing well, to be optimized		
-		checkTables(oid);
-
-		SortedSet ret;
+		tableMapper.checkTables(oid);
+		OID nextOid =  tableMapper.getNextTable(coid);
+		if(nextOid != null) {
+			return nextOid;
+		}
+		SortedSet<OID> ret;
 		ret=oidKeys.tailSet(oid);  // get oids >= oid
-		Iterator it = ret.iterator();
+		Iterator<OID> it = ret.iterator();
 		OID roid=null;
 		
 		/*
@@ -1161,123 +1114,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		response.addAll(pdu.toArray());
 		response.setErrorIndex(errorIndex);
 		response.setErrorStatus(err);
-	}
-
-   // Inner Class ---------------------------------------------------
-   
-	/**
-	 * An entry containing the mapping between oid and mbean/attribute
-	 * 
-	 * @author <a href="mailto:pilhuhn@user.sf.net>">Heiko W. Rupp</a>
-	 */
-	private class BindEntry implements Comparable {
-		private final OID oid;
-
-		private ObjectName mbean;
-		private Attribute attr;
-		private String mName;
-		private String aName;      
-		private boolean isReadWrite = false;
-
-		/**
-		 * Constructs a new BindEntry
-		 * 
-		 * @param oid
-		 *            The SNMP-oid, this entry will use.
-		 * @param mbName
-		 *            The name of an MBean with attribute to query
-		 * @param attrName
-		 *            The name of the attribute to query
-		 */
-		BindEntry(final String oidString, final String mbName, final String attrName) {
-			this(new OID(oidString), 
-					mbName,
-					attrName);
-		}
-		
-		/**
-		 * Constructs a new BindEntry.
-		 * @param coid The SNMP-oid, this entry will use.
-		 * @param mbName The name of an MBean with attribute to query
-		 * @param attrName The name of the attribute to query
-		 */
-		BindEntry(final OID coid, final String mbName, final String attrName) {
-			oid = coid;
-			this.mName = mbName;
-			this.aName = attrName;
-			try
-         {
-			   mbean = new ObjectName(mbName);
-				attr = new Attribute(attrName, null);
-
-			}
-         catch (Exception e)
-         {
-            log.warn(e.toString());
-				mName = "-unset-";
-				aName = "-unset-";
-			}
-		}
-
-		/**
-		 * A string representation of this BindEntry
-		 */
-		public String toString() {
-			StringBuffer buf = new StringBuffer();
-			buf.append("[oid=");
-			buf.append(oid).append(", mbean=");
-			buf.append(mName).append(", attr=");
-			buf.append(aName).append(", rw=");
-			buf.append(isReadWrite).append("]");
-
-			return buf.toString();
-		}
-
-		public Attribute getAttr() {
-			return attr;
-		}
-
-		public ObjectName getMbean()
-      {
-			return mbean;
-		}
-
-		public OID getOid()
-      {
-			return oid;
-		}
-
-
-		/**
-		 * Compare two BindEntries. Ordering is defined at oid-level.
-		 * 
-		 * @param other
-		 *            The BindEntry to compare to.
-		 * @return 0 on equals, 1 if this is bigger than other
-		 */
-		public int compareTo(Object other)
-      {
-			if (other == null)
-				throw new NullPointerException("Can't compare to NULL");
-
-			if (!(other instanceof BindEntry))
-				throw new ClassCastException("Parameter is no BindEntry");
-
-			// trivial case
-			if (this.equals(other))
-				return 0;
-         
-			BindEntry obe = (BindEntry) other;
-//			if (getOid().equals(obe.getOid()))
-//				return 0;
-
-			int res =oid.compareTo(obe.getOid());
-			return res;
-		}
-
-	}
-
-	
+	}	
 	
 }
 
