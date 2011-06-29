@@ -131,8 +131,6 @@ public class SnmpRequest implements CommandResponder {
 //			               status);
 //		}
 	
-		response.setErrorIndex(0);
-		response.setErrorStatus(0);
 		response.setType(PDU.RESPONSE);
 	    StatusInformation statusInformation = new StatusInformation();
 	    StateReference ref = requestEvent.getStateReference();

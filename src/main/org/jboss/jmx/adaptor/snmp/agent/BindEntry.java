@@ -43,6 +43,8 @@ public class BindEntry implements Comparable {
 	private String mName;
 	private String aName;
 	private boolean isReadWrite = false;
+	private boolean isTable = false;
+	private OID tableIndexOID;
 
 	/**
 	 * Constructs a new BindEntry
@@ -92,6 +94,7 @@ public class BindEntry implements Comparable {
 		buf.append(oid).append(", mbean=");
 		buf.append(mName).append(", attr=");
 		buf.append(aName).append(", rw=");
+		buf.append(", table=").append(isTable());
 		buf.append(isReadWrite()).append("]");
 
 		return buf.toString();
@@ -162,5 +165,34 @@ public class BindEntry implements Comparable {
 	public void setAttr(Attribute attr) {
 		this.attr = attr;
 	}
+
+	/**
+	 * @param isTable the isTable to set
+	 */
+	public void setTable(boolean isTable) {
+		this.isTable = isTable;
+	}
+
+	/**
+	 * @return the isTable
+	 */
+	public boolean isTable() {
+		return isTable;
+	}
+
+	/**
+	 * @param tableIndexOID the tableIndexOID to set
+	 */
+	public void setTableIndexOID(OID tableIndexOID) {
+		this.tableIndexOID = tableIndexOID;
+	}
+
+	/**
+	 * @return the tableIndexOID
+	 */
+	public OID getTableIndexOID() {
+		return tableIndexOID;
+	}
+
 
 }

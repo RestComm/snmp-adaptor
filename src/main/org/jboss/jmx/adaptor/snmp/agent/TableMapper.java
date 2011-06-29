@@ -21,7 +21,6 @@
  */
 package org.jboss.jmx.adaptor.snmp.agent;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -37,6 +36,8 @@ import org.jboss.jmx.adaptor.snmp.config.attribute.ManagedBean;
 import org.jboss.jmx.adaptor.snmp.config.attribute.MappedAttribute;
 import org.jboss.logging.Logger;
 import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.Variable;
 
 /**
  * @author jean.deruelle@gmail.com
@@ -53,6 +54,7 @@ public class TableMapper {
 	private SortedMap<OID, ManagedBean> tables = new TreeMap<OID, ManagedBean>();
 	private SortedMap<OID, BindEntry> tableBindings = new TreeMap<OID, BindEntry>();
 	private SortedMap<OID, OID> tableIndexes = new TreeMap<OID, OID>();
+	private SortedMap<OID, Variable> objectNameIndexes = new TreeMap<OID, Variable>();
 
 	private MBeanServer server;
 	private Logger log;
@@ -78,6 +80,15 @@ public class TableMapper {
 	 */
 	public OID getNextTable(OID oid) {
 		return tableIndexes.get(oid);
+	}
+	
+	/**
+	 * 
+	 * @param oid
+	 * @return
+	 */
+	public Variable getObjectNameIndexValue(OID oid) {		
+		return objectNameIndexes.get(oid);
 	}
 
 	/**
@@ -113,7 +124,6 @@ public class TableMapper {
 	 */
 	private void createMappings(Set<ObjectName> mbeanNames,
 			List<MappedAttribute> attrs, String tableOid) {
-		boolean firstTableIndexSet = false;
 		boolean firstColumnIndexSet = false;
 		SortedSet<String> onameStrings = new TreeSet<String>();
 		for (ObjectName oname : mbeanNames) {
@@ -121,16 +131,16 @@ public class TableMapper {
 		}
 		String previousMBeanName = null;
 		String lastMBeanName = onameStrings.last();
+		OID rowIndexOID = null;
+		OID previousRowIndexOID = null;
+		OID firstOID = null;
+		int rowIndex = 1;
 		for (String mbeanRealName : onameStrings) {
 			String previousAttribute = null;
 			for (MappedAttribute ma : attrs) {
-				String oid = "";
-				String columnOid = null;
+				String oid = tableOid;
+				String columnOid = oid + ma.getOid();
 				String previousOid = null;
-				if (tableOid != null) {
-					oid = tableOid;
-				}			
-				columnOid = oid + ma.getOid(); 
 				String fullOid = columnOid + ".'" + mbeanRealName + "'";
 				if(previousMBeanName != null) {
 					previousOid = columnOid + ".'" + previousMBeanName + "'";
@@ -142,28 +152,41 @@ public class TableMapper {
 				if(previousOid != null) {
 					OID previousOID = new OID(previousOid);
 					tableIndexes.put(previousOID, coid);
-				}
-				if(!firstTableIndexSet) {
-					// adding mapping between the table oid  and table entry oid and the first OID in the table
-					tableIndexes.put(new OID(tableOid), coid);
-					tableIndexes.put(new OID(tableOid.substring(0,
-							tableOid.lastIndexOf("."))), coid);
-					firstTableIndexSet = true;
+				}				
+				if(firstOID == null) {
+					firstOID = coid;
 				}
 				// By issuing a GETNEXT request with the bare MIB name of one of the columns, the agent will return that entry from the first row of the table:
-				if(!firstColumnIndexSet) {
+				if(!firstColumnIndexSet) {					
 					// adding mapping between the table oid  and table entry oid and the first OID in the table
-					tableIndexes.put(new OID(columnOid), coid);
+					tableIndexes.put(new OID(oid + ".'" + ma.getName() + "'"), coid);
 					if(previousAttribute != null) {
 						String lastRowOID = oid + previousAttribute +  ".'" + lastMBeanName + "'";
 						tableIndexes.put(new OID(lastRowOID), coid);
 					}
 				}		
 				previousAttribute = ma.getOid();
-			}			
+			}	
+			rowIndexOID = new OID(tableOid + ".1." + rowIndex);			
+			if(previousRowIndexOID == null) {
+				// adding mapping between the table oid  and table entry oid and the first OID in the table
+				tableIndexes.put(new OID(tableOid), rowIndexOID);
+				tableIndexes.put(new OID(tableOid.substring(0,
+						tableOid.lastIndexOf("."))), rowIndexOID);
+				objectNameIndexes.put(rowIndexOID, new OctetString(mbeanRealName));
+				previousRowIndexOID = rowIndexOID;
+			} else {
+				tableIndexes.put(previousRowIndexOID, rowIndexOID);
+				objectNameIndexes.put(rowIndexOID, new OctetString(mbeanRealName));
+				previousRowIndexOID = rowIndexOID;
+			}
+			rowIndex++;
 			firstColumnIndexSet = true;
 			previousMBeanName = mbeanRealName;
-		}		
+		}
+		if(firstOID != null && previousRowIndexOID != null) {
+			tableIndexes.put(previousRowIndexOID, firstOID);
+		}
 	}
 
 	/**

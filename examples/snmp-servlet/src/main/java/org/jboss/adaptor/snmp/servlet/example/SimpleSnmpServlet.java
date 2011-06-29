@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
@@ -98,7 +99,7 @@ public class SimpleSnmpServlet extends HttpServlet implements ServletContextList
         out.println("<HTML><HEAD><TITLE>");
         out.println("SNMP Servlet");
         out.println("</TITLE></HEAD><BODY>");
-        out.println("<P>Count <b>" + bean.getAtomicCount().incrementAndGet() + "</b></p>");
+        out.println("<P>Count <b>" + bean.getNextValue() + "</b></p>");
         if(bean.getMessage() != null) {
         	out.println("<P>Message <b>" + bean.getMessage() + "</b></p>");
         }
@@ -108,6 +109,17 @@ public class SimpleSnmpServlet extends HttpServlet implements ServletContextList
 	
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
+		MBeanServer server = MBeanServerLocator.locateJBoss();
+		try {
+			ObjectName oname = new ObjectName("test.com:service=SnmpTest");
+			server.unregisterMBean(oname);
+		} catch (MalformedObjectNameException e) {
+			logger.error("couldn't access the snmp agent mbean", e);
+		} catch (MBeanRegistrationException e) {
+			logger.error("couldn't access the snmp agent mbean", e);
+		} catch (InstanceNotFoundException e) {
+			logger.error("couldn't access the snmp agent mbean", e);
+		}  
 		logger.info("SimpleSnmpServlet context destroyed");		
 	}
 

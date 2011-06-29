@@ -33,7 +33,10 @@ public class MappedAttribute {
 	private String name;
 	private String oid;
 	private String mode;
-	private boolean isReadWrite = false;	
+	private boolean isReadWrite = false;
+	private String table;
+	private boolean isAttributeTable = false;
+	
 	private String mbName = ""; //the name of the mBean this MappedAttribute is associated with
 	private String snmpType = ""; //the type for the MIB we should use, if provided
 	private String oidPrefix = "";
@@ -77,6 +80,23 @@ public class MappedAttribute {
 		this.mode = mode;
 		if(mode != null && mode.equalsIgnoreCase("rw")) {
 			isReadWrite = true;
+		}
+	}
+	/** Attribute table  */
+	public boolean isAttributeTable() {
+		return isAttributeTable;
+	}
+	
+	/** Attribute table  */
+	public String getTable() {
+		return table;
+	}
+
+	@XmlAttribute(name="table")
+	public void setTable(String table) {
+		this.table = table;
+		if(table != null && Boolean.valueOf(table)) {
+			isAttributeTable = true;
 		}
 	}
 	

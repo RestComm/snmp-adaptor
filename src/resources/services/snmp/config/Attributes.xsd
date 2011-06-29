@@ -25,6 +25,7 @@
           <xsd:attribute name="name"/>
           <xsd:attribute name="oid" use="required" type="xsd:string"/>
           <xsd:attribute name="mode" use="optional" type="xsd:string"/>
+          <xsd:attribute name="table" use="optional" type="xsd:string"/>
           <xsd:attribute name="snmp-type" use="optional" type="xsd:string"/>
         </xsd:complexType>
       </xsd:element>

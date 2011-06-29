@@ -21,6 +21,8 @@
  */
 package org.jboss.adaptor.snmp.servlet.example;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -34,9 +36,14 @@ public class SnmpServiceTest implements SnmpServiceTestMBean {
 	private static Logger logger = Logger.getLogger(SnmpServiceTest.class); 
 	AtomicInteger count;
 	String message;
+	private List<String> messageHistory;
+	private List<Integer> countHistoryList;
+	private int[] countHistory;
 	
 	public SnmpServiceTest() {
 		count = new AtomicInteger(0);
+		messageHistory = new ArrayList<String>();
+		countHistoryList = new ArrayList<Integer>();
 	}
 	
 	/* (non-Javadoc)
@@ -65,6 +72,14 @@ public class SnmpServiceTest implements SnmpServiceTestMBean {
 	@Override
 	public void setMessage(String message) {
 		this.message = message;
+		messageHistory.add(message);
+	}
+	
+	/**
+	 * @return the messageHistory
+	 */
+	public List<String> getMessageHistory() {
+		return messageHistory;
 	}
 
 	/* (non-Javadoc)
@@ -83,4 +98,27 @@ public class SnmpServiceTest implements SnmpServiceTestMBean {
 		logger.info("Service " + SnmpServiceTest.class.getName() + " stopped.");
 	}
 
+	@Override
+	public String[] getMessageHistoryAsArray() {
+		return messageHistory.toArray(new String[messageHistory.size()]);
+	}
+
+	@Override
+	public int[] getCountHistory() {
+		return countHistory;
+	}
+	
+	public static int[] boxedArray(Integer[] array) {
+        int[] result = new int[array.length];
+        for (Integer i = 0; i < array.length; i++)
+                result[i] = array[i];
+        return result;
+}
+
+	public int getNextValue() {
+		int nextcount = getAtomicCount().incrementAndGet();
+		countHistoryList.add(nextcount);
+		countHistory = boxedArray(countHistoryList.toArray(new Integer[countHistoryList.size()]));
+		return nextcount;
+	}
 }

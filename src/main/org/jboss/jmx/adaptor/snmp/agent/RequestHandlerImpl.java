@@ -86,6 +86,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	private SortedSet<OID> objectKeys = null;
 	
 	private TableMapper tableMapper = null;
+	private AttributeTableMapper attributeTableMapper = null;
 	
 	/** Has this RequestHandler instance been initialized? */
 	private boolean initialized = false;
@@ -98,7 +99,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	public RequestHandlerImpl() 
 	{
 		bindings = new TreeMap<OID, BindEntry>();
-		oidKeys = new TreeSet<OID>();
+		oidKeys = new TreeSet<OID>();		
 		objectKeys = new TreeSet<OID>();
 	}
 
@@ -118,6 +119,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
       log.debug("initialize() with res=" + resourceName);
 	   super.initialize(resourceName, server, log, uptime);
 	   tableMapper = new TableMapper(server, log);
+	   attributeTableMapper = new AttributeTableMapper(server, log);
 		if (resourceName != null)
 			initializeBindings();
 		else
@@ -461,7 +463,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				return response;
 			}
 			catch (ReadOnlyException e){
-				log.error("snmpReceivedSet: attempt to set a read-only attribute: " + newVB, e);
+				log.info("snmpReceivedSet: attempt to set a read-only attribute: " + newVB, e);
 				undoSets(modified);
 				makeErrorPdu(response, pdu, errorIndex, PDU.notWritable);
 				return response;
@@ -650,16 +652,20 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				Iterator<MappedAttribute> aIt = attrs.iterator();
 				while (aIt.hasNext()) {
 					MappedAttribute ma = aIt.next();
-					String oid;
-					if (oidPrefix != null) {
-						oid = oidPrefix + ma.getOid();
-						addObjectEntry(new OID(oidPrefix));
+					if(ma.isAttributeTable()) {
+						attributeTableMapper.addTableMapping(mmb, ma);
 					} else {
-						oid = ma.getOid();
-						OID objectOID = new OID(oid);
-						addObjectEntry(objectOID.trim());
+						String oid;
+						if (oidPrefix != null) {
+							oid = oidPrefix + ma.getOid();
+							addObjectEntry(new OID(oidPrefix));
+						} else {
+							oid = ma.getOid();
+							OID objectOID = new OID(oid);
+							addObjectEntry(objectOID.trim());
+						}
+						addBindEntry(oid, mmb.getName(), ma.getName(), ma.isReadWrite());
 					}
-					addBindEntry(oid, mmb.getName(), ma.getName(), ma.isReadWrite());
 				}
 			}
 		}
@@ -763,6 +769,9 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		if(!exists) {
 			//needed for table
 			exists = tableMapper.belongsToTable(oid);
+			if(!exists) {
+				exists = attributeTableMapper.belongsToTables(oid);
+			}
 		}
 		return exists;
 	}	
@@ -784,7 +793,11 @@ public class RequestHandlerImpl extends RequestHandlerSupport
         
 			try {
 			   Object val = server.getAttribute(be.getMbean(), be.getAttr().getName());
-			   ssy = prepForPdu(val);
+			   OID tableIndexOID = null;
+			   if(be.isTable()) {
+				    tableIndexOID = be.getTableIndexOID();				   
+			   } 
+			   ssy = prepForPdu(val, tableIndexOID);
 			} catch (VariableTypeException e){
 				log.debug("getValueFor: didn't find a suitable data type for the requested data");
 				throw e;
@@ -792,7 +805,11 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 					log.warn("getValueFor: (" + be.getMbean().toString() + ", "
 							+ be.getAttr().getName() + ": " + e.toString());
 	        }
-		} else {		
+		} else {
+			ssy = tableMapper.getObjectNameIndexValue(oid);
+			if(ssy != null) {
+				return ssy;
+			}
 			log.debug("getValueFor: " + NO_ENTRY_FOUND_FOR_OID + oid);
 			throw new NoSuchInstanceException();
 		}
@@ -811,31 +828,78 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 * 
 	 */
 	
-	private Variable prepForPdu(final Object val) throws VariableTypeException{
-		Variable result = null;		
-		//TODO: all types managed by the PDU
+	private Variable prepForPdu(final Object val, final OID tableIndexOID) throws VariableTypeException{
+		Variable result = null;
+		Object value = val;
 		if(val == null) {
-			result = new Null();
-		} else if (val instanceof Long) {
-			result = new OctetString(((Long)val).toString());
-		} else if (val instanceof Boolean) {
-			if(((Boolean)val).booleanValue())
+			return new Null();
+		}
+		//TODO: all types managed by the PDU
+		
+		// manage arrays and lists
+		if(tableIndexOID != null) {
+			int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+			if(index < 0) {
+				return Null.noSuchObject;
+			}
+			if(val instanceof List) {
+				if(index < ((List)val).size()) { 
+					value = ((List)val).get(index);
+				} else {
+					return Null.noSuchObject;
+				}
+			}
+			if (value instanceof int[]) {
+				if(index < ((int[])val).length) { 
+					value = ((int[])val)[index];
+				} else {
+					return Null.noSuchObject;
+				}
+			}
+			if (value instanceof long[]) {
+				if(index < ((long[])val).length) { 
+					value = ((long[])val)[index];
+				} else {
+					return Null.noSuchObject;
+				}
+			}
+			if (value instanceof boolean[]) {
+				if(index < ((boolean[])val).length) { 
+					value = ((boolean[])val)[index];
+				} else {
+					return Null.noSuchObject;
+				}
+			}
+			if (value instanceof Object[]) {
+				if(index < ((Object[])val).length) { 
+					value = ((Object[])val)[index];
+				} else {
+					return Null.noSuchObject;
+				}
+			}
+		}
+		
+		// manage regular java types
+		if (value instanceof Long) {
+			result = new OctetString(((Long)value).toString());
+		} else if (value instanceof Boolean) {
+			if(((Boolean)value).booleanValue())
 				result = new Integer32(1);
 			else 
 				result = new Integer32(0);
-		} else if (val instanceof String) {
-        	result = new OctetString((String) val);
-		} else if (val instanceof Integer) {
-			result = new Integer32((Integer)val);
-		} else if (val instanceof OID) {
-        	result = new OID((OID)val);
-        } else if (val instanceof TimeTicks) {
+		} else if (value instanceof String) {
+        	result = new OctetString((String) value);
+		} else if (value instanceof Integer) {
+			result = new Integer32((Integer)value);
+		} else if (value instanceof OID) {
+        	result = new OID((OID)value);
+        } else if (value instanceof TimeTicks) {
         	// the SNMP4J class TimeTicks default toString method is formatted horribly. This 
         	// call emulates the joesnmp SnmpTimeTicks display.
 //        	result = new OctetString(((TimeTicks)val).toString("{0} d {1} h {2} m {3} s {4} hs"));
-        	result = (TimeTicks) val;
-        } else if (val instanceof Counter32) {
-     	   	result = (Counter32) val;
+        	result = (TimeTicks) value;
+        } else if (value instanceof Counter32) {
+     	   	result = (Counter32) value;
         } else {
         	throw new VariableTypeException(); // no instance of an SNMP Variable could be created for type
         }
@@ -913,30 +977,71 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		if (trace)
 			log.trace("setValueFor: found bind entry for " + oid);
 		
-		if (be != null)
-		{
+		if (be != null) {
 			if (trace)
 				log.trace("setValueFor: " + be.toString());
          
-			if (be.isReadWrite() == false)
-			{
+			if (be.isReadWrite() == false) {
 				if (trace)
 					log.trace("setValueFor: this is marked read only");
             
 				throw new ReadOnlyException(oid);
 			}
-			try
-			{		
+			try {		
 				Object other = server.getAttribute(be.getMbean(), be.getAttr().getName());
 				Object val = convertVariableToValue(newVal, other);
 				
-				if (other != null && val.getClass() != other.getClass() ){
-					log.debug("setValueFor: attempt to set an MBean Attribute with the wrong type.");
+				if (other != null && val.getClass() != other.getClass() ) {
+					if(log.isDebugEnabled())
+						log.debug("setValueFor: attempt to set an MBean Attribute with the wrong type.");
 					ssy = newVal;
 				}
-								
-				Attribute at = new Attribute(be.getAttr().getName(), val);
-				server.setAttribute(be.getMbean(), at);
+				OID tableIndexOID = be.getTableIndexOID();
+				if(tableIndexOID == null) {				
+					Attribute at = new Attribute(be.getAttr().getName(), val);
+					server.setAttribute(be.getMbean(), at);
+				} else {
+					// manage arrays and lists
+					int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+					if(index < 0) {
+						return Null.noSuchObject;
+					}
+					if(other instanceof List) {
+						if(index < ((List)other).size()) { 
+							((List)other).set(index, val);
+						} else {
+							return Null.noSuchObject;
+						}
+					}
+					if (other instanceof int[]) {
+						if(index < ((int[])other).length) { 
+							((int[])other)[index] = (Integer) val;
+						} else {
+							return Null.noSuchObject;
+						}
+					}
+					if (other instanceof long[]) {
+						if(index < ((long[])other).length) { 
+							((long[])other)[index] = (Long) val;
+						} else {
+							return Null.noSuchObject;
+						}
+					}
+					if (other instanceof boolean[]) {
+						if(index < ((boolean[])other).length) { 
+							((boolean[])other)[index] = (Boolean) val;
+						} else {
+							return Null.noSuchObject;
+						}
+					}
+					if (other instanceof Object[]) {
+						if(index < ((Object[])other).length) { 
+							((Object[])other)[index] = val;
+						} else {
+							return Null.noSuchObject;
+						}
+					}
+				}
 			
 				if (trace)
 					log.trace("setValueFor: set attribute in mbean server");
@@ -1011,6 +1116,9 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		if(be == null) {
 			//needed for tables
 			be = tableMapper.getTableBinding(coid);
+			if(be == null) {
+				be = attributeTableMapper.getTableBinding(coid);
+			}
 		}
 
 		return be;

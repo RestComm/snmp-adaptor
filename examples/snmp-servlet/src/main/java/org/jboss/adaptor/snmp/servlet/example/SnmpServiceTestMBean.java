@@ -21,6 +21,8 @@
  */
 package org.jboss.adaptor.snmp.servlet.example;
 
+import java.util.List;
+
 /**
  * @author jean.deruelle@gmail.com
  *
@@ -32,6 +34,11 @@ public interface SnmpServiceTestMBean {
 	// Configure getters and setters for the message attribute
 	String getMessage();
 	void setMessage(String message);
+	
+	List<String> getMessageHistory();
+	String[] getMessageHistoryAsArray();
+	// Configure getters and setters for the message attribute
+	int[] getCountHistory();
    
 	// Lifecycle callbacks
 	void start() throws Exception;
