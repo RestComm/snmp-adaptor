@@ -131,10 +131,10 @@ public class TableMapper {
 		}
 		String previousMBeanName = null;
 		String lastMBeanName = onameStrings.last();
-		OID rowIndexOID = null;
-		OID previousRowIndexOID = null;
+//		OID rowIndexOID = null;
+//		OID previousRowIndexOID = null;
 		OID firstOID = null;
-		int rowIndex = 1;
+//		int rowIndex = 1;
 		for (String mbeanRealName : onameStrings) {
 			String previousAttribute = null;
 			for (MappedAttribute ma : attrs) {
@@ -167,26 +167,29 @@ public class TableMapper {
 				}		
 				previousAttribute = ma.getOid();
 			}	
-			rowIndexOID = new OID(tableOid + ".1." + rowIndex);			
-			if(previousRowIndexOID == null) {
-				// adding mapping between the table oid  and table entry oid and the first OID in the table
-				tableIndexes.put(new OID(tableOid), rowIndexOID);
-				tableIndexes.put(new OID(tableOid.substring(0,
-						tableOid.lastIndexOf("."))), rowIndexOID);
-				objectNameIndexes.put(rowIndexOID, new OctetString(mbeanRealName));
-				previousRowIndexOID = rowIndexOID;
-			} else {
-				tableIndexes.put(previousRowIndexOID, rowIndexOID);
-				objectNameIndexes.put(rowIndexOID, new OctetString(mbeanRealName));
-				previousRowIndexOID = rowIndexOID;
-			}
-			rowIndex++;
+//			rowIndexOID = new OID(tableOid + ".1." + rowIndex);			
+//			if(previousRowIndexOID == null) {
+//				// adding mapping between the table oid  and table entry oid and the first OID in the table
+//				tableIndexes.put(new OID(tableOid), rowIndexOID);
+//				tableIndexes.put(new OID(tableOid.substring(0,
+//						tableOid.lastIndexOf("."))), rowIndexOID);
+//				objectNameIndexes.put(rowIndexOID, new OctetString(mbeanRealName));
+//				previousRowIndexOID = rowIndexOID;
+//			} else {
+//				tableIndexes.put(previousRowIndexOID, rowIndexOID);
+//				objectNameIndexes.put(rowIndexOID, new OctetString(mbeanRealName));
+//				previousRowIndexOID = rowIndexOID;
+//			}
+//			rowIndex++;
 			firstColumnIndexSet = true;
 			previousMBeanName = mbeanRealName;
 		}
-		if(firstOID != null && previousRowIndexOID != null) {
-			tableIndexes.put(previousRowIndexOID, firstOID);
-		}
+		tableIndexes.put(new OID(tableOid), firstOID);
+		tableIndexes.put(new OID(tableOid.substring(0,
+				tableOid.lastIndexOf("."))), firstOID);
+//		if(firstOID != null && previousRowIndexOID != null) {
+//			tableIndexes.put(previousRowIndexOID, firstOID);
+//		}
 	}
 
 	/**
