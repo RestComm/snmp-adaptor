@@ -21,7 +21,9 @@
  */
 package org.jboss.jmx.adaptor.snmp.agent;
 
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -34,6 +36,8 @@ import org.jboss.jmx.adaptor.snmp.config.attribute.ManagedBean;
 import org.jboss.jmx.adaptor.snmp.config.attribute.MappedAttribute;
 import org.jboss.logging.Logger;
 import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.Variable;
 
 /**
  * @author jean.deruelle@gmail.com
@@ -42,10 +46,12 @@ import org.snmp4j.smi.OID;
 public class AttributeTableMapper {
 
 	private SortedSet<OID> tables = new TreeSet<OID>();
+	private SortedSet<OID> tableRowEntrys = new TreeSet<OID>();
 	/**
 	 * keep an index of the OID from attributes.xml
 	 */	
 	private SortedMap<OID, BindEntry> tableMappings = new TreeMap<OID, BindEntry>();
+	private SortedMap<OID, BindEntry> tableRowEntryMappings = new TreeMap<OID, BindEntry>();
 
 	private MBeanServer server;
 	private Logger log;
@@ -60,23 +66,118 @@ public class AttributeTableMapper {
 	 * @param oid
 	 * @return
 	 */
-	public BindEntry getTableBinding(OID oid) {
-		for (Entry<OID,BindEntry> entry : tableMappings.entrySet()) {			
+	public BindEntry getTableBinding(OID oid, boolean isRowEntry) {
+		Set<Entry<OID,BindEntry>> entries = null;
+		if(isRowEntry) {
+			entries = tableRowEntryMappings.entrySet();
+		} else {
+			entries = tableMappings.entrySet();
+		}
+		for (Entry<OID,BindEntry> entry : entries) {			
 			if (oid.startsWith(entry.getKey())) {
-				BindEntry bindEntry = entry.getValue();
+				BindEntry value = entry.getValue();
+				BindEntry bindEntry = (BindEntry) value.clone();
 				int[] oidValue = oid.getValue();
 				int[] subOid = new int[oid.size() - entry.getKey().size()];
 				System.arraycopy(oidValue, entry.getKey().size(), subOid, 0, oid.size() - entry.getKey().size());
-				bindEntry.setTableIndexOID(new OID(subOid));
+				if(subOid.length > 0) {
+					bindEntry.setTableIndexOID(new OID(subOid));
+				}
 				return bindEntry;
 			}			
 		}
 		return null;
 	}
 	
-//	public OID getNextTable(OID oid) {
-//		return tableIndexes.get(oid);
-//	}	
+	public OID getNextTable(OID oid) {
+		OID currentOID = oid;
+		// means that the oid is the one from the table itself
+		boolean isRowEntry = false;
+		if(tables.contains(oid)) {
+			currentOID = oid.append(1);
+		}
+		if(tableRowEntrys.contains(currentOID)) {
+			currentOID = oid.append(1);
+			isRowEntry = true;
+		}
+		BindEntry be = getTableBinding(currentOID, isRowEntry);
+		if(be == null) {
+			be = getTableBinding(currentOID, true);
+			isRowEntry = true;
+		}
+		Object val = null;
+		try {
+			val = server.getAttribute(be.getMbean(), be.getAttr().getName());
+		} catch(Exception e) {
+			log.error("Impossible to fetch " + be.getAttr().getName());
+			return null;
+		}
+		OID tableIndexOID = be.getTableIndexOID();
+		if(tableIndexOID == null) {
+			return new OID(currentOID).append(1);
+		}
+		int index = Integer.valueOf(tableIndexOID.toString());
+		if(index - 1 < 0) {
+			return null;
+		}
+		index++;
+		if(val instanceof List) {			
+			if(index <= ((List)val).size()) { 
+				return new OID(currentOID.trim().append(index));
+			} else {
+				if(isRowEntry) {
+					return new OID(currentOID.trim().trim().append(2).append(1));
+				} else {
+					return null;
+				}
+			}
+		}
+		if (val instanceof int[]) {
+			if(index <= ((int[])val).length) { 
+				return new OID(currentOID.trim().append(index));
+			} else {
+				if(isRowEntry) {
+					return new OID(currentOID.trim().trim().append(2).append(1));
+				} else {
+					return null;
+				}
+			}
+		}
+		if (val instanceof long[]) {
+			if(index <= ((long[])val).length) { 
+				return new OID(currentOID.trim().append(index));
+			} else {
+				if(isRowEntry) {
+					return new OID(currentOID.trim().trim().append(2).append(1));
+				} else {
+					return null;
+				}
+			}
+		}
+		if (val instanceof boolean[]) {
+			if(index <= ((boolean[])val).length) { 
+				return new OID(currentOID.trim().append(index));
+			} else {
+				if(isRowEntry) {
+					return new OID(currentOID.trim().trim().append(2).append(1));
+				} else {
+					return null;
+				}
+			}
+		}
+		if (val instanceof Object[]) {
+			if(index <= ((Object[])val).length) { 
+				return new OID(currentOID.trim().append(index));
+			} else {
+				if(isRowEntry) {
+					return new OID(currentOID.trim().trim().append(2).append(1));
+				} else {
+					return null;
+				}
+			}
+		}
+		return null;
+	}	
 
 	/**
 	 * 
@@ -91,7 +192,7 @@ public class AttributeTableMapper {
 		} else {
 			oid = ma.getOid();
 		}
-		OID coid = new OID(oid.substring(0, oid.lastIndexOf(".")));
+		OID coid = new OID(oid);
 		BindEntry be = new BindEntry(coid, mmb.getName(), ma.getName());
 		be.setReadWrite(ma.isReadWrite());
 		be.setTable(ma.isAttributeTable());
@@ -108,8 +209,10 @@ public class AttributeTableMapper {
 			log.info("Invalid attribute name " + ma + " for oid " + coid
 					+ RequestHandlerImpl.SKIP_ENTRY);
 		}
-		tables.add(coid);
-		tableMappings.put(new OID(oid), be);	
+		tableRowEntrys.add(coid);
+		tables.add(coid.trim());
+		tableRowEntryMappings.put(new OID(coid).append(1), be);
+		tableMappings.put(new OID(coid).append(2), be);	
 	}
 
 	public boolean belongsToTables(OID oid) {
@@ -123,5 +226,12 @@ public class AttributeTableMapper {
 
 	public void removeTableMapping(ManagedBean mmb, ObjectName oname) {
 		
+	}
+
+	public Variable getIndexValue(OID oid) {
+		if(belongsToTables(oid)) {
+			return new OctetString("" + oid.get(oid.size()-1));
+		}
+		return null;
 	}
 }

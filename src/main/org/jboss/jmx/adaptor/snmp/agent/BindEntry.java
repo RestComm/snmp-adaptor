@@ -194,5 +194,12 @@ public class BindEntry implements Comparable {
 		return tableIndexOID;
 	}
 
-
+	protected BindEntry clone(){
+		BindEntry bindEntry = new BindEntry(oid, mName, aName);
+		bindEntry.setAttr(attr);
+		bindEntry.setMbean(mbean);
+		bindEntry.setReadWrite(isReadWrite);
+		bindEntry.setTable(isTable);
+		return bindEntry;
+	}
 }

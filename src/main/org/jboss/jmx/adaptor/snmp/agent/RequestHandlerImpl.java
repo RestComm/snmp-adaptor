@@ -810,6 +810,10 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			if(ssy != null) {
 				return ssy;
 			}
+			ssy = attributeTableMapper.getIndexValue(oid);
+			if(ssy != null) {
+				return ssy;
+			}
 			log.debug("getValueFor: " + NO_ENTRY_FOUND_FOR_OID + oid);
 			throw new NoSuchInstanceException();
 		}
@@ -1117,7 +1121,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			//needed for tables
 			be = tableMapper.getTableBinding(coid);
 			if(be == null) {
-				be = attributeTableMapper.getTableBinding(coid);
+				be = attributeTableMapper.getTableBinding(coid, false);
 			}
 		}
 
@@ -1155,7 +1159,11 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		tableMapper.checkTables(oid);
 		OID nextOid =  tableMapper.getNextTable(coid);
 		if(nextOid != null) {
-			return nextOid;
+			return nextOid;			
+		}
+		nextOid =  attributeTableMapper.getNextTable(coid);
+		if(nextOid != null) {
+			return nextOid;			
 		}
 		SortedSet<OID> ret;
 		ret=oidKeys.tailSet(oid);  // get oids >= oid
