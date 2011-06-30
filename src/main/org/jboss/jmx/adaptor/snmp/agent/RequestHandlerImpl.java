@@ -84,7 +84,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	private SortedSet<OID> oidKeys = null;
 	
 	/** keep track of the objects created */
-	private SortedSet<OID> objectKeys = null;
+//	private SortedSet<OID> objectKeys = null;
 	
 	private TableMapper tableMapper = null;
 	private AttributeTableMapper attributeTableMapper = null;
@@ -101,7 +101,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	{
 		bindings = new TreeMap<OID, BindEntry>();
 		oidKeys = new TreeSet<OID>();		
-		objectKeys = new TreeSet<OID>();
+//		objectKeys = new TreeSet<OID>();
 	}
 
 	// RequestHandler Implementation ---------------------------------
@@ -651,18 +651,20 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				Iterator<MappedAttribute> aIt = attrs.iterator();
 				while (aIt.hasNext()) {
 					MappedAttribute ma = aIt.next();
+					String oid;
+					if (oidPrefix != null) {
+						oid = oidPrefix + ma.getOid();
+//							addObjectEntry(new OID(oidPrefix));
+					} else {
+						oid = ma.getOid();
+//							OID objectOID = new OID(oid);
+//							addObjectEntry(objectOID.trim());
+					}
 					if(ma.isAttributeTable()) {
 						attributeTableMapper.addTableMapping(mmb, ma);
+						oidKeys.add(new OID(oid));
 					} else {
-						String oid;
-						if (oidPrefix != null) {
-							oid = oidPrefix + ma.getOid();
-							addObjectEntry(new OID(oidPrefix));
-						} else {
-							oid = ma.getOid();
-							OID objectOID = new OID(oid);
-							addObjectEntry(objectOID.trim());
-						}
+						oid = oid + ".0";
 						addBindEntry(oid, mmb.getName(), ma.getName(), ma.isReadWrite());
 					}
 				}
@@ -692,16 +694,21 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 					String oid;
 					if (oidPrefix != null) {
 						oid = oidPrefix + ma.getOid();
-						objectKeys.remove(new OID(oidPrefix));
+//							addObjectEntry(new OID(oidPrefix));
 					} else {
 						oid = ma.getOid();
-						OID objectOID = new OID(oid);
-						objectKeys.remove(objectOID.trim());
+//							OID objectOID = new OID(oid);
+//							addObjectEntry(objectOID.trim());
 					}
-					OID coid = new OID(oid);
-					oidKeys.remove(coid);
-					bindings.remove(coid);
-	
+					if(ma.isAttributeTable()) {
+						attributeTableMapper.removeTableMapping(mmb, ma);
+						oidKeys.remove(new OID(oid));
+					} else {
+						oid = oid + ".0";
+						OID coid = new OID(oid);
+						oidKeys.remove(coid);
+						bindings.remove(coid);
+					}
 				}
  			}
 		}
@@ -711,15 +718,15 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 * @param String representation of the OID to add. 
 	 * 
 	 * **/
-	private void addObjectEntry(OID oid){
-		if (objectKeys.contains(oid))
-			log.debug("duplicate object " + oid + SKIP_ENTRY);
-		
-		if (oid == null)
-			log.debug("null oid for object");
-		objectKeys.add(oid);
-				
-	}
+//	private void addObjectEntry(OID oid){
+//		if (objectKeys.contains(oid))
+//			log.debug("duplicate object " + oid + SKIP_ENTRY);
+//		
+//		if (oid == null)
+//			log.debug("null oid for object");
+//		objectKeys.add(oid);
+//				
+//	}
 	
 	/** 
 	 * 
@@ -729,10 +736,10 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 * @param rw indicates whether this Attribute is read-write or not (readonly if false)
 	 */
 	private void addBindEntry(String oid, String mmb, String ma, boolean rw){
-	  BindEntry be = new BindEntry(oid, mmb, ma);
-	  be.setReadWrite(rw);
-	  
 	  OID coid = new OID(oid);
+	  BindEntry be = new BindEntry(coid, mmb, ma);
+	  be.setReadWrite(rw);
+	  	  
 	  if (log.isTraceEnabled())
 		  log.trace("New bind entry   " + be);
 	  if (bindings.containsKey(coid)) {
@@ -763,8 +770,8 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 */
 	
 	private boolean checkObject(final OID oid) {
-		OID coid = oid.trim(); 
-		boolean exists = objectKeys.contains(coid);
+//		OID coid = oid; 
+		boolean exists = bindings.get(oid) != null;
 		if(!exists) {
 			//needed for table
 			exists = tableMapper.belongsToTable(oid);
@@ -1234,7 +1241,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			// perhaps change this to try/catch also
 			if (it.hasNext()) 
 			{
-				roid = (OID)it.next();
+				roid = (OID)it.next();				
 			}
 			else
 			{
@@ -1255,7 +1262,16 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				throw new EndOfMibViewException();
 			}
 		}*/
-
+		if(roid.last() != 0) {
+			nextOid =  tableMapper.getNextTable(roid);
+			if(nextOid != null) {
+				return nextOid;			
+			}
+			nextOid =  attributeTableMapper.getNextTable(roid);
+			if(nextOid != null) {
+				return nextOid;			
+			}
+		}
 		return roid;
 	}
 

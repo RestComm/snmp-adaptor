@@ -159,7 +159,8 @@ public class TableMapper {
 				// By issuing a GETNEXT request with the bare MIB name of one of the columns, the agent will return that entry from the first row of the table:
 				if(!firstColumnIndexSet) {					
 					// adding mapping between the table oid  and table entry oid and the first OID in the table
-					tableIndexes.put(new OID(oid + ".'" + ma.getName() + "'"), coid);
+//					tableIndexes.put(new OID(oid + ".'" + ma.getName() + "'"), coid);
+					tableIndexes.put(new OID(oid + ma.getOid()), coid);
 					if(previousAttribute != null) {
 						String lastRowOID = oid + previousAttribute +  ".'" + lastMBeanName + "'";
 						tableIndexes.put(new OID(lastRowOID), coid);

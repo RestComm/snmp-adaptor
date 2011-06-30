@@ -56,9 +56,9 @@ public class BindEntry implements Comparable {
 	 * @param attrName
 	 *            The name of the attribute to query
 	 */
-	BindEntry(final String oidString, final String mbName, final String attrName) {
-		this(new OID(oidString), mbName, attrName);
-	}
+//	BindEntry(final String oidString, final String mbName, final String attrName) {
+//		this(new OID(oidString), mbName, attrName);
+//	}
 
 	/**
 	 * Constructs a new BindEntry.

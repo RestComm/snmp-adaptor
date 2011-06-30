@@ -296,13 +296,16 @@ public class AttributeTableMapper {
 		return false;
 	}
 
-	public void removeTableMapping(ManagedBean mmb, ObjectName oname) {
+	public void removeTableMapping(ManagedBean mmb, MappedAttribute ma) {
 		
 	}
 
 	public Variable getIndexValue(OID oid) {
 		BindEntry be = getTableBinding(oid, true);
 		Object val = null;
+		if(be == null) {
+			return null;
+		}
 		try {
 			val = server.getAttribute(be.getMbean(), be.getAttr().getName());
 		} catch(Exception e) {
