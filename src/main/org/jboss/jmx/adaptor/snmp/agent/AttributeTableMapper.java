@@ -107,6 +107,9 @@ public class AttributeTableMapper {
 			be = getTableBinding(currentOID, true);
 			isRowEntry = true;
 		}
+		if(be == null) {
+			return null; // it's not there
+		}
 		Object val = null;
 		try {
 			val = server.getAttribute(be.getMbean(), be.getAttr().getName());
