@@ -22,7 +22,9 @@
 package org.jboss.adaptor.snmp.servlet.example;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -39,11 +41,13 @@ public class SnmpServiceTest implements SnmpServiceTestMBean {
 	private List<String> messageHistory;
 	private List<Integer> countHistoryList;
 	private int[] countHistory;
+	private Map<String, Integer> messageCountHistory;
 	
 	public SnmpServiceTest() {
 		count = new AtomicInteger(0);
 		messageHistory = new ArrayList<String>();
 		countHistoryList = new ArrayList<Integer>();
+		messageCountHistory = new HashMap<String, Integer>();
 	}
 	
 	/* (non-Javadoc)
@@ -108,6 +112,11 @@ public class SnmpServiceTest implements SnmpServiceTestMBean {
 		return countHistory;
 	}
 	
+	@Override
+	public Map<String, Integer> getMessageCountHistory() {
+		return messageCountHistory;
+	}
+	
 	public static int[] boxedArray(Integer[] array) {
         int[] result = new int[array.length];
         for (Integer i = 0; i < array.length; i++)
@@ -118,6 +127,9 @@ public class SnmpServiceTest implements SnmpServiceTestMBean {
 	public int getNextValue() {
 		int nextcount = getAtomicCount().incrementAndGet();
 		countHistoryList.add(nextcount);
+		if(message != null) {
+			messageCountHistory.put(message, nextcount);
+		}
 		countHistory = boxedArray(countHistoryList.toArray(new Integer[countHistoryList.size()]));
 		return nextcount;
 	}

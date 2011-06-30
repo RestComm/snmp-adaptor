@@ -22,6 +22,7 @@
 package org.jboss.adaptor.snmp.servlet.example;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author jean.deruelle@gmail.com
@@ -31,16 +32,15 @@ public interface SnmpServiceTestMBean {
 
 	long getCount();
 	
-	// Configure getters and setters for the message attribute
 	String getMessage();
 	void setMessage(String message);
 	
 	List<String> getMessageHistory();
 	String[] getMessageHistoryAsArray();
-	// Configure getters and setters for the message attribute
 	int[] getCountHistory();
-   
+	Map<String, Integer> getMessageCountHistory();
+	
 	// Lifecycle callbacks
 	void start() throws Exception;
-	void stop();
+	void stop();	
 }

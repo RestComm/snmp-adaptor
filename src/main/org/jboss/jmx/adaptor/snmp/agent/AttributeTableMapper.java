@@ -21,7 +21,9 @@
  */
 package org.jboss.jmx.adaptor.snmp.agent;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
@@ -115,13 +117,13 @@ public class AttributeTableMapper {
 		OID tableIndexOID = be.getTableIndexOID();
 		if(tableIndexOID == null) {
 			return new OID(currentOID).append(1);
-		}
-		int index = Integer.valueOf(tableIndexOID.toString());
-		if(index - 1 < 0) {
-			return null;
-		}
-		index++;
-		if(val instanceof List) {			
+		}		
+		if(val instanceof List) {
+			int index = Integer.valueOf(tableIndexOID.toString());
+			if(index - 1 < 0) {
+				return null;
+			}
+			index++;
 			if(index <= ((List)val).size()) { 
 				return new OID(currentOID.trim().append(index));
 			} else {
@@ -132,7 +134,49 @@ public class AttributeTableMapper {
 				}
 			}
 		}
+		if(val instanceof Map) {	
+			if(tableIndexOID.size() <= 1) {
+				int index = Integer.valueOf(tableIndexOID.toString());
+				if(index - 1 < 0) {
+					return null;
+				}
+				index++;
+				if(index <= ((Map)val).size()) { 
+					return new OID(currentOID.trim().append(index));
+				} else {
+					Set<Object> keySet = ((Map)val).keySet();
+					if(keySet.size() > 0) {
+						return new OID(currentOID.trim().trim().append(2).append("'" + keySet.iterator().next().toString() + "'"));
+					} else {
+						return null;
+					}
+				}
+		} else {
+				String key = new String(tableIndexOID.toByteArray());
+				Iterator<Object> keySet = ((Map)val).keySet().iterator();
+				while (keySet.hasNext()) {
+					Object entryKey = keySet.next();
+					if(entryKey.equals(key)) {
+						if(keySet.hasNext()) {
+							Object nextKey = keySet.next();
+							OID nextOID = new OID(currentOID);
+							nextOID.trim(tableIndexOID.size());
+							nextOID.append("'" + nextKey + "'");
+							return nextOID;
+						} else {
+							return null;
+						}
+					}
+				}
+				return null;
+			}			
+		}
 		if (val instanceof int[]) {
+			int index = Integer.valueOf(tableIndexOID.toString());
+			if(index - 1 < 0) {
+				return null;
+			}
+			index++;
 			if(index <= ((int[])val).length) { 
 				return new OID(currentOID.trim().append(index));
 			} else {
@@ -144,6 +188,11 @@ public class AttributeTableMapper {
 			}
 		}
 		if (val instanceof long[]) {
+			int index = Integer.valueOf(tableIndexOID.toString());
+			if(index - 1 < 0) {
+				return null;
+			}
+			index++;
 			if(index <= ((long[])val).length) { 
 				return new OID(currentOID.trim().append(index));
 			} else {
@@ -155,6 +204,11 @@ public class AttributeTableMapper {
 			}
 		}
 		if (val instanceof boolean[]) {
+			int index = Integer.valueOf(tableIndexOID.toString());
+			if(index - 1 < 0) {
+				return null;
+			}
+			index++;
 			if(index <= ((boolean[])val).length) { 
 				return new OID(currentOID.trim().append(index));
 			} else {
@@ -166,6 +220,11 @@ public class AttributeTableMapper {
 			}
 		}
 		if (val instanceof Object[]) {
+			int index = Integer.valueOf(tableIndexOID.toString());
+			if(index - 1 < 0) {
+				return null;
+			}
+			index++;
 			if(index <= ((Object[])val).length) { 
 				return new OID(currentOID.trim().append(index));
 			} else {
@@ -229,7 +288,38 @@ public class AttributeTableMapper {
 	}
 
 	public Variable getIndexValue(OID oid) {
-		if(belongsToTables(oid)) {
+		BindEntry be = getTableBinding(oid, true);
+		Object val = null;
+		try {
+			val = server.getAttribute(be.getMbean(), be.getAttr().getName());
+		} catch(Exception e) {
+			log.error("Impossible to fetch " + be.getAttr().getName());
+			return null;
+		}
+		OID tableIndexOID = be.getTableIndexOID();
+		if(val instanceof List) {			
+			return new OctetString("" + oid.get(oid.size()-1));
+		}
+		if(val instanceof Map) {	
+			int index = oid.get(oid.size()-1);
+			int i = 1;
+			for(Object key : ((Map) val).keySet()) {
+				if(i == index) {
+					return new OctetString((String)key);
+				}
+				i++;
+			}			
+		}
+		if (val instanceof int[]) {
+			return new OctetString("" + oid.get(oid.size()-1));
+		}
+		if (val instanceof long[]) {
+			return new OctetString("" + oid.get(oid.size()-1));
+		}
+		if (val instanceof boolean[]) {
+			return new OctetString("" + oid.get(oid.size()-1));
+		}
+		if (val instanceof Object[]) {
 			return new OctetString("" + oid.get(oid.size()-1));
 		}
 		return null;

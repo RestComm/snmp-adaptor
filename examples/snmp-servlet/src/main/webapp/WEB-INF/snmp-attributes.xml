@@ -8,6 +8,7 @@
       <attribute name="MessageHistory" oid=".3.1" table="true" mode="rw"/>
       <attribute name="MessageHistoryAsArray" oid=".4.1" table="true" mode="rw"/>
       <attribute name="CountHistory" oid=".5.1" table="true" mode="rw"/>
+      <attribute name="MessageCountHistory" oid=".6.1" table="true" mode="rw"/>
    </mbean>
    
 </attribute-mappings>

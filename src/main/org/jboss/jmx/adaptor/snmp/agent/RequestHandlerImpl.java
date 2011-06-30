@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -451,13 +452,13 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				}
 			}
 			catch (NoSuchInstanceException e){
-				log.error("snmpReceivedSet: attempt to set a non-existent instance: " + oid.last() + " of object: " + oid.trim(), e);
+				log.info("snmpReceivedSet: attempt to set a non-existent instance: " + oid.last() + " of object: " + oid.trim(), e);
 				undoSets(modified);
 				makeErrorPdu(response, pdu, errorIndex, PDU.noCreation);
 				return response;
 			}
 			catch (VariableTypeException e){
-				log.error("snmpReceievedSet: could not convert the given value into an appropriate type: " +newVal, e);
+				log.info("snmpReceievedSet: could not convert the given value into an appropriate type: " +newVal, e);
 				undoSets(modified);
 				makeErrorPdu(response, pdu, errorIndex, PDU.wrongType);
 				return response;
@@ -832,7 +833,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 * 
 	 */
 	
-	private Variable prepForPdu(final Object val, final OID tableIndexOID) throws VariableTypeException{
+	public static Variable prepForPdu(final Object val, final OID tableIndexOID) throws VariableTypeException{
 		Variable result = null;
 		Object value = val;
 		if(val == null) {
@@ -841,19 +842,30 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		//TODO: all types managed by the PDU
 		
 		// manage arrays and lists
-		if(tableIndexOID != null) {
-			int index = Integer.valueOf(tableIndexOID.toString()) - 1;
-			if(index < 0) {
-				return Null.noSuchObject;
-			}
+		if(tableIndexOID != null) {						
 			if(val instanceof List) {
+				int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+				if(index < 0) {
+					return Null.noSuchObject;
+				}
 				if(index < ((List)val).size()) { 
 					value = ((List)val).get(index);
 				} else {
 					return Null.noSuchObject;
 				}
 			}
+			if(val instanceof Map) {
+				String key = new String(tableIndexOID.toByteArray());
+				value = ((Map)val).get(key);
+				if(value == null) { 
+					return Null.noSuchObject;
+				}
+			}
 			if (value instanceof int[]) {
+				int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+				if(index < 0) {
+					return Null.noSuchObject;
+				}
 				if(index < ((int[])val).length) { 
 					value = ((int[])val)[index];
 				} else {
@@ -861,6 +873,10 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				}
 			}
 			if (value instanceof long[]) {
+				int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+				if(index < 0) {
+					return Null.noSuchObject;
+				}
 				if(index < ((long[])val).length) { 
 					value = ((long[])val)[index];
 				} else {
@@ -868,6 +884,10 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				}
 			}
 			if (value instanceof boolean[]) {
+				int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+				if(index < 0) {
+					return Null.noSuchObject;
+				}
 				if(index < ((boolean[])val).length) { 
 					value = ((boolean[])val)[index];
 				} else {
@@ -875,6 +895,10 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				}
 			}
 			if (value instanceof Object[]) {
+				int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+				if(index < 0) {
+					return Null.noSuchObject;
+				}
 				if(index < ((Object[])val).length) { 
 					value = ((Object[])val)[index];
 				} else {
@@ -1005,19 +1029,27 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 					Attribute at = new Attribute(be.getAttr().getName(), val);
 					server.setAttribute(be.getMbean(), at);
 				} else {
-					// manage arrays and lists
-					int index = Integer.valueOf(tableIndexOID.toString()) - 1;
-					if(index < 0) {
-						return Null.noSuchObject;
-					}
+					// manage arrays and lists					
 					if(other instanceof List) {
+						int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+						if(index < 0) {
+							return Null.noSuchObject;
+						}
 						if(index < ((List)other).size()) { 
 							((List)other).set(index, val);
 						} else {
 							return Null.noSuchObject;
 						}
 					}
+					if(other instanceof Map) {
+						String key = new String(tableIndexOID.toByteArray());
+						((Map)other).put(key, val);						
+					}
 					if (other instanceof int[]) {
+						int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+						if(index < 0) {
+							return Null.noSuchObject;
+						}
 						if(index < ((int[])other).length) { 
 							((int[])other)[index] = (Integer) val;
 						} else {
@@ -1025,6 +1057,10 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 						}
 					}
 					if (other instanceof long[]) {
+						int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+						if(index < 0) {
+							return Null.noSuchObject;
+						}
 						if(index < ((long[])other).length) { 
 							((long[])other)[index] = (Long) val;
 						} else {
@@ -1032,6 +1068,10 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 						}
 					}
 					if (other instanceof boolean[]) {
+						int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+						if(index < 0) {
+							return Null.noSuchObject;
+						}
 						if(index < ((boolean[])other).length) { 
 							((boolean[])other)[index] = (Boolean) val;
 						} else {
@@ -1039,6 +1079,10 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 						}
 					}
 					if (other instanceof Object[]) {
+						int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+						if(index < 0) {
+							return Null.noSuchObject;
+						}
 						if(index < ((Object[])other).length) { 
 							((Object[])other)[index] = val;
 						} else {
