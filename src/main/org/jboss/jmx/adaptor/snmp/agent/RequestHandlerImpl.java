@@ -357,8 +357,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			}
 			else {
 				newVB = new VariableBinding(oid);
-				var = null;
-				//TODO will be called for each get, not performing well, to be optimized
+				var = null;				
 				tableMapper.checkTables(oid);
 				// check the existence of the object for the requested instance
 				// the object is the OID with the last number removed.
@@ -437,7 +436,6 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			VariableBinding newVB = new VariableBinding(oid,newVal);
 			
 			try{
-				//TODO will be called for each set, not performing well, to be optimized
 				tableMapper.checkTables(oid);
 				oldVar = getValueFor(oid);
 				modified.add(new VariableBinding(oid, oldVar)); // keep a record of the old variable binding.
@@ -1199,7 +1197,6 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 */
 	private OID getNextOid(final OID oid) throws EndOfMibViewException {
 		OID coid = new OID(oid);
-		//TODO will be called for each get, not performing well, to be optimized		
 		tableMapper.checkTables(oid);
 		OID nextOid =  tableMapper.getNextTable(coid);
 		if(nextOid != null) {
