@@ -48,12 +48,12 @@ import org.snmp4j.smi.Variable;
 public class AttributeTableMapper {
 
 	private SortedSet<OID> tables = new TreeSet<OID>();
-	private SortedSet<OID> tableRowEntrys = new TreeSet<OID>();
+//	private SortedSet<OID> tableRowEntrys = new TreeSet<OID>();
 	/**
 	 * keep an index of the OID from attributes.xml
 	 */	
 	private SortedMap<OID, BindEntry> tableMappings = new TreeMap<OID, BindEntry>();
-	private SortedMap<OID, BindEntry> tableRowEntryMappings = new TreeMap<OID, BindEntry>();
+//	private SortedMap<OID, BindEntry> tableRowEntryMappings = new TreeMap<OID, BindEntry>();
 
 	private MBeanServer server;
 	private Logger log;
@@ -70,11 +70,11 @@ public class AttributeTableMapper {
 	 */
 	public BindEntry getTableBinding(OID oid, boolean isRowEntry) {
 		Set<Entry<OID,BindEntry>> entries = null;
-		if(isRowEntry) {
-			entries = tableRowEntryMappings.entrySet();
-		} else {
+//		if(isRowEntry) {
+//			entries = tableRowEntryMappings.entrySet();
+//		} else {
 			entries = tableMappings.entrySet();
-		}
+//		}
 		for (Entry<OID,BindEntry> entry : entries) {			
 			if (oid.startsWith(entry.getKey())) {
 				BindEntry value = entry.getValue();
@@ -98,15 +98,15 @@ public class AttributeTableMapper {
 		if(tables.contains(oid)) {
 			currentOID = oid.append(1);
 		}
-		if(tableRowEntrys.contains(currentOID)) {
-			currentOID = oid.append(1);
-			isRowEntry = true;
-		}
+//		if(tableRowEntrys.contains(currentOID)) {
+//			currentOID = oid.append(1);
+//			isRowEntry = true;
+//		}
 		BindEntry be = getTableBinding(currentOID, isRowEntry);
-		if(be == null) {
-			be = getTableBinding(currentOID, true);
-			isRowEntry = true;
-		}
+//		if(be == null) {
+//			be = getTableBinding(currentOID, true);
+//			isRowEntry = true;
+//		}
 		if(be == null) {
 			return null; // it's not there
 		}
@@ -119,7 +119,16 @@ public class AttributeTableMapper {
 		}
 		OID tableIndexOID = be.getTableIndexOID();
 		if(tableIndexOID == null) {
-			return new OID(currentOID).append(1);
+			if(val instanceof Map) {
+				Set<Object> keySet = ((Map)val).keySet();
+				if(keySet.size() > 0) {
+					return new OID(currentOID.append("'" + keySet.iterator().next().toString() + "'"));
+				} else {
+					return null;
+				}
+			} else {
+				return new OID(currentOID).append(1);
+			}			
 		}		
 		if(val instanceof List) {
 			int index = Integer.valueOf(tableIndexOID.toString());
@@ -130,31 +139,31 @@ public class AttributeTableMapper {
 			if(index <= ((List)val).size()) { 
 				return new OID(currentOID.trim().append(index));
 			} else {
-				if(isRowEntry) {
-					return new OID(currentOID.trim().trim().append(2).append(1));
-				} else {
+//				if(isRowEntry) {
+//					return new OID(currentOID.trim().trim().append(2).append(1));
+//				} else {
 					return null;
-				}
+//				}
 			}
 		}
 		if(val instanceof Map) {	
-			if(tableIndexOID.size() <= 1) {
-				int index = Integer.valueOf(tableIndexOID.toString());
-				if(index - 1 < 0) {
-					return null;
-				}
-				index++;
-				if(index <= ((Map)val).size()) { 
-					return new OID(currentOID.trim().append(index));
-				} else {
-					Set<Object> keySet = ((Map)val).keySet();
-					if(keySet.size() > 0) {
-						return new OID(currentOID.trim().trim().append(2).append("'" + keySet.iterator().next().toString() + "'"));
-					} else {
-						return null;
-					}
-				}
-		} else {
+//			if(tableIndexOID.size() <= 1) {
+//				int index = Integer.valueOf(tableIndexOID.toString());
+//				if(index - 1 < 0) {
+//					return null;
+//				}
+//				index++;
+//				if(index <= ((Map)val).size()) { 
+//					return new OID(currentOID.trim().append(index));
+//				} else {
+//					Set<Object> keySet = ((Map)val).keySet();
+//					if(keySet.size() > 0) {
+//						return new OID(currentOID.trim().trim().append(2).append("'" + keySet.iterator().next().toString() + "'"));
+//					} else {
+//						return null;
+//					}
+//				}
+//		} else {
 				String key = new String(tableIndexOID.toByteArray());
 				Iterator<Object> keySet = ((Map)val).keySet().iterator();
 				while (keySet.hasNext()) {
@@ -172,7 +181,7 @@ public class AttributeTableMapper {
 					}
 				}
 				return null;
-			}			
+//			}			
 		}
 		if (val instanceof int[]) {
 			int index = Integer.valueOf(tableIndexOID.toString());
@@ -271,10 +280,11 @@ public class AttributeTableMapper {
 			log.info("Invalid attribute name " + ma + " for oid " + coid
 					+ RequestHandlerImpl.SKIP_ENTRY);
 		}
-		tableRowEntrys.add(coid);
+//		tableRowEntrys.add(coid);
 		tables.add(coid.trim());
-		tableRowEntryMappings.put(new OID(coid).append(1), be);
-		tableMappings.put(new OID(coid).append(2), be);	
+//		tableRowEntryMappings.put(new OID(coid).append(1), be);
+		tableMappings.put(new OID(coid), be);	
+//		tableMappings.put(new OID(coid.trim()), be);
 	}
 
 	public boolean belongsToTables(OID oid) {
