@@ -32,6 +32,9 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.management.Attribute;
 import javax.management.MBeanServer;
@@ -915,8 +918,15 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		// manage regular java types
 		if (value instanceof Long) {
 			result = new OctetString(((Long)value).toString());
-		} else if (value instanceof Boolean) {
+		} else if (value instanceof AtomicLong) {
+			result = new OctetString(((AtomicLong)value).toString());
+		}  else if (value instanceof Boolean) {
 			if(((Boolean)value).booleanValue())
+				result = new Integer32(1);
+			else 
+				result = new Integer32(0);
+		} else if (value instanceof AtomicBoolean) {
+			if(((AtomicBoolean)value).get())
 				result = new Integer32(1);
 			else 
 				result = new Integer32(0);
@@ -924,6 +934,8 @@ public class RequestHandlerImpl extends RequestHandlerSupport
         	result = new OctetString((String) value);
 		} else if (value instanceof Integer) {
 			result = new Integer32((Integer)value);
+		} else if (value instanceof AtomicInteger) {
+			result = new Integer32(((AtomicInteger)value).get());
 		} else if (value instanceof OID) {
         	result = new OID((OID)value);
         } else if (value instanceof TimeTicks) {
@@ -954,6 +966,8 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		{	
 			if(attribute instanceof Long) {
 				result = Long.parseLong(val.toString());
+			} else if(attribute instanceof AtomicLong) {
+				result = new AtomicLong(Long.parseLong(val.toString()));
 			} else {
 				result = val.toString();
 			}
@@ -966,6 +980,14 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				} else {
 					result = Boolean.TRUE;
 				}
+			} else if(attribute instanceof AtomicBoolean) {
+				if(((Integer32)val).getValue() == 0) {
+					result = new AtomicBoolean(Boolean.FALSE);
+				} else {
+					result = new AtomicBoolean(Boolean.TRUE);
+				}
+			} else if(attribute instanceof AtomicInteger) {
+				result = new AtomicInteger(Integer.valueOf(((Integer32)val).getValue()));
 			} else {
 				result = Integer.valueOf(((Integer32)val).getValue());
 			}
