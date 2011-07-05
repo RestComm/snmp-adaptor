@@ -53,12 +53,13 @@
       <attribute name="t2Interval" oid=".3" mode="rw"/>
       <attribute name="t4Interval" oid=".4" mode="rw"/>
       <attribute name="timerDInterval" oid=".5" mode="rw"/>
-      <attribute name="memoryThreshold" oid=".6" mode="rw"/>
-      <attribute name="backToNormalMemoryThreshold" oid=".7" mode="rw"/>
-      <attribute name="gatherStatistics" oid=".8" mode="rw"/>
-      <attribute name="requestsProcessed" oid=".9" />
-      <attribute name="responsesProcessed" oid=".10" />
-      <attribute name="congestionControlCheckingInterval" oid=".11" mode="rw"/>
+      <attribute name="congestionControlCheckingInterval" oid=".6" mode="rw"/>
+      <attribute name="memoryThreshold" oid=".7" mode="rw"/>
+      <attribute name="backToNormalMemoryThreshold" oid=".8" mode="rw"/>
+      <attribute name="gatherStatistics" oid=".9" mode="rw"/>
+      <attribute name="requestsProcessed" oid=".10" />
+      <attribute name="responsesProcessed" oid=".11" />      
+      <attribute name="responsesProcessedByStatusCode" oid=".12" table="true"/>      
    </mbean>
    
    <!-- sip stack -->
