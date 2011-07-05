@@ -92,7 +92,7 @@ public class AttributeTableMapper {
 	}
 	
 	public OID getNextTable(OID oid) {
-		OID currentOID = oid;
+		OID currentOID = (OID) oid.clone();
 		// means that the oid is the one from the table itself
 		boolean isRowEntry = false;
 		if(tables.contains(oid)) {

@@ -1235,8 +1235,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		if(nextOid != null) {
 			return nextOid;			
 		}
-		SortedSet<OID> ret;
-		ret=oidKeys.tailSet(oid);  // get oids >= oid
+		SortedSet<OID> ret = new TreeSet(oidKeys.tailSet(oid));  // get oids >= oid
 		Iterator<OID> it = ret.iterator();
 		OID roid=null;
 		
