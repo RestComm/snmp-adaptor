@@ -120,7 +120,7 @@ public class AttributeTableMapper {
 		OID tableIndexOID = be.getTableIndexOID();
 		if(tableIndexOID == null) {
 			if(val instanceof Map) {
-				Set<Object> keySet = ((Map)val).keySet();
+				Set<Object> keySet = new TreeSet(((Map)val).keySet());
 				if(keySet.size() > 0) {
 					return new OID(currentOID.append("'" + keySet.iterator().next().toString() + "'"));
 				} else {
@@ -165,7 +165,7 @@ public class AttributeTableMapper {
 //				}
 //		} else {
 				String key = new String(tableIndexOID.toByteArray());
-				Iterator<Object> keySet = ((Map)val).keySet().iterator();
+				Iterator<Object> keySet = new TreeSet(((Map)val).keySet()).iterator();
 				while (keySet.hasNext()) {
 					Object entryKey = keySet.next();
 					if(entryKey.equals(key)) {
