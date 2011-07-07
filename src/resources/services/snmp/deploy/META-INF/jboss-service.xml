@@ -106,7 +106,7 @@
        <value-factory bean="ServiceBindingManager" method="getIntBinding" 
           parameter="jboss.jmx:name=SnmpAgent,service=snmp,type=adaptor"/>
     </attribute>
-    <attribute name="DynamicSubscriptions">false</attribute>
+    <attribute name="DynamicSubscriptions">true</attribute>
     <attribute name="WriteCommunity">private</attribute>
     
     <attribute name="SubscriptionList">
@@ -119,7 +119,14 @@
         <mbean name="jboss.jmx:name=SnmpAgent,service=timer,type=heartbeat">
           <notification type="jboss.snmp.agent.heartbeat"/>
         </mbean>
-        
+        <mbean name="jboss.cache:service=Cache,config=*">
+        	<notification type="org.jboss.cache.ViewChanged"/>
+        </mbean>        
+        <!--mbean name="jboss.system:service=ServiceController">
+        	<notification type="org.jboss.system.ServiceMBean.start"/>
+        	<notification type="org.jboss.system.ServiceMBean.stop"/>
+        </mbean-->
+         <!--mbean name="*:*"/-->
         <!-- Valid JMX ObjectName patterns may be used as well, for example
         <mbean name="*:service=invoker,*"/>
         will subscribe to all matching mbeans for all notification types -->

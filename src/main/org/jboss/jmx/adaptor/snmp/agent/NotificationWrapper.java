@@ -63,6 +63,9 @@ public interface NotificationWrapper
    public static final String STARTTIME_TAG = "a:startTime";
    public static final String UPTIME_TAG    = "a:uptime";
    public static final String TRAPCOUNT_TAG = "a:trapCount";
+   
+   // user properties
+   public static final String USERDATA_TAG = "u:userData";
 
    /**
     * Sets the uptime clock and trap counter

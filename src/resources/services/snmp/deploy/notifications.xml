@@ -37,4 +37,26 @@
       <var-bind tag="a:trapCount" oid="1.2.3.4.5.6.7.6"/>      
     </var-bind-list>               
   </mapping>
+  
+  <mapping notification-type="org.jboss.cache.ViewChanged" generic="0" specific="0" enterprise=".1.3.6.1.4.1.2312.100.1000" inform="false" security-name="TEST">    
+    <var-bind-list wrapper-class="org.jboss.jmx.adaptor.snmp.agent.NotificationWrapperSupport">
+      <var-bind tag="a:startTime" oid=".1.3.6.1.4.1.2312.100.1000.1"/>
+      <var-bind tag="a:trapCount" oid=".1.3.6.1.4.1.2312.100.1000.2"/>  
+      <var-bind tag="n:message" oid=".1.3.6.1.4.1.2312.100.1000.3"/>    
+    </var-bind-list>               
+  </mapping>
+  
+  <!-->mapping notification-type="org.jboss.system.ServiceMBean.start" generic="0" specific="0" enterprise=".1.3.6.1.4.1.2312.100.1000.1" inform="false" security-name="TEST">    
+    <var-bind-list wrapper-class="org.jboss.jmx.adaptor.snmp.agent.NotificationWrapperSupport">
+    	<var-bind tag="n:type" oid=".1.3.6.1.4.1.2312.100.1000.1.1"/>
+      	<var-bind tag="u:userData" oid=".1.3.6.1.4.1.2312.100.1000.1.2"/>    
+    </var-bind-list>               
+  </mapping>
+  
+   <mapping notification-type="org.jboss.system.ServiceMBean.stop" generic="0" specific="0" enterprise=".1.3.6.1.4.1.2312.100.1000.2" inform="false" security-name="TEST">    
+    <var-bind-list wrapper-class="org.jboss.jmx.adaptor.snmp.agent.NotificationWrapperSupport">
+      	<var-bind tag="n:type" oid=".1.3.6.1.4.1.2312.100.1000.2.1"/>
+      	<var-bind tag="u:userData" oid=".1.3.6.1.4.1.2312.100.1000.2.2"/>    
+    </var-bind-list>               
+  </mapping-->
 </notification-map-list>

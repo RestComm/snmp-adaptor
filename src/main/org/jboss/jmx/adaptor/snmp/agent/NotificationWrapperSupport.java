@@ -109,6 +109,8 @@ public class NotificationWrapperSupport
       if (userData instanceof Map) {
          // Copy all of the user data in the payload
          this.payload.putAll((Map)userData);    
+      } else {
+    	  this.payload.put(USERDATA_TAG, userData);
       }
    } // prime
 

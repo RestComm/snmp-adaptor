@@ -31,7 +31,6 @@ import java.util.Map;
 import javax.management.Notification;
 import javax.management.ObjectName;
 
-import org.jboss.jmx.adaptor.snmp.config.attribute.AttributeMappings;
 import org.jboss.jmx.adaptor.snmp.config.attribute.ManagedBean;
 import org.jboss.jmx.adaptor.snmp.config.notification.Mapping;
 import org.jboss.jmx.adaptor.snmp.config.user.User;
@@ -586,8 +585,8 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
     */
    public void handleNotification2(Notification n, Object handback)
    {
-      if (log.isTraceEnabled()) {
-         log.trace("Received notification: <" + n + "> Payload " +
+      if (log.isDebugEnabled()) {
+         log.debug("Received notification: <" + n + "> Payload " +
                    "TS: <" + n.getTimeStamp() + "> " +
                    "SN: <" + n.getSequenceNumber() + "> " +
                    "T:  <" + n.getType() + ">");
