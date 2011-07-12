@@ -1,5 +1,5 @@
 <assembly>
-  <id>snmp-adaptor-sar</id>
+  <id>adaptor-sar</id>
   <formats>
     <format>jar</format>
   </formats>
@@ -9,7 +9,7 @@
       <directory>target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>jboss-as-varia-5.1.0.GA-snmp-adaptor.jar</include>
+        <include>jboss-snmp-5.1.1.GA-adaptor.jar</include>
       </includes>
     </fileSet>
     <fileSet>

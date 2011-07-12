@@ -2,7 +2,7 @@
 	 <modelVersion>4.0.0</modelVersion>
 	<groupId>org.jboss.jbossas.snmp</groupId>
 	<artifactId>snmp-deployer</artifactId>
-	<version>5.1.0.GA</version>
+	<version>5.1.1.GA</version>
 	<packaging>jar</packaging>
 	<name>SNMP Servlet Deployer</name>
 	<dependencies>
@@ -12,21 +12,32 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.14</version>
 			<scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.jboss.jbossas</groupId>
-			<artifactId>jboss-as-j2se</artifactId>
-			<version>5.1.0.GA</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.jboss.jbossas</groupId>
-  			<artifactId>jboss-as-varia</artifactId>
-			<version>5.1.0.GA</version>
-			<scope>provided</scope>
 		</dependency>		
+		
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+  			<artifactId>jboss-snmp</artifactId>
+			<version>5.1.1.GA</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss</groupId>
+  			<artifactId>jbossxb</artifactId>
+			<version>2.0.1.GA</version>
+			<scope>provided</scope>
+		</dependency>	
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+  			<artifactId>jboss-as-system</artifactId>
+			<version>5.1.0.GA</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+  			<artifactId>jboss-as-system-jmx</artifactId>
+			<version>5.1.0.GA</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -70,7 +81,7 @@
 									<goal>copy-dependencies</goal>
 	 	            			</goals>
 	 	            			<configuration>
-								<includeArtifactIds>jboss-as-varia</includeArtifactIds>
+								<includeArtifactIds>jboss-snmp</includeArtifactIds>
 				    			<outputDirectory>${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer</outputDirectory>
 	 	            			</configuration>
 	 	          		</execution>		 	          		

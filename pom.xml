@@ -1,13 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <parent>
+ <!--  <parent>
     <groupId>org.jboss.jbossas</groupId>
     <artifactId>jboss-as-parent</artifactId>
     <version>5.1.0.GA</version>
-  </parent>
+  </parent> -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jboss.jbossas</groupId>
-  <artifactId>jboss-as-varia</artifactId>
+  <artifactId>jboss-snmp</artifactId>
+  <version>5.1.1.GA</version>
   <packaging>jar</packaging>
   <name>JBoss Application Server Varia</name>
   <url>http://www.jboss.org/jbossas</url>
@@ -46,7 +47,7 @@
 					<phase>package</phase>
 					<configuration>
 						<tasks>
-							<unjar src="${project.build.directory}/jboss-as-varia-5.1.0.GA-snmp-adaptor-sar.jar" dest="${env.JBOSS_HOME}/server/${node}/deploy/snmp-adaptor.sar" />
+							<unjar src="${project.build.directory}/jboss-snmp-${project.version}-adaptor-sar.jar" dest="${env.JBOSS_HOME}/server/${node}/deploy/snmp-adaptor.sar" />
 						</tasks>
 					</configuration>
 					<goals>
@@ -58,63 +59,7 @@
     </plugins>
   </build>
   <dependencies>
-    <!-- Compile (global dependencies) -->
-    <dependency>
-      <groupId>org.jboss.bootstrap</groupId>
-      <artifactId>jboss-bootstrap</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>opensaml</groupId>
-      <artifactId>opensaml</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>javax.transaction</groupId>
-      <artifactId>jta</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss</groupId>
-      <artifactId>jboss-common-core</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.cluster</groupId>
-      <artifactId>jboss-ha-server-api</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.microcontainer</groupId>
-      <artifactId>jboss-dependency</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.jbossas</groupId>
-      <artifactId>jboss-as-system-jmx</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.jbossas</groupId>
-      <artifactId>jboss-as-system</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.jbossas</groupId>
-      <artifactId>jboss-as-server</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>apache-velocity</groupId>
-      <artifactId>velocity</artifactId>
-    </dependency>
-    
-    <dependency>
+  <dependency>
       <groupId>org.snmp4j</groupId>
       <artifactId>snmp4j</artifactId>
       <version>1.11.3</version>
@@ -127,157 +72,49 @@
     </dependency>
     
     <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-system-jmx</artifactId>
+      <version>5.1.0.GA</version>
+      <scope>provided</scope>
     </dependency>
-    
-    <dependency>
-      <groupId>org.beanshell</groupId>
-      <artifactId>bsh</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>bsf</groupId>
-      <artifactId>bsf</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
+     
+     <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-jmx</artifactId>
+      <version>5.1.0.GA</version>
+      <scope>provided</scope>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
-      <artifactId>jboss-as-cluster</artifactId>
+      <artifactId>jboss-as-system</artifactId>
+      <version>5.1.0.GA</version>
+      <scope>provided</scope>
     </dependency>
     
-    <dependency>
-      <groupId>org.jboss.jbossas</groupId>
-      <artifactId>jboss-as-j2se</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.microcontainer</groupId>
-      <artifactId>jboss-kernel</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.deployers</groupId>
-      <artifactId>jboss-deployers-core-spi</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.deployers</groupId>
-      <artifactId>jboss-deployers-impl</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.deployers</groupId>
-      <artifactId>jboss-deployers-vfs</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.integration</groupId>
-      <artifactId>jboss-transaction-spi</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>apache-xerces</groupId>
-      <artifactId>xml-apis</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.logging</groupId>
-      <artifactId>jboss-logging-log4j</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.logging</groupId>
-      <artifactId>jboss-logging-spi</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.naming</groupId>
-      <artifactId>jnp-client</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.naming</groupId>
-      <artifactId>jnpserver</artifactId>       
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.ant</groupId>
-      <artifactId>ant</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>javax.security</groupId>
-      <artifactId>jaas</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>jboss.web</groupId>
-      <artifactId>servlet-api</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.security</groupId>
-      <artifactId>jbosssx-client</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>oswego-concurrent</groupId>
-      <artifactId>concurrent</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss</groupId>
-      <artifactId>jbossxb</artifactId>
-    </dependency>
-    
-    <!-- Needed for assemblies -->
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-    </dependency>
-    
+    <!-- test dependencies -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- j2ee dependencies -->
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-j2se</artifactId>
+			<version>5.1.0.GA</version>
+			<scope>provided</scope>
+		</dependency>    
   </dependencies>
   
-  <profiles>
-    <profile>
-      <id>jdk5</id>
-      <activation>
-        <jdk>1.5</jdk>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>2.0.2</version>
-            <configuration>
-              <excludes>
-                <exclude>org/jboss/varia/stats/*JDK6.java</exclude>
-                <exclude>org/jboss/tm/plugins/tyrex/*.java</exclude>
-                <exclude>org/jboss/jdo/castor/*.java</exclude>
-              </excludes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+  <profiles>    
     <profile>
       <id>jdk6</id>
       <activation>
-        <jdk>1.6</jdk>
-      </activation>
+		 <activeByDefault>true</activeByDefault>
+      </activation>	
       <build>
         <plugins>
           <plugin>
@@ -285,6 +122,11 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <version>2.0.2</version>
             <configuration>
+				<compilerArguments>
+					<g />
+				</compilerArguments>
+				<source>1.5</source>
+				<target>1.5</target>
               <excludes>
                 <exclude>org/jboss/varia/stats/*JDK5.java</exclude>
                 <exclude>org/jboss/tm/plugins/tyrex/*.java</exclude>

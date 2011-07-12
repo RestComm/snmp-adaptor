@@ -59,7 +59,8 @@
       <attribute name="gatherStatistics" oid=".9" mode="rw"/>
       <attribute name="requestsProcessed" oid=".10" />
       <attribute name="responsesProcessed" oid=".11" />      
-      <attribute name="responsesProcessedByStatusCode" oid=".12" table="true"/>      
+      <attribute name="requestsProcessedByMethod" oid=".12" table="true"/>
+      <attribute name="responsesProcessedByStatusCode" oid=".13" table="true"/>      
    </mbean>
    
    <!-- sip stack -->

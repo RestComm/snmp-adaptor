@@ -1,5 +1,5 @@
 <assembly>
-  <id>snmp-adaptor</id>
+  <id>adaptor</id>
   <formats>
     <format>jar</format>
   </formats>

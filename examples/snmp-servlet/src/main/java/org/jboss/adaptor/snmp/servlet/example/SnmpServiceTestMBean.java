@@ -30,11 +30,14 @@ import java.util.Map;
  */
 public interface SnmpServiceTestMBean {
 
+	//  the current value of the counter
 	long getCount();
 	
+	// allows to retrieve and set the value of the message that will be displayed on the page along with the counter
 	String getMessage();
 	void setMessage(String message);
 	
+	//
 	List<String> getMessageHistory();
 	String[] getMessageHistoryAsArray();
 	int[] getCountHistory();

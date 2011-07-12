@@ -35,6 +35,7 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
+import javax.management.Notification;
 import javax.management.ObjectName;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContextEvent;
@@ -49,8 +50,8 @@ import org.jboss.jmx.adaptor.snmp.agent.SnmpAgentServiceMBean;
 import org.jboss.mx.util.MBeanServerLocator;
 
 /**
- * This example shows a simple User agent that can any accept call and reply to BYE or initiate BYE 
- * depending on the sender.
+ * This application is meant to be a showcase on how to expose your applications metrics through SNMP
+ * and how to send traps from your application through SNMP 
  * 
  * @author Jean Deruelle
  *
@@ -59,10 +60,6 @@ public class SimpleSnmpServlet extends HttpServlet implements ServletContextList
 	private static Logger logger = Logger.getLogger(SimpleSnmpServlet.class);
 	private static final long serialVersionUID = 1L;
 	
-	/** Creates a new instance of SimpleProxyServlet */
-	public SimpleSnmpServlet() {
-	}
-
 	@Override
 	public void init(ServletConfig servletConfig) throws ServletException {
 		logger.info("SimpleSnmpServlet has been started");
@@ -133,7 +130,9 @@ public class SimpleSnmpServlet extends HttpServlet implements ServletContextList
 			logger.info("attribute file name " + snmpAgentServiceMBean.getRequestHandlerResName());
 			Map<String, Object> trapValues = new HashMap<String, Object>();
 			trapValues.put("u:startTime", new Date(System.currentTimeMillis()));
-			snmpAgentServiceMBean.sendSNMPNotification("snmp.servlet.test.coldstart", trapValues);
+			Notification n = new Notification("snmp.servlet.test.coldstart", this, snmpAgentServiceMBean.getNextJMXNotificationSequenceNumber());
+			n.setUserData(trapValues);
+			snmpAgentServiceMBean.sendJMXNotification(n);
 		} catch (MalformedObjectNameException e) {
 			logger.error("couldn't access the snmp agent mbean", e);
 		} 		

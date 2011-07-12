@@ -791,14 +791,20 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
 	}
 
 	@Override
-	public void sendSNMPNotification(String type, Map<String, Object> userData) {
-		Notification n = new Notification(type, this, getNextNotificationSequenceNumber());
-		n.setUserData(userData);
+	public void sendJMXNotification(Notification notification) {
+		if(notification.getSequenceNumber() <= 0) {
+			notification.setSequenceNumber(getNextNotificationSequenceNumber());
+		}
 		try {
-			this.trapEmitter.send(n);           
+			this.trapEmitter.send(notification);           
 	    } catch (Exception e) {
 	         log.error("Problem occured while Sending trap", e);
 	    }   		
+	}
+	
+	@Override
+	public long getNextJMXNotificationSequenceNumber() {		
+		return getNextNotificationSequenceNumber();
 	}
 
 	@Override

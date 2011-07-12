@@ -120,7 +120,8 @@ public interface SnmpAgentServiceMBean extends ListenerServiceMBean
    /**
     * 
     */
-   void sendSNMPNotification(String type, Map<String, Object> userData);
+   void sendJMXNotification(Notification notification);
+   long getNextJMXNotificationSequenceNumber();
    
    void addAttributeMappings(List<ManagedBean> mappings);
    void removeAttributeMappings(List<ManagedBean> mappings);
