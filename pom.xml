@@ -48,6 +48,7 @@
 					<configuration>
 						<tasks>
 							<unjar src="${project.build.directory}/jboss-snmp-${project.version}-adaptor-sar.jar" dest="${env.JBOSS_HOME}/server/${node}/deploy/snmp-adaptor.sar" />
+							<delete file="${env.JBOSS_HOME}/server/${node}/deploy/snmp-adaptor.sar/jboss-snmp-${project.version}.jar"/>
 						</tasks>
 					</configuration>
 					<goals>
