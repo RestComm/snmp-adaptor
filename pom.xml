@@ -33,6 +33,23 @@
             </goals>
             <phase>package</phase>
           </execution>
+          <execution>
+           <id>mib-generator</id>
+            <goals>
+             <goal>single</goal>
+            </goals>
+           <phase>package</phase>
+           <configuration>
+            <descriptors>
+             <descriptor>src/assembly/mib-generator.xml</descriptor>
+            </descriptors>
+            <archive>
+             <manifest>
+              <mainClass>org.jboss.jmx.adaptor.snmp.generator.MIBGenerator</mainClass>
+             </manifest>
+            </archive>
+           </configuration>
+          </execution>
         </executions>
         <configuration>
           <descriptorSourceDirectory>src/assembly</descriptorSourceDirectory>
@@ -72,8 +89,7 @@
       <version>1.4.3</version>
     </dependency>
     
-    <dependency>
-      <groupId>org.jboss.jbossas</groupId>
+    <dependency> <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-system-jmx</artifactId>
       <version>5.1.0.GA</version>
       <scope>provided</scope>
@@ -92,7 +108,22 @@
       <version>5.1.0.GA</version>
       <scope>provided</scope>
     </dependency>
-    
+
+    <!-- mib generator dependencies -->
+
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jbossxb</artifactId>
+      <version>2.0.3.GA</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging</artifactId>
+      <version>3.0.0.Beta4</version>
+    </dependency>
+ 
+ 
     <!-- test dependencies -->
 		<dependency>
 			<groupId>log4j</groupId>
