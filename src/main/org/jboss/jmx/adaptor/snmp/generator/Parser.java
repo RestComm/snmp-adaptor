@@ -256,7 +256,7 @@ public class Parser {
 						  ma.setOidPrefix(oidPrefix);
 					  else{
 						  ma.setOidPrefix(removeLast(ma.getOid()));
-						  ma.setOid(getLast(ma.getOid()));
+						  ma.setOid("."+getLast(ma.getOid()));
 					  }
 					  
 					  ma.setOidDefName(oidDefName);
