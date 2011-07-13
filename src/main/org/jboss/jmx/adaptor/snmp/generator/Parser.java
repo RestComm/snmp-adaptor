@@ -225,7 +225,7 @@ public class Parser {
 		   return;         
 		}
 			/**
-			 * We have the MBeans now. Put them into the bindungs.
+			 * We have the MBeans now. Put them into the bindings.
 			 */
 
 		 Iterator it = mappings.iterator();
