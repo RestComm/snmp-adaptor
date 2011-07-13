@@ -1,4 +1,4 @@
-package org.jboss.jmx.adaptor.snmp.generator;
+package org.jboss.jmx.adaptor.snmp.generator.exceptions;
 /** This exception is thrown when there is not enough information inside the input files 
  *  to create a complete, valid MIB.
  *  
