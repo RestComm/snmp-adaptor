@@ -27,20 +27,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.HashMap;
-import java.util.List;
 
 import org.jboss.jmx.adaptor.snmp.generator.metrics.MappedAttribute;
 import org.jboss.jmx.adaptor.snmp.generator.metrics.AttributeMappings;
 import org.jboss.jmx.adaptor.snmp.generator.metrics.ManagedBean;
 import org.jboss.jmx.adaptor.snmp.generator.metrics.Mapping;
 import org.jboss.jmx.adaptor.snmp.generator.metrics.VarBind;
-import org.jboss.jmx.adaptor.snmp.generator.metrics.VarBindList;
+import org.jboss.jmx.adaptor.snmp.generator.exceptions.NotEnoughInformationException;
 
 import javax.management.ObjectName;
-
-import org.snmp4j.smi.TimeTicks;
-import org.snmp4j.smi.Counter32;
-import org.snmp4j.smi.OID;
 
 
 /** 
@@ -79,8 +74,6 @@ public class Generator {
 		this.miboList = null;
 		this.maList = null;
 	}
-	
-	
 	
 	/**
 	 * Constructor for use when also parsing Notifications.xml
@@ -287,7 +280,7 @@ public class Generator {
 			for(Mapping nm : nmList){
 				try{
 					MIBNotification mibN = new MIBNotification(nm);
-					mibnList.add(new MIBNotification(nm));
+					mibnList.add(mibN);
 				}
 				catch (NotEnoughInformationException e){
 					System.err.println(e.getMessage());
@@ -329,7 +322,6 @@ public class Generator {
 				else
 					oidPrefix+=temp[i]+".";
 			}
-			this.fullOid = fullOid;
 			setOidDef(oidPrefix, null);
 
 
@@ -440,30 +432,14 @@ public class Generator {
 
 			}
 			
-			public void setName(String name){
-				this.name = name;
-			}
-			
-			public String getName(){
-				return this.name;
-			}
-			
-			public void setDescription(String description){
-				this.description = description;
-			}
-			
-			public String getDescription(){
-				return this.description;
-			}
-			
 			public void setObjects(ArrayList<VarBind> vbList) throws NotEnoughInformationException{
 				// there are special conditions in this section that we need to account for, and 
 				// define more MIBObjects. They are all of the n:tags and u:tags
 				// more changes need to be done 
-				Iterator vbIt = vbList.iterator();
+				Iterator<VarBind>vbIt = vbList.iterator();
 				ArrayList<String> oids = new ArrayList<String>(10);
 				while(vbIt.hasNext()){
-					VarBind vb = (VarBind)vbIt.next();
+					VarBind vb = vbIt.next();
 					oids.add(vb.getOid());			
 					if (vb.getTag().matches("^n:.*") || vb.getTag().matches("^u:.*")){
 						createNotifPayloadMibo(vb);
@@ -498,11 +474,7 @@ public class Generator {
 				// maybe better way to glean it
 				miboList.add(new MIBObject(name,vb));
 			}
-			
-			public ArrayList<String> getObjects(){
-				return this.objects;
-			}
-			
+						
 			public String printObjects(){
 				StringBuffer buf = new StringBuffer();
 				buf.append("{\n");
@@ -557,15 +529,7 @@ public class Generator {
 			public String getName(){
 				return this.name;	
 			}
-			
-			public void setName(String name){
-				this.name = name;
-			}
-			
-			public String getDefinition(){
-				return this.definition;
-			}
-			 
+
 			public void setDefinition(){
 				String temp = "{ ";
 				temp += this.rawOid;
@@ -576,10 +540,6 @@ public class Generator {
 			public void setRawOid(String oid){
 				String [] tokens = oid.split("\\.");
 				this.rawOid = replaceDottedOid(tokens).trim()+ " ";		
-			}
-			
-			public String getRawOid(){
-				return this.rawOid;
 			}
 			
 			private String replaceDottedOid(String [] tokens){
@@ -612,14 +572,25 @@ public class Generator {
 				this.tablePrefix=ma.getName().substring(0,1).toLowerCase() + ma.getName().substring(1);
 				this.name = this.tablePrefix+"Table";
 				this.maxAccess = "not-accessible";
-				String [] temp = ma.getOid().split("\\.");
-				this.objectId = temp[temp.length-1];
+
 				this.description = (ma.getSnmpDesc()!=null) ? ma.getSnmpDesc() : "";
 				this.rowName = this.tablePrefix+"Entry";
 				this.syntax = this.rowName.substring(0,1).toUpperCase() + this.rowName.substring(1);
 				this.status = (ma.getStatus()!=null) ? ma.getStatus() : "current";
 				setOidDef(ma.getOidPrefix(), ma.getOidDefName());
-				row = new MIBTableRow(this.name, this.tablePrefix, this.rowName, "1", ma.getMode());
+				String [] temp = ma.getOid().split("\\.");
+				// TODO: make this more elegant. 
+							
+				// HACKS::
+				if (temp.length == 3){ // .x.y, .x == TableOid, .y = RowOid
+					this.objectId = temp[1];
+					row = new MIBTableRow(this.name, this.tablePrefix, this.rowName, temp[2], ma.getMode());
+				}
+				else{
+					this.objectId = temp[temp.length-1];
+					row = new MIBTableRow(this.name, this.tablePrefix, this.rowName, "1", ma.getMode());
+				}
+				
 			}
 			
 			
