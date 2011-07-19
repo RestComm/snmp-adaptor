@@ -17,18 +17,4 @@
       <outputDirectory>/</outputDirectory>
     </fileSet>
   </fileSets>
-  <dependencySets>
-    <dependencySet>            
-      <outputDirectory>/</outputDirectory>
-      <includes>
-      	<include>org.snmp4j:snmp4j</include>
-      	<include>org.snmp4j:snmp4j-agent</include>
-      </includes>
-    </dependencySet>
-    <dependencySet>      
-      <excludes>      	
-      	<exclude>*</exclude>
-      </excludes>
-    </dependencySet>
-  </dependencySets>
 </assembly>
