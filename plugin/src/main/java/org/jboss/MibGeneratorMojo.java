@@ -42,7 +42,7 @@ public class MibGeneratorMojo
     /**
      * @parameter
      */
-    private String notificationFile;
+    private String notificationsFile;
 
     /**
      * @parameter
@@ -59,8 +59,8 @@ public class MibGeneratorMojo
     public void execute()
         throws MojoExecutionException
     {
-	getLog().info("Generating MIB from attributes file = "+attributesFile+" and notifications file = "+notificationFile);
-	Parser parser = new Parser(attributesFile, notificationFile);
+	getLog().info("Generating MIB from attributes file = "+attributesFile+" and notifications file = "+notificationsFile);
+	Parser parser = new Parser(attributesFile, notificationsFile);
 	getLog().info("Parsing...");
 	parser.parse();
 	getLog().info("Writing file "+outputFile+"...");
