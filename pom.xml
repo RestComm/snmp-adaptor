@@ -32,6 +32,12 @@
               <goal>single</goal>
             </goals>
             <phase>package</phase>
+            <configuration>
+             <descriptors>
+              <descriptor>src/assembly/snmp-adaptor-sar.xml</descriptor>
+              <descriptor>src/assembly/snmp-adaptor.xml</descriptor>
+             </descriptors>
+            </configuration>
           </execution>
           <execution>
            <id>mib-generator</id>
@@ -51,29 +57,26 @@
            </configuration>
           </execution>
         </executions>
-        <configuration>
-          <descriptorSourceDirectory>src/assembly</descriptorSourceDirectory>
-        </configuration>
       </plugin>
       <plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-antrun-plugin</artifactId>
-			<version>1.1</version>
-			<executions>
-				<execution>
-					<phase>package</phase>
-					<configuration>
-						<tasks>
-							<unjar src="${project.build.directory}/jboss-snmp-${project.version}-adaptor-sar.jar" dest="${env.JBOSS_HOME}/server/${node}/deploy/snmp-adaptor.sar" />
-							<delete file="${env.JBOSS_HOME}/server/${node}/deploy/snmp-adaptor.sar/jboss-snmp-${project.version}.jar"/>
-						</tasks>
-					</configuration>
-					<goals>
-						<goal>run</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>	
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.1</version>
+	<executions>
+         <execution>
+	  <phase>package</phase>
+	   <configuration>
+	    <tasks>
+	     <unjar src="${project.build.directory}/jboss-snmp-${project.version}-adaptor-sar.jar" dest="${env.JBOSS_HOME}/server/${node}/deploy/snmp-adaptor.sar" />
+	     <delete file="${env.JBOSS_HOME}/server/${node}/deploy/snmp-adaptor.sar/jboss-snmp-${project.version}.jar"/>
+	    </tasks>
+	   </configuration>
+	   <goals>
+	    <goal>run</goal>
+	   </goals>
+	  </execution>
+	 </executions>
+     </plugin>	
     </plugins>
   </build>
   <dependencies>
