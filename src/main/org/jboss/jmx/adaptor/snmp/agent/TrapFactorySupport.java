@@ -172,7 +172,7 @@ public class TrapFactorySupport
             VarBind vb = (VarBind)vbList.get(i);
             
             if (vb.getTag().matches("^a:.*")){
-            	OID oid = new OID(vb.getOid());
+            	OID oid = new OID(vb.getOid()+".0");
             	Variable var;
             	try{
             		var = requestHandler.getValueFor(oid);
@@ -189,7 +189,7 @@ public class TrapFactorySupport
                  			this.snmpVBFactory.make(vb.getOid(), wrapper.get(vb.getTag())));
             	}
             }
-            else
+            else{
                 // Append the var bind. Interrogate read vb for OID and 
                 // variable tag. The later is used as the key passed to the 
                 // wrapper in order for it to locate the required value. That 
@@ -197,6 +197,7 @@ public class TrapFactorySupport
                 // variable binding
                 	trapPdu.add(
                 		this.snmpVBFactory.make(vb.getOid(), wrapper.get(vb.getTag())));
+            }
          }
       }
       else
@@ -244,15 +245,35 @@ public class TrapFactorySupport
          
          for (int i = 0; i < vbList.size(); i++)
          {
-            VarBind vb = (VarBind)vbList.get(i);
-                
-            // Append the var bind. Interrogate read vb for OID and 
-            // variable tag. The later is used as the key passed to the 
-            // wrapper in order for it to locate the required value. That 
-            // value and the aforementioned OID are used to generate the 
-            // variable binding
-            trapPdu.add(
-            		this.snmpVBFactory.make(vb.getOid(), wrapper.get(vb.getTag())));
+             VarBind vb = (VarBind)vbList.get(i);
+             
+             if (vb.getTag().matches("^a:.*")){
+             	OID oid = new OID(vb.getOid()+".0");
+             	Variable var;
+             	try{
+             		var = requestHandler.getValueFor(oid);
+             	}
+             	catch (Exception e){
+             		var = null;
+             	}
+             
+             	if (var != null){
+               		trapPdu.add(new VariableBinding(oid, var));
+             	}
+             	else { // we failed to find the variable with given oid here. we fall back onto the wrapper.
+                  	trapPdu.add(
+                  			this.snmpVBFactory.make(vb.getOid(), wrapper.get(vb.getTag())));
+             	}
+             }
+             else{
+                 // Append the var bind. Interrogate read vb for OID and 
+                 // variable tag. The later is used as the key passed to the 
+                 // wrapper in order for it to locate the required value. That 
+                 // value and the aforementioned OID are used to generate the 
+                 // variable binding
+                 	trapPdu.add(
+                 		this.snmpVBFactory.make(vb.getOid(), wrapper.get(vb.getTag())));
+             }
          }
       }
       else
@@ -297,15 +318,35 @@ public class TrapFactorySupport
        List vbList = m.getVarBindList().getVarBindList();
        
        for (int i = 0; i < vbList.size(); i++) {
-          VarBind vb = (VarBind)vbList.get(i);
-              
-          // Append the var bind. Interrogate read vb for OID and 
-          // variable tag. The later is used as the key passed to the 
-          // wrapper in order for it to locate the required value. That 
-          // value and the aforementioned OID are used to generate the 
-          // variable binding
-          trapPdu.add(
-          		this.snmpVBFactory.make(vb.getOid(), wrapper.get(vb.getTag())));
+           VarBind vb = (VarBind)vbList.get(i);
+           
+           if (vb.getTag().matches("^a:.*")){
+           	OID oid = new OID(vb.getOid()+".0");
+           	Variable var;
+           	try{
+           		var = requestHandler.getValueFor(oid);
+           	}
+           	catch (Exception e){
+           		var = null;
+           	}
+           
+           	if (var != null){
+             		trapPdu.add(new VariableBinding(oid, var));
+           	}
+           	else { // we failed to find the variable with given oid here. we fall back onto the wrapper.
+                	trapPdu.add(
+                			this.snmpVBFactory.make(vb.getOid(), wrapper.get(vb.getTag())));
+           	}
+           }
+           else{
+               // Append the var bind. Interrogate read vb for OID and 
+               // variable tag. The later is used as the key passed to the 
+               // wrapper in order for it to locate the required value. That 
+               // value and the aforementioned OID are used to generate the 
+               // variable binding
+               	trapPdu.add(
+               		this.snmpVBFactory.make(vb.getOid(), wrapper.get(vb.getTag())));
+           }
        }
     } else {
        log.warn("Varbind mapping failure: null wrapper defined for " +

@@ -424,7 +424,7 @@ public class Generator {
 				setObjects(vbList);
 				// the OID of a v2 trap = <enterpriseid>.0.<specificid>
 				// for predefined traps, see RFC1907 / 3413 / 3418 / http://www.oid-info.com/get/1.3.6.1.6.3.13
-				String oidPrefix = mp.getEnterprise()+String.valueOf(mp.getGeneric());
+				String oidPrefix = mp.getEnterprise()+"."+String.valueOf(mp.getGeneric());
 				this.objectId = String.valueOf(mp.getSpecific());
 				// check if there is already an OID definition for this prefix. If there is make this MIBObject's 
 				// oidDef reflect that
