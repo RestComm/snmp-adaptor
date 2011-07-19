@@ -27,6 +27,8 @@ import javax.management.MBeanServer;
 
 import org.jboss.jmx.adaptor.snmp.config.attribute.ManagedBean;
 import org.jboss.logging.Logger;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.Variable;
 
 /**
  * Interface that must be implemented by classes
@@ -52,5 +54,5 @@ public interface RequestHandler extends SnmpAgentRequestHandler
 
    void addAttributeMappings(List<ManagedBean> mappings);
    void removeAttributeMappings(List<ManagedBean> mappings);
-
+   Variable getValueFor(OID oid) throws NoSuchInstanceException, VariableTypeException;
 } // RequestHandler

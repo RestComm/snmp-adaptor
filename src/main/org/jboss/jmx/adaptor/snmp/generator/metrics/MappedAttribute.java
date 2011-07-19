@@ -186,20 +186,13 @@ public class MappedAttribute
 		String fullOidThis = this.oidPrefix+"."+this.oid;
 		String fullOidThat = that.oidPrefix+"."+that.oid;
 		return (fullOidThis.equals(fullOidThat));
-		
-		
 	}
 	
 	@Override 
 	public int hashCode(){
-		int result = 1;
+		int result = 4;
 		int PRIME = 31;
-		if (this.oidPrefix == null)
-			return PRIME * result + this.oid.hashCode();
-		else {
-			String fullOid = this.oidPrefix+"."+this.oid;
-			return PRIME * result + fullOid.hashCode();
-		}	
-			
+		String fullOid = this.oidPrefix+"."+this.oid;
+		return PRIME * result + fullOid.hashCode();			
 	}
 }

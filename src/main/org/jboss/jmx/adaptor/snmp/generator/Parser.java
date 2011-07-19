@@ -118,13 +118,13 @@ public class Parser {
 				parseAttributesXml();
 			}
 			else
-				System.err.println("No attributes file indicated, skipping.");
+				System.out.println("Parser: No attributes file indicated, skipping.");
 			
 			if (this.inputNotificationFile != null){
 				parseNotificationsXml();
 			}
 			else 
-				System.err.println("No notifications file indicated, skipping;");
+				System.out.println("Parser: No notifications file indicated, skipping;");
 		}
 		catch (Exception e){
 			e.printStackTrace();
@@ -147,11 +147,11 @@ public class Parser {
 			mappings = (ArrayList)unmarshaller.unmarshal(is,omf,null);
 		}
 		catch (NoClassDefFoundError e){
-			System.err.println("The notifications file is not formatted correctly: '"+this.inputNotificationFile+"'");
+			System.err.println("Parser: The notifications file is not formatted correctly: '"+this.inputNotificationFile+"'");
 			System.exit(1);
 		}
 		catch (FileNotFoundException e){
-			System.err.println("Filename given for notifications does not exist: '"+this.inputNotificationFile+"'");
+			System.err.println("Parser: Filename given for notifications does not exist: '"+this.inputNotificationFile+"'");
 			System.exit(1);
 		}
 		catch (Exception e){
@@ -201,11 +201,11 @@ public class Parser {
 		   setMbList(mappings);
 		}
 		catch (NoClassDefFoundError e){
-			System.err.println("The attributes file is not formatted correctly: '"+this.inputAttrFile+"'");
+			System.err.println("Parser: The attributes file is not formatted correctly: '"+this.inputAttrFile+"'");
 			System.exit(1);
 		}
 		catch (FileNotFoundException e){
-			System.err.println("Filename given for attributes.xml does not exist: '"+this.inputAttrFile+"'");
+			System.err.println("Parser: Filename given for attributes.xml does not exist: '"+this.inputAttrFile+"'");
 			System.exit(1);
 		}
 		catch (Exception e){
@@ -238,7 +238,7 @@ public class Parser {
 			   } catch (Exception e) {}
 			   
 			   if (test == null){
-				   System.err.println("The mbeanName '"+mbeanName+"' could not be converted to an ObjectName. MIB generation failed.");
+				   System.err.println("Parser: The mbeanName '"+mbeanName+"' could not be converted to an ObjectName. MIB generation failed.");
 				   System.exit(1);
 			   }
 			   
@@ -267,7 +267,7 @@ public class Parser {
 						  maList.add(ma); 
 					  }
 					  else{
-						  System.err.println("The attribute '"+ma.getName()+"' is defined using a duplicated OID. MIB generation failed.");
+						  System.err.println("Parser: The attribute '"+ma.getName()+"' is defined using a duplicated OID. MIB generation failed.");
 						  System.exit(1);
 					  }
 			  }

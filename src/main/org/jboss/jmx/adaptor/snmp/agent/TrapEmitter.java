@@ -129,7 +129,8 @@ public class TrapEmitter
       
       // Initialise
       this.trapFactory.set(this.snmpAgentService.getClock(),
-                           this.snmpAgentService.getTrapCounter());
+                           this.snmpAgentService.getTrapCounter(),
+                           this.snmpAgentService.getRequestHandler());
       
       // Start the trap factory
       this.trapFactory.start();

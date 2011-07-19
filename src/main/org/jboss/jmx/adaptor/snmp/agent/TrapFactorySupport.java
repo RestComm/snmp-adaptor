@@ -35,6 +35,7 @@ import org.snmp4j.PDUv1;
 import org.snmp4j.ScopedPDU;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.OID;
+import org.snmp4j.smi.Variable;
 import org.snmp4j.smi.TimeTicks;
 import org.snmp4j.smi.VariableBinding;
 import org.xml.sax.Attributes;
@@ -91,6 +92,9 @@ public class TrapFactorySupport
    /** Trap counter */
    private Counter trapCount = null;   
    
+   /** Request handler ref */
+   private RequestHandler requestHandler = null;
+   
    /**
     * Create TrapFactorySupport
    **/
@@ -109,6 +113,11 @@ public class TrapFactorySupport
       this.trapCount = count;
    }
    
+   public void set(Clock clock, Counter count, RequestHandler rh){
+	   this.clock = clock;
+	   this.trapCount = count;
+	   this.requestHandler = rh;
+   }
    /**
     * Populates the regular expression and wrapper instance collections. Note 
     * that a failure (e.g. to compile a regular expression or to instantiate a 
@@ -161,14 +170,33 @@ public class TrapFactorySupport
          for (int i = 0; i < vbList.size(); i++)
          {
             VarBind vb = (VarBind)vbList.get(i);
-                
-            // Append the var bind. Interrogate read vb for OID and 
-            // variable tag. The later is used as the key passed to the 
-            // wrapper in order for it to locate the required value. That 
-            // value and the aforementioned OID are used to generate the 
-            // variable binding
-            trapPdu.add(
-            		this.snmpVBFactory.make(vb.getOid(), wrapper.get(vb.getTag())));
+            
+            if (vb.getTag().matches("^a:.*")){
+            	OID oid = new OID(vb.getOid());
+            	Variable var;
+            	try{
+            		var = requestHandler.getValueFor(oid);
+            	}
+            	catch (Exception e){
+            		var = null;
+            	}
+            
+            	if (var != null){
+              		trapPdu.add(new VariableBinding(oid, var));
+            	}
+            	else { // we failed to find the variable with given oid here. we fall back onto the wrapper.
+                 	trapPdu.add(
+                 			this.snmpVBFactory.make(vb.getOid(), wrapper.get(vb.getTag())));
+            	}
+            }
+            else
+                // Append the var bind. Interrogate read vb for OID and 
+                // variable tag. The later is used as the key passed to the 
+                // wrapper in order for it to locate the required value. That 
+                // value and the aforementioned OID are used to generate the 
+                // variable binding
+                	trapPdu.add(
+                		this.snmpVBFactory.make(vb.getOid(), wrapper.get(vb.getTag())));
          }
       }
       else

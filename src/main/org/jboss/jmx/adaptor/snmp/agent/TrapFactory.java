@@ -72,6 +72,8 @@ public interface TrapFactory
    **/ 
    public void set(Clock uptime, Counter count);
    
+   public void set(Clock uptime, Counter count, RequestHandler rh);
+   
    /**
     * Performs all the required initialisation in order for the mapper to 
     * commence operation (e.g. reading of the resource file)

@@ -73,6 +73,10 @@ public class MIBGenerator {
 	 	String oFile = (String)cmdParser.getOptionValue(output);
 	 	String moduleName = (String)cmdParser.getOptionValue(module);
 	 	
+	 	if (moduleName == null){
+	 		moduleName = "JBOSS-AS-MIB";
+	 	}
+	 	
 	 	if (isHelp){
 	 		printUsageMessage();
 	 		System.exit(0);
@@ -91,7 +95,8 @@ public class MIBGenerator {
 				"-a , --attributes : indicate the name of the snmp-adaptor formatted attributes.xml, if any.\n" +
 				"-n , --notifications : indicate the name of the snmp-adaptor formatted notification.xml file, if any.\n" +
 				"-o , --output : indicate the desired name of the output MIB file. This can be a path.\n" +
-				"-m , --module : indicate the desired name of the output MIB module. This is the name that the SNMP manager will know the MIB by.\n"+
+				"-m , --module : indicate the desired name of the output MIB module. This is the name that the SNMP manager will know the MIB by. \n" +
+				"                Defaults to JBOSS-AS-MIB if not specified\n"+
 				"Example: java -jar mib-generator.jar -a attributes.xml -n notifications.xml -m /home/user/TEST-MIB.mib");
 	}
 	

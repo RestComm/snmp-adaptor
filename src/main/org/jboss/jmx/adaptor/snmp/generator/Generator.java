@@ -58,12 +58,9 @@ public class Generator {
 	private ArrayList<Mapping> nmList; // list of notification mappings we care about
 	private ArrayList<VarBind> vbList;
 	private AttributeMappings mbList;
-
-	//private MBeanServer server; // used when this class is created in the snmp-adaptor itself
 	
 	private HashMap<String, OIDDef> oidDefMap;	
 
-	
 	/** 
 	 * Default constructor. Nulls all around.
 	 */
@@ -153,7 +150,7 @@ public class Generator {
 	}
 	
 	/**
-	 * Simple class that writes the header to the MIB file.  
+	 * Simple method that writes the header to the MIB file.  
 	 * TODO: make the name JBOSS-AS-MIB configurable.
 	 * @param out the PrintWriter to output to.
 	 */
@@ -167,7 +164,7 @@ public class Generator {
 	}
 	
 	/**
-	 * Another simple class that outputs the Imports of the generated MIB.
+	 * Another simple method that outputs the Imports of the generated MIB.
 	 * The current imports will be recognized by any standard snmp tool (notably net-snmp)
 	 * TODO: Make these imports configurable. 
 	 * @param out
@@ -205,7 +202,7 @@ public class Generator {
 	}
 	
 	/**
-	 * Outputs all of the objects in miboList to the outputFile.
+	 * Outputs all of the objects to the output file
 	 * @param out
 	 */
 	
@@ -240,6 +237,7 @@ public class Generator {
 					}
 				}
 				catch (NotEnoughInformationException e){
+					e.printStackTrace();
 					System.err.println(e.getMessage());
 					System.exit(1);
 				}
@@ -266,6 +264,7 @@ public class Generator {
 						tableList.add(mibT);
 					}
 					catch (NotEnoughInformationException e){
+						e.printStackTrace();
 						System.err.println(e.getMessage());
 						System.exit(1);
 					}
@@ -283,6 +282,7 @@ public class Generator {
 					mibnList.add(mibN);
 				}
 				catch (NotEnoughInformationException e){
+					e.printStackTrace();
 					System.err.println(e.getMessage());
 					System.exit(1);
 				}
@@ -424,7 +424,7 @@ public class Generator {
 				setObjects(vbList);
 				// the OID of a v2 trap = <enterpriseid>.0.<specificid>
 				// for predefined traps, see RFC1907 / 3413 / 3418 / http://www.oid-info.com/get/1.3.6.1.6.3.13
-				String oidPrefix = mp.getEnterprise()+".0";
+				String oidPrefix = mp.getEnterprise()+String.valueOf(mp.getGeneric());
 				this.objectId = String.valueOf(mp.getSpecific());
 				// check if there is already an OID definition for this prefix. If there is make this MIBObject's 
 				// oidDef reflect that
@@ -485,7 +485,7 @@ public class Generator {
 						buf.append("\t\t"+this.objects.get(index)).append(",\n");
 				}
 				
-				buf.append("\n}\n");
+				buf.append("\n\t\t}\n");
 				return buf.toString();
 			
 			}
@@ -558,6 +558,21 @@ public class Generator {
 				buf.append(this.definition);
 				return buf.toString();
 			}
+			
+			@Override
+			public boolean equals(Object o){
+				if (this == o){
+					return true;
+				}
+				
+				if (o == null){
+					return false;
+				}
+				
+				OIDDef that = (OIDDef) o;
+				
+				return (this.rawOid == that.rawOid);
+			}
 		}//end OIDDef
 	
 
@@ -598,13 +613,13 @@ public class Generator {
 			public MIBTable(ManagedBean mb) throws NotEnoughInformationException{
 				this.tablePrefix = mb.getTableName();
 				if (this.tablePrefix == null){
-					throw new NotEnoughInformationException("The mbean "+mb.getName()+" has no table-name attribute defined. Cannot create table definition.");
+					throw new NotEnoughInformationException("The mbean "+mb.getName()+" has no table-name attribute defined. MIB Generation failed.");
 				}
 				this.name = this.tablePrefix+"Table";
 				this.maxAccess = "not-accessible";
 				String oid = mb.getOidPrefix();
 				if (oid == null){
-					throw new NotEnoughInformationException("The mbean "+mb.getName()+" has no oid-prefix attribute defined. Cannot create table definition.");
+					throw new NotEnoughInformationException("The mbean "+mb.getName()+" has no oid-prefix attribute defined. MIB Generation failed.");
 				}
 				String oidPrefix = "";
 				String [] temp = oid.split("\\.");
@@ -612,7 +627,9 @@ public class Generator {
 				for (int i = 0; i < temp.length-2; i++){
 					if (i==temp.length-3)
 						oidPrefix += temp[i];
-					else 
+					else if (temp[i].equals("."))
+						continue;
+					else
 						oidPrefix += temp[i]+".";
 				}
 				this.description = (mb.getDesc()!=null) ? mb.getDesc() : "";
@@ -787,9 +804,6 @@ public class Generator {
 				if (oidDefMap.containsKey(oidPrefix)){
 					this.oidDef = oidDefMap.get(oidPrefix).getName();
 				}
-				// if they aren't part of the Map, then we add them to the map with a filler name "CHANGE-ME"
-				// as there is no way to glean this name from the attributes.xml without 
-				// complexifying it
 				else{
 					if (oidDefName != null){
 						// the name to be used is in the attributes.xml. use it.

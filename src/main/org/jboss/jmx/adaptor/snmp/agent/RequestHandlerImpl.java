@@ -792,7 +792,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 *            The oid we want a value for
 	 * @return Null if no value present
 	 */
-	private Variable getValueFor(final OID oid) throws NoSuchInstanceException, VariableTypeException {
+	public Variable getValueFor(final OID oid) throws NoSuchInstanceException, VariableTypeException {
 
 		BindEntry be = findBindEntryForOid(oid);
 		Variable ssy = null;
@@ -1274,15 +1274,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
  		
 		// Check if still in subtree if requested to stay within
 		// THIS SHOULD BE A MANAGER FUNCTION, NOT AGENT.
-/*		if (stayInSubtree && roid != null)
-		{
-			//OID parent = coid.removeLast();
-			// this emulates the functionality of the "isRoot" in SnmpObjectId from joesnmp
-			if (coid.leftMostCompare((coid.size()-1), roid) != 0){
-				log.debug("getNextOid: Placeholder. The traversal has left the subtree.");
-				throw new EndOfMibViewException();
-			}
-		}*/
+
 		if(roid.last() != 0) {
 			nextOid =  tableMapper.getNextTable(roid);
 			if(nextOid != null) {
@@ -1300,8 +1292,8 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 	 * was repeated so many times it was prudent to give it it's own method.
 	 * @param response This PDU is the one being modified into an error PDU.
 	 * @param oid The OID to contain the error Null instance.
-	 * @param errNo The error number defined in the PDU class that indicates a given failure
-	 * @param errInd the VariableBinding in the PDU that caused the error. 
+	 * @param errorIndex the VariableBinding in the PDU that caused the error. 
+	 * @param err The error number defined in the PDU class that indicates a given failure
 	 */
 	private void makeErrorPdu(PDU response, PDU pdu, int errorIndex, int err){
 		response.clear();
