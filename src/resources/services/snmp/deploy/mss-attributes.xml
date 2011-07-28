@@ -77,7 +77,7 @@
    </mbean>
    
    <!-- Web Apps -->
-   <mbean name="jboss.web:host=localhost,path=*,type=Manager" oid-prefix="1.3.6.1.4.1.2312.100.1.1.12.1" table-name="metrics" description="Table containing standard metrics for any webapp deployed on JBossAS" status="current">
+   <mbean name="jboss.web:host=localhost,path=*,type=Manager" oid-prefix=".1.3.6.1.4.1.2312.100.1.1.12.1" definition-name="webApplications" table-name="metrics" description="Table containing standard metrics for any webapp deployed on JBossAS" status="current">
       <attribute name="distributable" oid=".2" snmp-type="INTEGER"/> 
       <attribute name="sessionCounter" oid=".3" snmp-type="INTEGER" description="The amount of sessions this web application has handled."/>
       <attribute name="activeSessions" oid=".4" snmp-type="INTEGER" description="The amount of currently active sessions this web application is handling."/>
@@ -90,7 +90,7 @@
    </mbean>
    
    <!-- Sip or Converged Web+Sip Apps -->
-   <mbean name="jboss.web:host=localhost,path=/*,type=SipManager" oid-prefix="1.3.6.1.4.1.2312.100.1.1.13.1" table-name="sipMetrics" description="Table containing standard metrics for any webapp deployed on JBossAS" status="current">
+   <mbean name="jboss.web:host=localhost,path=/*,type=SipManager" oid-prefix=".1.3.6.1.4.1.2312.100.1.1.13.1" definition-name="sipApplications" table-name="sipMetrics" description="Table containing standard metrics for any webapp deployed on JBossAS" status="current">
    	   <attribute name="distributable" oid=".2" snmp-type="INTEGER"/> 
       <attribute name="sessionCounter" oid=".3" snmp-type="INTEGER" description="The amount of sessions this web application has handled."/>
       <attribute name="activeSessions" oid=".4" snmp-type="INTEGER" description="The amount of currently active sessions this web application is handling."/>
