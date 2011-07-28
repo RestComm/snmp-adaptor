@@ -92,7 +92,7 @@
     <attribute name="RequestHandlerClassName">org.jboss.jmx.adaptor.snmp.agent.RequestHandlerImpl</attribute>       
     <attribute name="RequestHandlerResName">/mss-attributes.xml</attribute>
     <attribute name="TrapFactoryClassName">org.jboss.jmx.adaptor.snmp.agent.TrapFactorySupport</attribute>
-    <attribute name="NotificationMapResName">/notifications.xml</attribute>
+    <attribute name="NotificationMapResName">/mss-notifications.xml</attribute>
     <attribute name="ManagersResName">/managers.xml</attribute>
     <attribute name="UsersResName">/users.xml</attribute>
     <attribute name="HeartBeatPeriod">0</attribute>

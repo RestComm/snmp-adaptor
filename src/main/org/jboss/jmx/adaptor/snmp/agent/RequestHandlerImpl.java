@@ -852,7 +852,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 		// manage arrays and lists
 		if(tableIndexOID != null) {						
 			if(val instanceof List) {
-				int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+				int index = Integer.valueOf(tableIndexOID.toString().substring(2)) - 1;
 				if(index < 0) {
 					return Null.noSuchObject;
 				}
@@ -863,14 +863,14 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				}
 			}
 			if(val instanceof Map) {
-				String key = new String(tableIndexOID.toByteArray());
+				String key = new String(new OID(tableIndexOID.toString().substring(2)).toByteArray());
 				value = ((Map)val).get(key);
 				if(value == null) { 
 					return Null.noSuchObject;
 				}
 			}
 			if (value instanceof int[]) {
-				int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+				int index = Integer.valueOf(tableIndexOID.toString().substring(2)) - 1;
 				if(index < 0) {
 					return Null.noSuchObject;
 				}
@@ -881,7 +881,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				}
 			}
 			if (value instanceof long[]) {
-				int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+				int index = Integer.valueOf(tableIndexOID.toString().substring(2)) - 1;
 				if(index < 0) {
 					return Null.noSuchObject;
 				}
@@ -892,7 +892,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				}
 			}
 			if (value instanceof boolean[]) {
-				int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+				int index = Integer.valueOf(tableIndexOID.toString().substring(2)) - 1;
 				if(index < 0) {
 					return Null.noSuchObject;
 				}
@@ -903,7 +903,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				}
 			}
 			if (value instanceof Object[]) {
-				int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+				int index = Integer.valueOf(tableIndexOID.toString().substring(2)) - 1;
 				if(index < 0) {
 					return Null.noSuchObject;
 				}
@@ -1058,7 +1058,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				} else {
 					// manage arrays and lists					
 					if(other instanceof List) {
-						int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+						int index = Integer.valueOf(tableIndexOID.toString().substring(2)) - 1;
 						if(index < 0) {
 							return Null.noSuchObject;
 						}
@@ -1069,11 +1069,11 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 						}
 					}
 					if(other instanceof Map) {
-						String key = new String(tableIndexOID.toByteArray());
+						String key = new String(new OID(tableIndexOID.toString().substring(2)).toByteArray());
 						((Map)other).put(key, val);						
 					}
 					if (other instanceof int[]) {
-						int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+						int index = Integer.valueOf(tableIndexOID.toString().substring(2)) - 1;
 						if(index < 0) {
 							return Null.noSuchObject;
 						}
@@ -1084,7 +1084,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 						}
 					}
 					if (other instanceof long[]) {
-						int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+						int index = Integer.valueOf(tableIndexOID.toString().substring(2)) - 1;
 						if(index < 0) {
 							return Null.noSuchObject;
 						}
@@ -1095,7 +1095,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 						}
 					}
 					if (other instanceof boolean[]) {
-						int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+						int index = Integer.valueOf(tableIndexOID.toString().substring(2)) - 1;
 						if(index < 0) {
 							return Null.noSuchObject;
 						}
@@ -1106,7 +1106,7 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 						}
 					}
 					if (other instanceof Object[]) {
-						int index = Integer.valueOf(tableIndexOID.toString()) - 1;
+						int index = Integer.valueOf(tableIndexOID.toString().substring(2)) - 1;
 						if(index < 0) {
 							return Null.noSuchObject;
 						}

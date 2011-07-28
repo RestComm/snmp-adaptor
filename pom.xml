@@ -76,7 +76,26 @@
 	   </goals>
 	  </execution>
 	 </executions>
-     </plugin>	
+     </plugin>
+	<plugin>
+		<groupId>org.jboss</groupId>
+		<artifactId>mibgen-maven-plugin</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<configuration>
+			<attributesFile>${basedir}/src/resources/services/snmp/deploy/mss-attributes.xml</attributesFile>
+			<notificationsFile>${basedir}/src/resources/services/snmp/deploy/mss-notifications.xml</notificationsFile>
+			<moduleName>MSS-MIB</moduleName>
+			<outputFile>${basedir}/src/resources/services/snmp/deploy/Mobicents.mib</outputFile>
+		</configuration>
+		<executions>
+			<execution>
+				<phase>compile</phase>
+				<goals>
+					<goal>generate-mib</goal>
+				</goals>
+			</execution>
+		</executions>
+	</plugin>
     </plugins>
   </build>
   <dependencies>

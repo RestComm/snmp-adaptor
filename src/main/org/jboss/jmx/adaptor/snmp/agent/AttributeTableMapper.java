@@ -32,7 +32,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.management.MBeanServer;
-import javax.management.ObjectName;
 
 import org.jboss.jmx.adaptor.snmp.config.attribute.ManagedBean;
 import org.jboss.jmx.adaptor.snmp.config.attribute.MappedAttribute;
@@ -122,16 +121,16 @@ public class AttributeTableMapper {
 			if(val instanceof Map) {
 				Set<Object> keySet = new TreeSet(((Map)val).keySet());
 				if(keySet.size() > 0) {
-					return new OID(currentOID.append("'" + keySet.iterator().next().toString() + "'"));
+					return new OID(currentOID.append(2).append("'" + keySet.iterator().next().toString() + "'"));
 				} else {
 					return null;
 				}
 			} else {
-				return new OID(currentOID).append(1);
+				return new OID(currentOID).append(2).append(1);
 			}			
 		}		
 		if(val instanceof List) {
-			int index = Integer.valueOf(tableIndexOID.toString());
+			int index = Integer.valueOf(tableIndexOID.toString().substring(2));
 			if(index - 1 < 0) {
 				return null;
 			}
@@ -164,7 +163,7 @@ public class AttributeTableMapper {
 //					}
 //				}
 //		} else {
-				String key = new String(tableIndexOID.toByteArray());
+				String key = new String(new OID(tableIndexOID.toString().substring(2)).toByteArray());
 				Iterator<Object> keySet = new TreeSet(((Map)val).keySet()).iterator();
 				while (keySet.hasNext()) {
 					Object entryKey = keySet.next();
@@ -173,7 +172,7 @@ public class AttributeTableMapper {
 							Object nextKey = keySet.next();
 							OID nextOID = new OID(currentOID);
 							nextOID.trim(tableIndexOID.size());
-							nextOID.append("'" + nextKey + "'");
+							nextOID.append(2).append("'" + nextKey + "'");
 							return nextOID;
 						} else {
 							return null;
@@ -184,7 +183,7 @@ public class AttributeTableMapper {
 //			}			
 		}
 		if (val instanceof int[]) {
-			int index = Integer.valueOf(tableIndexOID.toString());
+			int index = Integer.valueOf(tableIndexOID.toString().substring(2));
 			if(index - 1 < 0) {
 				return null;
 			}
@@ -200,7 +199,7 @@ public class AttributeTableMapper {
 			}
 		}
 		if (val instanceof long[]) {
-			int index = Integer.valueOf(tableIndexOID.toString());
+			int index = Integer.valueOf(tableIndexOID.toString().substring(2));
 			if(index - 1 < 0) {
 				return null;
 			}
@@ -216,7 +215,7 @@ public class AttributeTableMapper {
 			}
 		}
 		if (val instanceof boolean[]) {
-			int index = Integer.valueOf(tableIndexOID.toString());
+			int index = Integer.valueOf(tableIndexOID.toString().substring(2));
 			if(index - 1 < 0) {
 				return null;
 			}
@@ -232,7 +231,7 @@ public class AttributeTableMapper {
 			}
 		}
 		if (val instanceof Object[]) {
-			int index = Integer.valueOf(tableIndexOID.toString());
+			int index = Integer.valueOf(tableIndexOID.toString().substring(2));
 			if(index - 1 < 0) {
 				return null;
 			}

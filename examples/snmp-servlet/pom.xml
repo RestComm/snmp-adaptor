@@ -53,6 +53,25 @@
 						${basedir}/src/main/webapp
 					</warSourceDirectory>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jboss</groupId>
+				<artifactId>mibgen-maven-plugin</artifactId>
+				<version>1.0-SNAPSHOT</version>
+				<configuration>
+					<attributesFile>${basedir}/src/main/webapp/WEB-INF/snmp-attributes.xml</attributesFile>
+					<notificationsFile>${basedir}/src/main/webapp/WEB-INF/snmp-notifications.xml</notificationsFile>
+					<moduleName>SNMP-SERVLET-MIB</moduleName>
+					<outputFile>${basedir}/src/main/webapp/WEB-INF/SNMP-SERVLET.mib</outputFile>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>generate-mib</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>			
 		</plugins>
 	</build>

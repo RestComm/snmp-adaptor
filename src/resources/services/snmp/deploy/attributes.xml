@@ -23,18 +23,26 @@
       <attribute name="requestCount" oid=".1.3.6.1.4.1.2312.100.1.1.5" snmp-type="INTEGER" description="Number of requests that have been processed." status="obsolete"/>
    </mbean>-->
    
-   <mbean name="jboss.jmx:name=SnmpAgent,service=snmp,type=adaptor" oid-prefix="1.3.6.1.4.1.2312.100.1.1">
+   <mbean name="jboss.jmx:name=SnmpAgent,service=snmp,type=adaptor" oid-prefix=".1.3.6.1.4.1.2312.100.1.1">
      <attribute name="InstantiationTime" oid=".4" snmp-type="DisplayString" description="The start time of the SNMP agent."/>
      <attribute name="TrapCount" oid=".5" snmp-type="DisplayString" description="The number of traps emitted by the agent."/>
      <attribute name="BindAddress" oid=".6" snmp-type="DisplayString" description="The address to which the agent is bound."/>
    </mbean>
+   
    <!-- DefaultDS statistics -->
-   <mbean name="jboss.jca:name=DefaultDS,service=ManagedConnectionPool" oid-prefix="1.3.6.1.4.1.2312.100.1.1">
+   <mbean name="jboss.jca:name=DefaultDS,service=ManagedConnectionPool" oid-prefix=".1.3.6.1.4.1.2312.100.1.1">
       <attribute name="InUseConnectionCount" oid=".7" description="The amount of connections currently in use."/>
       <attribute name="MaxConnectionsInUseCount" oid=".8" description="The maximum possible amount of connections available for use."/>
    </mbean>
    
-   <mbean name="jboss.web:host=localhost,path=*,type=Manager" oid-prefix="1.3.6.1.4.1.2312.100.1.1.9.1" table-name="metrics" description="Table containing standard metrics for any webapp deployed on JBossAS" status="current">
+   <!-- Tx Manager statistics -->
+   <mbean name="jboss:service=TransactionManager">
+      <attribute name="CommitCount" oid=".1.3.6.1.4.1.2312.100.1.1.9"/>
+      <attribute name="RollbackCount" oid=".1.3.6.1.4.1.2312.100.1.1.10"/>
+      <attribute name="TransactionCount" oid=".1.3.6.1.4.1.2312.100.1.1.11"/>
+   </mbean>
+   
+   <mbean name="jboss.web:host=localhost,path=*,type=Manager" oid-prefix=".1.3.6.1.4.1.2312.100.1.1.12.1" table-name="metrics" description="Table containing standard metrics for any webapp deployed on JBossAS" status="current">
       <attribute name="distributable" oid=".2" snmp-type="INTEGER"/> 
       <attribute name="sessionCounter" oid=".3" snmp-type="INTEGER" description="The amount of sessions this web application has handled."/>
       <attribute name="activeSessions" oid=".4" snmp-type="INTEGER" description="The amount of currently active sessions this web application is handling."/>
@@ -46,7 +54,7 @@
       <attribute name="sessionMaxAliveTime" oid=".10" snmp-type="INTEGER" description="The maximum amount of time a session can remain active."/>
    </mbean>
    <!-- system information group see RFC-1213 -->
-   <mbean name="jboss.jmx:name=SnmpAgent,service=MIB2SystemGroup" oid-prefix="1.3.6.1.2.1.1" definition-name="system">
+   <mbean name="jboss.jmx:name=SnmpAgent,service=MIB2SystemGroup" oid-prefix=".1.3.6.1.2.1.1" definition-name="system">
       <attribute name="SysDescr" oid=".1" mode="rw" description="A description of this System."/> <!-- can be modified over snmp -->
       <attribute name="SysObjectId" oid=".2" description="The OID Denoting this system."/>
       <attribute name="SysUpTime" oid=".3" description="The time this system has been online."/>

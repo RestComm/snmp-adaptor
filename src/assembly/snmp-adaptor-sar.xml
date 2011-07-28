@@ -11,10 +11,27 @@
       <includes>
         <include>jboss-snmp-5.1.1.GA-adaptor.jar</include>
       </includes>
+      <excludes>
+        <exclude>jboss-snmp-5.1.1.GA.jar</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
       <directory>src/resources/services/snmp/deploy</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
   </fileSets>
+  <dependencySets>
+    <dependencySet>            
+      <outputDirectory>/</outputDirectory>
+      <includes>
+      	<include>org.snmp4j:snmp4j</include>
+      	<include>org.snmp4j:snmp4j-agent</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>      
+      <excludes>      	
+      	<exclude>**/*</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
 </assembly>
