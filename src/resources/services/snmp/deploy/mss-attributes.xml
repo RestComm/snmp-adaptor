@@ -62,8 +62,8 @@
       <attribute name="memoryThreshold" oid=".7" mode="rw" snmp-type="INTEGER"/>
       <attribute name="backToNormalMemoryThreshold" oid=".8" mode="rw" snmp-type="INTEGER"/>
       <attribute name="gatherStatistics" oid=".9" mode="rw" snmp-type="INTEGER"/>
-      <attribute name="requestsProcessed" oid=".10" snmp-type="INTEGER"/>
-      <attribute name="responsesProcessed" oid=".11" snmp-type="INTEGER"/>      
+      <attribute name="requestsProcessed" oid=".10"/>
+      <attribute name="responsesProcessed" oid=".11"/>      
       <attribute name="requestsProcessedByMethod" oid=".12.1" table="true"/>
       <attribute name="responsesProcessedByStatusCode" oid=".13.1" table="true"/>      
    </mbean>
