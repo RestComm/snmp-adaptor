@@ -230,7 +230,7 @@ gatherStatistics OBJECT-TYPE
 ::= { sipApplicationDispatcher 9 }
 
 requestsProcessed OBJECT-TYPE
-	SYNTAX INTEGER
+	SYNTAX OCTET STRING (SIZE(0..255))
 	ACCESS read-only
 	STATUS current
 	DESCRIPTION 
@@ -238,7 +238,7 @@ requestsProcessed OBJECT-TYPE
 ::= { sipApplicationDispatcher 10 }
 
 responsesProcessed OBJECT-TYPE
-	SYNTAX INTEGER
+	SYNTAX OCTET STRING (SIZE(0..255))
 	ACCESS read-only
 	STATUS current
 	DESCRIPTION 
