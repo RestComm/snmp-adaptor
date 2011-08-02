@@ -920,7 +920,9 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 			result = new OctetString(((Long)value).toString());
 		} else if (value instanceof AtomicLong) {
 			result = new OctetString(((AtomicLong)value).toString());
-		}  else if (value instanceof Boolean) {
+		} else if (value instanceof Double) {
+			result = new OctetString(((Double)value).toString());
+		} else if (value instanceof Boolean) {
 			if(((Boolean)value).booleanValue())
 				result = new Integer32(1);
 			else 
@@ -968,6 +970,8 @@ public class RequestHandlerImpl extends RequestHandlerSupport
 				result = Long.parseLong(val.toString());
 			} else if(attribute instanceof AtomicLong) {
 				result = new AtomicLong(Long.parseLong(val.toString()));
+			} else if(attribute instanceof Double) {
+				result = Double.parseDouble(val.toString());
 			} else {
 				result = val.toString();
 			}

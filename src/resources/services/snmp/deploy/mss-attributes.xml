@@ -114,8 +114,8 @@
       <attribute name="sipApplicationSessionAverageAliveTime" oid=".22" snmp-type="INTEGER" description="The average time a sip application session is active on this web application."/>
       <attribute name="sipSessionMaxAliveTime" oid=".23" snmp-type="INTEGER" description="The maximum amount of time a sip session can remain active."/>
       <attribute name="sipApplicationSessionMaxAliveTime" oid=".24" snmp-type="INTEGER" description="The maximum amount of time a sip application session can remain active."/>
-      <attribute name="numberOfSipSessionCreationPerSecond" oid=".25" snmp-type="INTEGER" description="The number of sip session created per second."/>
-      <attribute name="numberOfSipApplicationSessionCreationPerSecond" oid=".26" snmp-type="INTEGER" description="The number of sip application session created per second."/>
+      <attribute name="numberOfSipSessionCreationPerSecond" oid=".25" description="The number of sip session created per second."/>
+      <attribute name="numberOfSipApplicationSessionCreationPerSecond" oid=".26" description="The number of sip application session created per second."/>
    </mbean>
    
 </attribute-mappings>
