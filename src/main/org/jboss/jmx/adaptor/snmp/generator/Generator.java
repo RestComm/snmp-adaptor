@@ -627,9 +627,9 @@ public class Generator {
 				for (int i = 0; i < temp.length-2; i++){
 					if (i==temp.length-3)
 						oidPrefix += temp[i];
-					else if (temp[i].equals("."))
+					else if (temp[i].equals(".") || temp[i].equals(""))
 						continue;
-					else
+					else 
 						oidPrefix += temp[i]+".";
 				}
 				this.description = (mb.getDesc()!=null) ? mb.getDesc() : "";
