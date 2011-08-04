@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="org/jboss/jdo/castor/|org/jboss/varia/stats/" including="**/*.java" kind="src" path="src/main"/>
+	<classpathentry kind="src" path="plugin/src/main/java"/>
 	<classpathentry kind="src" output="deployer/target/classes" path="deployer/src/main/resources"/>
 	<classpathentry kind="src" output="deployer/target/classes" path="deployer/src/main/java"/>
 	<classpathentry kind="src" output="examples/snmp-servlet/src/main/webapp/WEB-INF/classes" path="examples/snmp-servlet/src/main/java"/>
@@ -117,5 +118,6 @@
 	<classpathentry kind="var" path="M2_REPO/apache-xerces/xml-apis/2.9.1/xml-apis-2.9.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/xmlsec/1.4.2/xmlsec-1.4.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-plugin-api/2.0/maven-plugin-api-2.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
