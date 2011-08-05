@@ -1,5 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	 <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jboss.jbossas.snmp</groupId>
 	<artifactId>snmp-deployer</artifactId>
 	<version>5.1.1.GA</version>
@@ -12,29 +13,29 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.14</version>
 			<scope>provided</scope>
-		</dependency>		
-		
+		</dependency>
+
 		<dependency>
 			<groupId>org.jboss.jbossas</groupId>
-  			<artifactId>jboss-snmp</artifactId>
+			<artifactId>jboss-snmp</artifactId>
 			<version>5.1.1.GA</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss</groupId>
-  			<artifactId>jbossxb</artifactId>
+			<artifactId>jbossxb</artifactId>
 			<version>2.0.1.GA</version>
 			<scope>provided</scope>
-		</dependency>	
+		</dependency>
 		<dependency>
 			<groupId>org.jboss.jbossas</groupId>
-  			<artifactId>jboss-as-system</artifactId>
+			<artifactId>jboss-as-system</artifactId>
 			<version>5.1.0.GA</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.jbossas</groupId>
-  			<artifactId>jboss-as-system-jmx</artifactId>
+			<artifactId>jboss-as-system-jmx</artifactId>
 			<version>5.1.0.GA</version>
 			<scope>provided</scope>
 		</dependency>
@@ -48,7 +49,16 @@
 					<target>1.5</target>
 				</configuration>
 			</plugin>
-			<plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<profile>
+			<id>jboss</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-antrun-plugin</artifactId>
 					<version>1.1</version>
@@ -56,11 +66,16 @@
 						<execution>
 							<phase>package</phase>
 							<configuration>
-								<tasks>										
-									<copy verbose="true" overwrite="true" file="${basedir}/overrides/metadata-deployer-jboss-beans.xml" todir="${env.JBOSS_HOME}/server/${node}/deployers/"/>
-									<copy verbose="true" overwrite="true" file="${project.build.directory}/${project.build.finalName}.${project.packaging}" todir="${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer/"/>																		 	
-									<copy verbose="true" overwrite="true" todir="${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer/">
-										<fileset dir="${basedir}/src/main/resources"/>
+								<tasks>
+									<copy verbose="true" overwrite="true"
+										file="${basedir}/overrides/metadata-deployer-jboss-beans.xml"
+										todir="${env.JBOSS_HOME}/server/${node}/deployers/" />
+									<copy verbose="true" overwrite="true"
+										file="${project.build.directory}/${project.build.finalName}.${project.packaging}"
+										todir="${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer/" />
+									<copy verbose="true" overwrite="true"
+										todir="${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer/">
+										<fileset dir="${basedir}/src/main/resources" />
 									</copy>
 								</tasks>
 							</configuration>
@@ -71,40 +86,91 @@
 					</executions>
 				</plugin>
 				<plugin>
-	 	        	<groupId>org.apache.maven.plugins</groupId>
-	 	        	<artifactId>maven-dependency-plugin</artifactId>
-	 	        	<executions>		 	          		
-	 	          		<execution>
-	 	            			<id>copy-to-jboss-lib</id>
-	 	            			<phase>package</phase>
-	 	            			<goals>
-									<goal>copy-dependencies</goal>
-	 	            			</goals>
-	 	            			<configuration>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>copy-to-jboss-lib</id>
+							<phase>package</phase>
+							<goals>
+								<goal>copy-dependencies</goal>
+							</goals>
+							<configuration>
 								<includeArtifactIds>jboss-snmp</includeArtifactIds>
-				    			<outputDirectory>${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer</outputDirectory>
-	 	            			</configuration>
-	 	          		</execution>		 	          		
-	 	        	</executions>
-	 	      	</plugin>					
-		</plugins>
-	</build>
-
+								<outputDirectory>${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer</outputDirectory>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</build>
+		</profile>
+		<profile>
+			<id>jboss-distro</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<configuration>
+									<tasks>
+										<copy verbose="true" overwrite="true"
+											file="${basedir}/overrides/metadata-deployer-jboss-beans.xml"
+											todir="${JBOSS_HOME}/server/${node}/deployers/" />
+										<copy verbose="true" overwrite="true"
+											file="${project.build.directory}/${project.build.finalName}.${project.packaging}"
+											todir="${JBOSS_HOME}/server/${node}/deployers/snmp.deployer/" />
+										<copy verbose="true" overwrite="true"
+											todir="${JBOSS_HOME}/server/${node}/deployers/snmp.deployer/">
+											<fileset dir="${basedir}/src/main/resources" />
+										</copy>
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-to-jboss-lib</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy-dependencies</goal>
+								</goals>
+								<configuration>
+									<includeArtifactIds>jboss-snmp</includeArtifactIds>
+									<outputDirectory>${JBOSS_HOME}/server/${node}/deployers/snmp.deployer</outputDirectory>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<!-- repositories -->
 	<repositories>
 		<repository>
-		  <id>jboss-public-repository-group</id>
-		  <name>JBoss Public Maven Repository Group</name>
-		  <url>https://repository.jboss.org/nexus/content/groups/public/</url>
-		  <layout>default</layout>
-		  <releases>
-		    <enabled>true</enabled>
-		    <updatePolicy>never</updatePolicy>
-		  </releases>
-		  <snapshots>
-		    <enabled>true</enabled>
-		    <updatePolicy>never</updatePolicy>
-		  </snapshots>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
 		</repository>
 	</repositories>
 </project>
