@@ -6,6 +6,20 @@
 	<version>5.1.1.GA</version>
 	<packaging>jar</packaging>
 	<name>SNMP Servlet Deployer</name>
+	
+	<distributionManagement>
+		<repository>
+			<id>jboss-releases-repository</id>
+			<name>JBoss Releases Repository</name>
+			<url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</url>
+		</repository>
+		<snapshotRepository>
+			<id>jboss-snapshots-repository</id>
+			<name>JBoss Snapshots Repository</name>
+			<url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
 	<dependencies>
 		<!-- test dependencies -->
 		<dependency>
