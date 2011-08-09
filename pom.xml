@@ -50,23 +50,6 @@
 							</descriptors>
 						</configuration>
 					</execution>
-					<execution>
-						<id>mib-generator</id>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<phase>package</phase>
-						<configuration>
-							<descriptors>
-								<descriptor>src/assembly/mib-generator.xml</descriptor>
-							</descriptors>
-							<archive>
-								<manifest>
-									<mainClass>org.jboss.jmx.adaptor.snmp.generator.MIBGenerator</mainClass>
-								</manifest>
-							</archive>
-						</configuration>
-					</execution>
 				</executions>
 			</plugin>
 			<plugin>

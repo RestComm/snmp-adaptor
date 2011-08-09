@@ -629,7 +629,7 @@ public class Generator {
 						oidPrefix += temp[i];
 					else if (temp[i].equals(".") || temp[i].equals(""))
 						continue;
-					else 
+					else
 						oidPrefix += temp[i]+".";
 				}
 				this.description = (mb.getDesc()!=null) ? mb.getDesc() : "";

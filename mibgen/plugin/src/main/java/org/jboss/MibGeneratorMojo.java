@@ -29,7 +29,6 @@ import java.io.IOException;
  * Goal which generates an MIB from given xml files
  *
  * @goal generate-mib
- * 
  */
 public class MibGeneratorMojo
     extends AbstractMojo
