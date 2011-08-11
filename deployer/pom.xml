@@ -1,12 +1,19 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jboss.jbossas.snmp</groupId>
 	<artifactId>snmp-deployer</artifactId>
-	<version>5.1.1.GA</version>
+	<version>5.1.0</version>
 	<packaging>jar</packaging>
 	<name>SNMP Servlet Deployer</name>
 	
+<properties>
+<!-- redefine in your POM if you want to change in manifest file -->
+		<manifest.url>http://www.mobicents.org</manifest.url>
+		<manifest.implementation.title>${pom.groupId}:${pom.artifactId}</manifest.implementation.title>
+		<manifest.implementation.version>${pom.version}</manifest.implementation.version>
+		<manifest.implementation.vendor>JBoss, a Red Hat division</manifest.implementation.vendor>  
+</properties>
+
 	<distributionManagement>
 		<repository>
 			<id>jboss-releases-repository</id>
@@ -63,6 +70,34 @@
 					<target>1.5</target>
 				</configuration>
 			</plugin>
+<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>						
+						<manifestEntries>
+						    <Implementation-Title>
+						    	${manifest.implementation.title}
+						    </Implementation-Title>
+							<Implementation-Version>
+								${manifest.implementation.version}
+							</Implementation-Version>
+							<Implementation-Vendor-Id>
+								${manifest.implementation.vendor}
+							</Implementation-Vendor-Id>
+							<Implementation-URL>
+								${manifest.url}
+							</Implementation-URL>							
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+          		<artifactId>maven-release-plugin</artifactId>
+          		<configuration>
+           			<tagBase>https://mobicents.googlecode.com/svn/tags/tools/snmp/deployer</tagBase>
+		        </configuration>
+        	</plugin>
 		</plugins>
 	</build>
 	<profiles>
@@ -82,14 +117,9 @@
 							<phase>package</phase>
 							<configuration>
 								<tasks>
-									<copy verbose="true" overwrite="true"
-										file="${basedir}/overrides/metadata-deployer-jboss-beans.xml"
-										todir="${env.JBOSS_HOME}/server/${node}/deployers/" />
-									<copy verbose="true" overwrite="true"
-										file="${project.build.directory}/${project.build.finalName}.${project.packaging}"
-										todir="${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer/" />
-									<copy verbose="true" overwrite="true"
-										todir="${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer/">
+									<copy verbose="true" overwrite="true" file="${basedir}/overrides/metadata-deployer-jboss-beans.xml" todir="${env.JBOSS_HOME}/server/${node}/deployers/" />
+									<copy verbose="true" overwrite="true" file="${project.build.directory}/${project.build.finalName}.${project.packaging}" todir="${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer/" />
+									<copy verbose="true" overwrite="true" todir="${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer/">
 										<fileset dir="${basedir}/src/main/resources" />
 									</copy>
 								</tasks>
@@ -133,14 +163,9 @@
 								<phase>package</phase>
 								<configuration>
 									<tasks>
-										<copy verbose="true" overwrite="true"
-											file="${basedir}/overrides/metadata-deployer-jboss-beans.xml"
-											todir="${JBOSS_HOME}/server/${node}/deployers/" />
-										<copy verbose="true" overwrite="true"
-											file="${project.build.directory}/${project.build.finalName}.${project.packaging}"
-											todir="${JBOSS_HOME}/server/${node}/deployers/snmp.deployer/" />
-										<copy verbose="true" overwrite="true"
-											todir="${JBOSS_HOME}/server/${node}/deployers/snmp.deployer/">
+										<copy verbose="true" overwrite="true" file="${basedir}/overrides/metadata-deployer-jboss-beans.xml" todir="${JBOSS_HOME}/server/${node}/deployers/" />
+										<copy verbose="true" overwrite="true" file="${project.build.directory}/${project.build.finalName}.${project.packaging}" todir="${JBOSS_HOME}/server/${node}/deployers/snmp.deployer/" />
+										<copy verbose="true" overwrite="true" todir="${JBOSS_HOME}/server/${node}/deployers/snmp.deployer/">
 											<fileset dir="${basedir}/src/main/resources" />
 										</copy>
 									</tasks>
@@ -189,4 +214,9 @@
 			</snapshots>
 		</repository>
 	</repositories>
+<scm>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/tools/snmp/deployer/snmp-deployer-5.1.0</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/tools/snmp/deployer/snmp-deployer-5.1.0</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/tools/snmp/deployer/snmp-deployer-5.1.0</url>
+	</scm>
 </project>
