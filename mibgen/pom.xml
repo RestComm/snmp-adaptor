@@ -3,7 +3,7 @@
   <groupId>org.jboss</groupId>
   <artifactId>mibgen-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
   <name>MIB Generator / Maven Plugin Build</name>
   <url>http://maven.apache.org</url>
   <description>Controls the building of the MIB Generator and the corresponding Maven Plugin</description>
@@ -88,8 +88,8 @@
 </plugins>
 </build>
 <scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/parent/mibgen-parent-1.0</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/parent/mibgen-parent-1.0</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/tags/parent/mibgen-parent-1.0</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/trunk</url>
 	</scm>
 </project>
