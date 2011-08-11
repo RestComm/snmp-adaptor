@@ -1,14 +1,21 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jboss</groupId>
   <artifactId>mibgen-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <name>MIB Generator / Maven Plugin Build</name>
   <url>http://maven.apache.org</url>
   <description>Controls the building of the MIB Generator and the corresponding Maven Plugin</description>
-  
+
+<properties>
+<!-- redefine in your POM if you want to change in manifest file -->
+		<manifest.url>http://www.mobicents.org</manifest.url>
+		<manifest.implementation.title>${pom.groupId}:${pom.artifactId}</manifest.implementation.title>
+		<manifest.implementation.version>${pom.version}</manifest.implementation.version>
+		<manifest.implementation.vendor>JBoss, a Red Hat division</manifest.implementation.vendor>  
+</properties>
+
   <distributionManagement>
 		<repository>
 			<id>jboss-releases-repository</id>
@@ -48,4 +55,41 @@
          </modules>
         </profile>
        </profiles>
+<build>
+		<plugins>			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>						
+						<manifestEntries>
+						    <Implementation-Title>
+						    	${manifest.implementation.title}
+						    </Implementation-Title>
+							<Implementation-Version>
+								${manifest.implementation.version}
+							</Implementation-Version>
+							<Implementation-Vendor-Id>
+								${manifest.implementation.vendor}
+							</Implementation-Vendor-Id>
+							<Implementation-URL>
+								${manifest.url}
+							</Implementation-URL>							
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+          		<artifactId>maven-release-plugin</artifactId>
+          		<configuration>
+           			<tagBase>https://mobicents.googlecode.com/svn/tags/parent</tagBase>
+		        </configuration>
+        	</plugin>
+</plugins>
+</build>
+<scm>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/parent/mibgen-parent-1.0</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/parent/mibgen-parent-1.0</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/parent/mibgen-parent-1.0</url>
+	</scm>
 </project>
