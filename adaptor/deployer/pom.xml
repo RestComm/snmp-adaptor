@@ -1,0 +1,233 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.jboss.jbossas.snmp</groupId>
+	<artifactId>snmp-deployer</artifactId>
+	<version>5.1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<name>SNMP Servlet Deployer</name>
+	
+<properties>
+<!-- redefine in your POM if you want to change in manifest file -->
+		<manifest.url>http://www.mobicents.org</manifest.url>
+		<manifest.implementation.title>${pom.groupId}:${pom.artifactId}</manifest.implementation.title>
+		<manifest.implementation.version>${pom.version}</manifest.implementation.version>
+		<manifest.implementation.vendor>JBoss, a Red Hat division</manifest.implementation.vendor>  
+</properties>
+
+	<distributionManagement>
+		<repository>
+			<id>jboss-releases-repository</id>
+			<name>JBoss Releases Repository</name>
+			<url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</url>
+		</repository>
+		<snapshotRepository>
+			<id>jboss-snapshots-repository</id>
+			<name>JBoss Snapshots Repository</name>
+			<url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
+	<dependencies>
+		<!-- test dependencies -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-snmp</artifactId>
+			<version>5.1.1.GA</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss</groupId>
+			<artifactId>jbossxb</artifactId>
+			<version>2.0.1.GA</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-system</artifactId>
+			<version>5.1.0.GA</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-system-jmx</artifactId>
+			<version>5.1.0.GA</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>						
+						<manifestEntries>
+						    <Implementation-Title>
+						    	${manifest.implementation.title}
+						    </Implementation-Title>
+							<Implementation-Version>
+								${manifest.implementation.version}
+							</Implementation-Version>
+							<Implementation-Vendor-Id>
+								${manifest.implementation.vendor}
+							</Implementation-Vendor-Id>
+							<Implementation-URL>
+								${manifest.url}
+							</Implementation-URL>							
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+          		<artifactId>maven-release-plugin</artifactId>
+          		<configuration>
+           			<tagBase>https://mobicents.googlecode.com/svn/tags/tools/snmp/deployer</tagBase>
+		        </configuration>
+        	</plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<profile>
+			<id>jboss</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>1.1</version>
+					<executions>
+						<execution>
+							<phase>package</phase>
+							<configuration>
+								<tasks>
+									<copy verbose="true" overwrite="true"
+										file="${basedir}/overrides/metadata-deployer-jboss-beans.xml"
+										todir="${env.JBOSS_HOME}/server/${node}/deployers/" />
+									<copy verbose="true" overwrite="true"
+										file="${project.build.directory}/${project.build.finalName}.${project.packaging}"
+										todir="${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer/" />
+									<copy verbose="true" overwrite="true"
+										todir="${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer/">
+										<fileset dir="${basedir}/src/main/resources" />
+									</copy>
+								</tasks>
+							</configuration>
+							<goals>
+								<goal>run</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>copy-to-jboss-lib</id>
+							<phase>package</phase>
+							<goals>
+								<goal>copy-dependencies</goal>
+							</goals>
+							<configuration>
+								<includeArtifactIds>jboss-snmp</includeArtifactIds>
+								<outputDirectory>${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer</outputDirectory>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>jboss-distro</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<configuration>
+									<tasks>
+										<copy verbose="true" overwrite="true"
+											file="${basedir}/overrides/metadata-deployer-jboss-beans.xml"
+											todir="${JBOSS_HOME}/server/${node}/deployers/" />
+										<copy verbose="true" overwrite="true"
+											file="${project.build.directory}/${project.build.finalName}.${project.packaging}"
+											todir="${JBOSS_HOME}/server/${node}/deployers/snmp.deployer/" />
+										<copy verbose="true" overwrite="true"
+											todir="${JBOSS_HOME}/server/${node}/deployers/snmp.deployer/">
+											<fileset dir="${basedir}/src/main/resources" />
+										</copy>
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-to-jboss-lib</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy-dependencies</goal>
+								</goals>
+								<configuration>
+									<includeArtifactIds>jboss-snmp</includeArtifactIds>
+									<outputDirectory>${JBOSS_HOME}/server/${node}/deployers/snmp.deployer</outputDirectory>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	<!-- repositories -->
+	<repositories>
+		<repository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+<scm>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/trunk</url>
+	</scm>
+</project>
