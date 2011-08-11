@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jboss.jbossas.snmp</groupId>
 	<artifactId>snmp-deployer</artifactId>
-	<version>5.1.0</version>
+	<version>5.1.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>SNMP Servlet Deployer</name>
 	
@@ -215,8 +215,8 @@
 		</repository>
 	</repositories>
 <scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/tools/snmp/deployer/snmp-deployer-5.1.0</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/tools/snmp/deployer/snmp-deployer-5.1.0</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/tags/tools/snmp/deployer/snmp-deployer-5.1.0</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/trunk</url>
 	</scm>
 </project>
