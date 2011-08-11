@@ -1,16 +1,23 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<!-- <parent> <groupId>org.jboss.jbossas</groupId> <artifactId>jboss-as-parent</artifactId> 
 		<version>5.1.0.GA</version> </parent> -->
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jboss.jbossas</groupId>
 	<artifactId>jboss-snmp</artifactId>
-	<version>5.1.1.GA</version>
+	<version>5.1.0</version>
 	<packaging>jar</packaging>
 	<name>JBoss Application Server Varia</name>
 	<url>http://www.jboss.org/jbossas</url>
 	<description>JBoss Application Server (varia module)</description>
 	
+<properties>
+<!-- redefine in your POM if you want to change in manifest file -->
+		<manifest.url>http://www.mobicents.org</manifest.url>
+		<manifest.implementation.title>${pom.groupId}:${pom.artifactId}</manifest.implementation.title>
+		<manifest.implementation.version>${pom.version}</manifest.implementation.version>
+		<manifest.implementation.vendor>JBoss, a Red Hat division</manifest.implementation.vendor>  
+</properties>
+
 	<distributionManagement>
 		<repository>
 			<id>jboss-releases-repository</id>
@@ -61,15 +68,11 @@
 						<phase>package</phase>
 						<configuration>
 							<tasks>
-								<condition property="jboss.dir" value="${jboss.home}"
-									else="${env.JBOSS_HOME}">
+								<condition property="jboss.dir" value="${jboss.home}" else="${env.JBOSS_HOME}">
 									<isset property="jboss.home" />
 								</condition>
-								<unjar
-									src="${project.build.directory}/jboss-snmp-${project.version}-adaptor-sar.jar"
-									dest="${jboss.dir}/server/${node}/deploy/snmp-adaptor.sar" />
-								<delete
-									file="${jboss.dir}/server/${node}/deploy/snmp-adaptor.sar/jboss-snmp-${project.version}.jar" />
+								<unjar src="${project.build.directory}/jboss-snmp-${project.version}-adaptor-sar.jar" dest="${jboss.dir}/server/${node}/deploy/snmp-adaptor.sar" />
+								<delete file="${jboss.dir}/server/${node}/deploy/snmp-adaptor.sar/jboss-snmp-${project.version}.jar" />
 							</tasks>
 						</configuration>
 						<goals>
@@ -81,7 +84,7 @@
 			<plugin>
 				<groupId>org.jboss</groupId>
 				<artifactId>mibgen-maven-plugin</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>1.0</version>
 				<configuration>
 					<attributesFile>${basedir}/src/resources/services/snmp/deploy/mss-attributes.xml</attributesFile>
 					<notificationsFile>${basedir}/src/resources/services/snmp/deploy/mss-notifications.xml</notificationsFile>
@@ -98,6 +101,34 @@
 					</execution>
 				</executions>
 			</plugin>
+<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>						
+						<manifestEntries>
+						    <Implementation-Title>
+						    	${manifest.implementation.title}
+						    </Implementation-Title>
+							<Implementation-Version>
+								${manifest.implementation.version}
+							</Implementation-Version>
+							<Implementation-Vendor-Id>
+								${manifest.implementation.vendor}
+							</Implementation-Vendor-Id>
+							<Implementation-URL>
+								${manifest.url}
+							</Implementation-URL>							
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+          		<artifactId>maven-release-plugin</artifactId>
+          		<configuration>
+           			<tagBase>https://mobicents.googlecode.com/svn/tags/tools/snmp-adaptor</tagBase>
+		        </configuration>
+</plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -227,4 +258,10 @@
 			</snapshots>
 		</repository>
 	</repositories>
+
+<scm>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/tools/snmp-adaptor/jboss-snmp-5.1.0</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/tools/snmp-adaptor/jboss-snmp-5.1.0</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/tools/snmp-adaptor/jboss-snmp-5.1.0</url>
+	</scm>
 </project>
