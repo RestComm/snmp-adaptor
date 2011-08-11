@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jboss.jbossas</groupId>
 	<artifactId>jboss-snmp</artifactId>
-	<version>5.1.0</version>
+	<version>5.1.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>JBoss Application Server Varia</name>
 	<url>http://www.jboss.org/jbossas</url>
@@ -260,8 +260,8 @@
 	</repositories>
 
 <scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/tools/snmp-adaptor/jboss-snmp-5.1.0</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/tools/snmp-adaptor/jboss-snmp-5.1.0</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/tags/tools/snmp-adaptor/jboss-snmp-5.1.0</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/trunk</url>
 	</scm>
 </project>
