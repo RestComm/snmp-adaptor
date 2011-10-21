@@ -10,13 +10,16 @@
 	<url>http://www.jboss.org/jbossas</url>
 	<description>JBoss Application Server (varia module)</description>
 	
-<properties>
-<!-- redefine in your POM if you want to change in manifest file -->
+	<properties>
+		<!-- redefine in your POM if you want to change in manifest file -->
 		<manifest.url>http://www.mobicents.org</manifest.url>
 		<manifest.implementation.title>${pom.groupId}:${pom.artifactId}</manifest.implementation.title>
 		<manifest.implementation.version>${pom.version}</manifest.implementation.version>
 		<manifest.implementation.vendor>JBoss, a Red Hat division</manifest.implementation.vendor>  
-</properties>
+		
+		<!-- node to which adaptor will be deployed -->
+		<node>default</node>
+	</properties>
 
 	<distributionManagement>
 		<repository>
