@@ -12,6 +12,9 @@
 		<manifest.implementation.title>${pom.groupId}:${pom.artifactId}</manifest.implementation.title>
 		<manifest.implementation.version>${pom.version}</manifest.implementation.version>
 		<manifest.implementation.vendor>JBoss, a Red Hat division</manifest.implementation.vendor>  
+		
+		<!-- node to which adaptor will be deployed -->
+		<node>default</node>
 </properties>
 
 	<distributionManagement>
@@ -39,7 +42,7 @@
 		<dependency>
 			<groupId>org.jboss.jbossas</groupId>
 			<artifactId>jboss-snmp</artifactId>
-			<version>5.1.1.GA</version>
+			<version>5.1.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

@@ -89,8 +89,8 @@
 				<artifactId>mibgen-maven-plugin</artifactId>
 				<version>1.0</version>
 				<configuration>
-					<attributesFile>${basedir}/src/resources/services/snmp/deploy/mss-attributes.xml</attributesFile>
-					<notificationsFile>${basedir}/src/resources/services/snmp/deploy/mss-notifications.xml</notificationsFile>
+					<attributesFile>${basedir}/src/resources/services/snmp/deploy/attributes.xml</attributesFile>
+					<notificationsFile>${basedir}/src/resources/services/snmp/deploy/notifications.xml</notificationsFile>
 					<moduleName>MSS-MIB</moduleName>
 					<outputFile>${basedir}/src/resources/services/snmp/deploy/Mobicents.mib</outputFile>
 					<!--outputFile>/home/jean/.snmp/mibs/Mobicents.mib</outputFile-->
