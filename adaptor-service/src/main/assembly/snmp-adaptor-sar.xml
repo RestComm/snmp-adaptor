@@ -1,0 +1,37 @@
+<assembly>
+  <id>sar</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>src/main/resources</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>target/classes</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>adaptor.mib</include>
+      </includes>
+    </fileSet>
+    
+   
+  </fileSets>
+  <dependencySets>
+    <dependencySet>            
+      <outputDirectory>/</outputDirectory>
+      <includes>
+      	<include>org.snmp4j:snmp4j</include>
+      	<include>org.snmp4j:snmp4j-agent</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>      
+      <excludes>   
+      	<!-- exclude gnome like jar... -->   	
+      	<exclude>org.jboss.snmp.adaptor:service</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+</assembly>

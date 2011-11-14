@@ -1,0 +1,133 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.jboss.snmp</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	
+	<groupId>org.jboss.snmp.adaptor</groupId>
+	<artifactId>core</artifactId>
+
+	<packaging>jar</packaging>
+	<name>SNMP Adaptor Core</name>
+	<url>http://www.jboss.org/jbossas</url>
+	<description>SNMP Adaptor Core</description>
+
+	<properties>
+		<!-- redefine in your POM if you want to change in manifest file -->
+		<manifest.url>http://www.mobicents.org</manifest.url>
+		<manifest.implementation.title>${pom.groupId}:${pom.artifactId}</manifest.implementation.title>
+		<manifest.implementation.version>${pom.version}</manifest.implementation.version>
+		<manifest.implementation.vendor>JBoss, a Red Hat division</manifest.implementation.vendor>
+	</properties>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Implementation-Title>
+								${manifest.implementation.title}
+						    </Implementation-Title>
+							<Implementation-Version>
+								${manifest.implementation.version}
+							</Implementation-Version>
+							<Implementation-Vendor-Id>
+								${manifest.implementation.vendor}
+							</Implementation-Vendor-Id>
+							<Implementation-URL>
+								${manifest.url}
+							</Implementation-URL>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.snmp4j</groupId>
+			<artifactId>snmp4j</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.snmp4j</groupId>
+			<artifactId>snmp4j-agent</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-system-jmx</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-jmx</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-system</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- mib generator dependencies <dependency> <groupId>org.jboss</groupId> <artifactId>jbossxb</artifactId> <version>2.0.3.GA</version> </dependency> 
+			<dependency> <groupId>org.jboss.logging</groupId> <artifactId>jboss-logging</artifactId> <version>3.0.0.Beta4</version> </dependency> -->
+
+		<!-- test dependencies -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- j2ee dependencies -->
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-j2se</artifactId>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>jdk6</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>2.0.2</version>
+						<configuration>
+							<compilerArguments>
+								<g />
+							</compilerArguments>
+							<source>1.5</source>
+							<target>1.5</target>
+							<excludes>
+								<exclude>org/jboss/varia/stats/*JDK5.java</exclude>
+								<exclude>org/jboss/tm/plugins/tyrex/*.java</exclude>
+								<exclude>org/jboss/jdo/castor/*.java</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>

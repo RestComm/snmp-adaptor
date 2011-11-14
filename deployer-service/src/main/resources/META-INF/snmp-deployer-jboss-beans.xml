@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    SNMP Deployer + JBossAS integration
+-->
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+	
+   	<bean name="SnmpAttributesParsingDeployer" class="org.jboss.jmx.adaptor.snmp.deployer.SnmpAttributesParsingDeployer">
+  		<!-- it depends on that MBean classes, so we have to inform MC about that! -->
+   		<depends>jboss.jmx:name=SnmpAgent,service=snmp,type=adaptor</depends>
+   	</bean>
+   	
+   	<bean name="SnmpNotificationsParsingDeployer" class="org.jboss.jmx.adaptor.snmp.deployer.SnmpNotificationsParsingDeployer">
+  		<!-- it depends on that MBean classes, so we have to inform MC about that! -->
+   		<depends>jboss.jmx:name=SnmpAgent,service=snmp,type=adaptor</depends>
+   	</bean>
+
+	<bean name="MergedSnmpMetaDataDeployer" class="org.jboss.jmx.adaptor.snmp.deployer.MergedSnmpMetaDataDeployer">
+  		<!-- it depends on that MBean classes, so we have to inform MC about that! -->
+   		<depends>jboss.jmx:name=SnmpAgent,service=snmp,type=adaptor</depends>
+   	</bean>
+   	
+  	<bean name="SnmpFilesDeployer" class="org.jboss.jmx.adaptor.snmp.deployer.SnmpFilesDeployer">
+  		<!-- it depends on that MBean classes, so we have to inform MC about that! -->
+   		<depends>jboss.jmx:name=SnmpAgent,service=snmp,type=adaptor</depends>
+   	</bean>
+  	
+</deployment>

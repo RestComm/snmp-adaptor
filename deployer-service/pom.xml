@@ -1,0 +1,282 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.jboss.snmp</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	
+	<groupId>org.jboss.snmp.deployer</groupId>
+	<artifactId>service</artifactId>
+
+	<packaging>jar</packaging>
+	<name>SNMP Deployer Service</name>
+	<properties>
+		<!-- redefine in your POM if you want to change in manifest file -->
+		<manifest.url>http://www.mobicents.org</manifest.url>
+		<manifest.implementation.title>${pom.groupId}:${pom.artifactId}</manifest.implementation.title>
+		<manifest.implementation.version>${pom.version}</manifest.implementation.version>
+		<manifest.implementation.vendor>JBoss, a Red Hat division</manifest.implementation.vendor>
+	</properties>
+
+
+	<dependencies>
+		<!-- test dependencies -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<!-- adapter classes -->
+		<dependency>
+			<groupId>org.jboss.snmp.adaptor</groupId>
+			<artifactId>core</artifactId>
+			<version>${pom.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>core</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-system</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-system-jmx</artifactId>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Implementation-Title>
+								${manifest.implementation.title}
+						    </Implementation-Title>
+							<Implementation-Version>
+								${manifest.implementation.version}
+							</Implementation-Version>
+							<Implementation-Vendor-Id>
+								${manifest.implementation.vendor}
+							</Implementation-Vendor-Id>
+							<Implementation-URL>
+								${manifest.url}
+							</Implementation-URL>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<!-- <version>2.2.1</version> -->
+				<executions>
+					<execution>
+						<id>assembly</id>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<phase>package</phase>
+						<configuration>
+							<descriptors>
+								<descriptor>src/main/assembly/snmp-deployer.xml</descriptor>
+								<!-- <descriptor>src/main/assembly/snmp-adaptor.xml</descriptor> -->
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<profile>
+			<id>jboss</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<configuration>
+									<tasks>
+										<condition
+											property="jboss.dir"
+											value="${jboss.home}"
+											else="${env.JBOSS_HOME}">
+											<isset
+												property="jboss.home" />
+										</condition>
+										<!-- make local backup -->
+										<copy
+											verbose="true"
+											overwrite="true"
+											file="${env.JBOSS_HOME}/server/${node}/deployers//metadata-deployer-jboss-beans.xml"
+											tofile="${basedir}/target/metadata-deployer-jboss-beans_bck.xml" />
+
+
+										<copy
+											verbose="true"
+											overwrite="true"
+											file="${basedir}/overrides/metadata-deployer-jboss-beans.xml"
+											todir="${env.JBOSS_HOME}/server/${node}/deployers/" />
+
+
+
+										<unjar
+											src="${project.build.directory}/${artifactId}-${project.version}-sar.jar"
+											dest="${jboss.dir}/server/${node}/deployers/snmp-adaptor-deployer" />
+
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>pre-clean</id>
+								<phase>pre-clean</phase>
+								<configuration>
+									<tasks>
+										<condition
+											property="jboss.dir"
+											value="${jboss.home}"
+											else="${env.JBOSS_HOME}">
+											<isset
+												property="jboss.home" />
+										</condition>
+										<!-- rewert changes -->
+										<copy
+											verbose="true"
+											overwrite="true"
+											failonerror="false"
+											file="${basedir}/target/metadata-deployer-jboss-beans_bck.xml"
+											tofile="${env.JBOSS_HOME}/server/${node}/deployers//metadata-deployer-jboss-beans.xml" />
+
+
+										<delete
+											verbose="true"
+											dir="${jboss.dir}/server/${node}/deployers/snmp-adaptor-deployer" />
+
+
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-dependency-plugin</artifactId> <executions> <execution> <id>copy-to-jboss-lib</id> 
+						<phase>package</phase> <goals> <goal>copy-dependencies</goal> </goals> <configuration> <includeArtifactIds>adaptor-core</includeArtifactIds> 
+						<outputDirectory>${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer</outputDirectory> </configuration> </execution> </executions> </plugin> -->
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>jboss-distro</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<configuration>
+									<tasks>
+										<condition
+											property="jboss.dir"
+											value="${jboss.home}"
+											else="${env.JBOSS_HOME}">
+											<isset
+												property="jboss.home" />
+										</condition>
+										<!-- make local backup -->
+										<copy
+											verbose="true"
+											overwrite="true"
+											file="${env.JBOSS_HOME}/server/${node}/deployers//metadata-deployer-jboss-beans.xml"
+											tofile="${basedir}/target/metadata-deployer-jboss-beans_bck.xml" />
+
+
+										<copy
+											verbose="true"
+											overwrite="true"
+											file="${basedir}/overrides/metadata-deployer-jboss-beans.xml"
+											todir="${env.JBOSS_HOME}/server/${node}/deployers/" />
+
+										<unjar
+											src="${project.build.directory}/${artifactId}-${project.version}-sar.jar"
+											dest="${jboss.dir}/server/${node}/deployers/snmp-adaptor-deployer" />
+
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>pre-clean</id>
+								<phase>pre-clean</phase>
+								<configuration>
+									<tasks>
+										<condition
+											property="jboss.dir"
+											value="${jboss.home}"
+											else="${env.JBOSS_HOME}">
+											<isset
+												property="jboss.home" />
+										</condition>
+										<!-- make local backup -->
+										<copy
+											verbose="true"
+											overwrite="true"
+											file="${basedir}/target/metadata-deployer-jboss-beans_bck.xml"
+											tofile="${env.JBOSS_HOME}/server/${node}/deployers//metadata-deployer-jboss-beans.xml" />
+
+
+										<delete
+											verbose="true"
+											dir="${jboss.dir}/server/${node}/deployers/snmp-adaptor-deployer" />
+
+
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>

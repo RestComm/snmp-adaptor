@@ -1,0 +1,172 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<!-- <parent> <groupId>org.jboss.jbossas</groupId> <artifactId>jboss-as-parent</artifactId> <version>5.1.0.GA</version> </parent> -->
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.jboss.snmp</groupId>
+	<artifactId>parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>SNMP Parent</name>
+	<url>http://www.jboss.org/jbossas</url>
+	<description>SNMP Parent</description>
+
+
+
+	<properties>
+		<!-- node to which adaptor/deployer will be deployed -->
+		<node>default</node>
+	</properties>
+
+	<modules>
+		<module>mibgen</module>
+		<module>adaptor-core</module>
+		<module>adaptor-service</module>
+		<module>deployer-core</module>
+		<module>deployer-service</module>
+
+	</modules>
+
+
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.snmp4j</groupId>
+				<artifactId>snmp4j</artifactId>
+				<version>1.11.3</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.snmp4j</groupId>
+				<artifactId>snmp4j-agent</artifactId>
+				<version>1.4.3</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jboss.jbossas</groupId>
+				<artifactId>jboss-as-system-jmx</artifactId>
+				<version>5.1.0.GA</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jboss.jbossas</groupId>
+				<artifactId>jboss-as-jmx</artifactId>
+				<version>5.1.0.GA</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jboss.jbossas</groupId>
+				<artifactId>jboss-as-system</artifactId>
+				<version>5.1.0.GA</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<!-- test dependencies -->
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>1.2.14</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<!-- j2ee dependencies -->
+			<dependency>
+				<groupId>org.jboss.jbossas</groupId>
+				<artifactId>jboss-as-j2se</artifactId>
+				<version>5.1.0.GA</version>
+				<scope>provided</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<profiles>
+		<profile>
+			<id>jdk6</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>2.0.2</version>
+						<configuration>
+							<compilerArguments>
+								<g />
+							</compilerArguments>
+							<source>1.5</source>
+							<target>1.5</target>
+							<excludes>
+								<exclude>org/jboss/varia/stats/*JDK5.java</exclude>
+								<exclude>org/jboss/tm/plugins/tyrex/*.java</exclude>
+								<exclude>org/jboss/jdo/castor/*.java</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<distributionManagement>
+		<repository>
+			<id>jboss-releases-repository</id>
+			<name>JBoss Releases Repository</name>
+			<url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</url>
+		</repository>
+		<snapshotRepository>
+			<id>jboss-snapshots-repository</id>
+			<name>JBoss Snapshots Repository</name>
+			<url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<tagBase>https://mobicents.googlecode.com/svn/tags/tools/snmp-adaptor</tagBase>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<!-- repositories -->
+	<repositories>
+		<repository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>snmp4j-repository</id>
+			<name>SNMP4J Maven Repository Release</name>
+			<url>https://server.oosnmp.net/dist/release/</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+
+
+</project>
