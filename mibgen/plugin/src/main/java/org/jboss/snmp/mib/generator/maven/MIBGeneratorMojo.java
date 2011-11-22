@@ -30,7 +30,7 @@ import java.io.IOException;
  *
  * @goal generate-mib
  */
-public class MibGeneratorMojo
+public class MIBGeneratorMojo
     extends AbstractMojo
 {
      /**
