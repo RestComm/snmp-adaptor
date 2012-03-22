@@ -9,7 +9,7 @@
 	<name>JBoss Application Server Varia</name>
 	<url>http://www.jboss.org/jbossas</url>
 	<description>JBoss Application Server (varia module)</description>
-	
+	 
 <properties>
 <!-- redefine in your POM if you want to change in manifest file -->
 		<manifest.url>http://www.mobicents.org</manifest.url>
