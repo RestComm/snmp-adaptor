@@ -29,8 +29,8 @@
     </dependencySet>
     <dependencySet>      
       <excludes>   
-      	<!-- exclude gnome like jar... -->   	
-      	<exclude>org.jboss.snmp.adaptor:service</exclude>
+      	<!-- exclude gnome like jar...  -->   	
+      	<exclude>org.mobicents.tools.snmp.adaptor:service</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>

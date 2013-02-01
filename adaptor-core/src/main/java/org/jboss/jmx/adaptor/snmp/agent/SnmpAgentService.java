@@ -809,7 +809,6 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
 
 	@Override
 	public void addAttributeMappings(List<ManagedBean> mappings) {
-		new Exception("TRALALA").printStackTrace();
 		requestHandler.addAttributeMappings(mappings);
 	}
 
@@ -820,7 +819,6 @@ public class SnmpAgentService extends ListenerServiceMBeanSupport
 
 	@Override
 	public void addNotifications(List<Mapping> notifications) {
-		new Exception("TRALALA").printStackTrace();
 		trapEmitter.addNotifications(notifications);
 	}
 

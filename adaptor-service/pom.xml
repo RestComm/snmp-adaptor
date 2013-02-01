@@ -5,17 +5,19 @@
 	
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.jboss.snmp</groupId>
-		<artifactId>parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
-	</parent>
-	
-	<groupId>org.jboss.snmp.adaptor</groupId>
+        <groupId>org.mobicents.tools.snmp</groupId>
+        <artifactId>snmp-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <name>Mobicents :: SNMP :: Adaptor :: Service</name>
+
+
+    <groupId>org.mobicents.tools.snmp.adaptor</groupId>
 	<artifactId>service</artifactId>
-	
 	<packaging>jar</packaging>
-	<url>http://www.jboss.org/jbossas</url>
-	<name>SNMP Adaptor Service</name>
+	 
+	
 	<description>SNMP Adaptor Service</description>
 
 	<properties>
@@ -55,7 +57,7 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.jboss.snmp.mib</groupId>
+				<groupId>org.mobicents.tools.snmp.mib</groupId>
 				<artifactId>maven-plugin</artifactId>
 				<version>${mibgen.plugin.version}</version>
 				<configuration>

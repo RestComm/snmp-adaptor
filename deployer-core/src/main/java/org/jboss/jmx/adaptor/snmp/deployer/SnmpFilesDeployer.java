@@ -27,7 +27,6 @@ public class SnmpFilesDeployer extends  AbstractSimpleVFSRealDeployer<SnmpMetaDa
 	@Override
 	public void deploy(VFSDeploymentUnit unit, SnmpMetaData snmp)
 			throws DeploymentException {
-		System.err.println("----> DEPLOY: "+snmp);
 		if(snmp != null) {
 			MBeanServer server = MBeanServerLocator.locateJBoss();	
 			try {

@@ -2,24 +2,25 @@
 	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	
+
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.jboss.snmp</groupId>
-		<artifactId>parent</artifactId>
+		<groupId>org.mobicents.tools.snmp</groupId>
+		<artifactId>snmp-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-	
-	<groupId>org.jboss.snmp.adaptor</groupId>
+
+	<name>Mobicents :: SNMP :: Adaptor :: Core</name>
+
+
+	<groupId>org.mobicents.tools.snmp.adaptor</groupId>
 	<artifactId>core</artifactId>
 
 	<packaging>jar</packaging>
-	<name>SNMP Adaptor Core</name>
-	<url>http://www.jboss.org/jbossas</url>
 	<description>SNMP Adaptor Core</description>
 
 	<properties>
-		<!-- redefine in your POM if you want to change in manifest file -->
+		<!-- redefine in your POM if you want to change in manifest file  -->
 		<manifest.url>http://www.mobicents.org</manifest.url>
 		<manifest.implementation.title>${pom.groupId}:${pom.artifactId}</manifest.implementation.title>
 		<manifest.implementation.version>${pom.version}</manifest.implementation.version>
@@ -37,7 +38,7 @@
 						<manifestEntries>
 							<Implementation-Title>
 								${manifest.implementation.title}
-						    </Implementation-Title>
+							</Implementation-Title>
 							<Implementation-Version>
 								${manifest.implementation.version}
 							</Implementation-Version>
