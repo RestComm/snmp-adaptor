@@ -2,22 +2,22 @@
 	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	
+
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-        <groupId>org.mobicents.tools.snmp</groupId>
-        <artifactId>snmp-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </parent>
+		<groupId>org.mobicents.tools.snmp</groupId>
+		<artifactId>snmp-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
 
-    <name>Mobicents :: SNMP :: Adaptor :: Service</name>
+	<name>Mobicents :: SNMP :: Adaptor :: Service</name>
 
 
-    <groupId>org.mobicents.tools.snmp.adaptor</groupId>
+	<groupId>org.mobicents.tools.snmp.adaptor</groupId>
 	<artifactId>service</artifactId>
 	<packaging>jar</packaging>
-	 
-	
+
+
 	<description>SNMP Adaptor Service</description>
 
 	<properties>
@@ -42,7 +42,7 @@
 						<manifestEntries>
 							<Implementation-Title>
 								${manifest.implementation.title}
-						    </Implementation-Title>
+							</Implementation-Title>
 							<Implementation-Version>
 								${manifest.implementation.version}
 							</Implementation-Version>
@@ -96,60 +96,94 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<!-- should this be maven dep plugin? -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.1</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<configuration>
-							<tasks>
-								<condition
-									property="jboss.dir"
-									value="${jboss.home}"
-									else="${env.JBOSS_HOME}">
-									<isset
-										property="jboss.home" />
-								</condition>
-
-								<unjar
-									src="${project.build.directory}/${artifactId}-${project.version}-sar.jar"
-									dest="${jboss.dir}/server/${node}/deploy/snmp-adaptor.sar" />
-
-							</tasks>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>clean</id>
-						<phase>clean</phase>
-						<configuration>
-							<tasks>
-								<condition
-									property="jboss.dir"
-									value="${jboss.home}"
-									else="${env.JBOSS_HOME}">
-									<isset
-										property="jboss.home" />
-								</condition>
-								<delete
-									dir="${jboss.dir}/server/${node}/deploy/snmp-adaptor.sar" />
-
-							</tasks>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>deploy</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<configuration>
+									<tasks>
+										<condition
+											property="jboss.dir"
+											value="${jboss.home}"
+											else="${env.JBOSS_HOME}">
+											<isset property="jboss.home" />
+										</condition>
+
+										<unjar
+											src="${project.build.directory}/${artifactId}-${project.version}-sar.jar"
+											dest="${jboss.dir}/server/${node}/deploy/snmp-adaptor.sar" />
+
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>clean</id>
+								<phase>clean</phase>
+								<configuration>
+									<tasks>
+										<condition
+											property="jboss.dir"
+											value="${jboss.home}"
+											else="${env.JBOSS_HOME}">
+											<isset property="jboss.home" />
+										</condition>
+										<delete dir="${jboss.dir}/server/${node}/deploy/snmp-adaptor.sar" />
+
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>jdk6</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>2.0.2</version>
+						<configuration>
+							<compilerArguments>
+								<g />
+							</compilerArguments>
+							<source>1.5</source>
+							<target>1.5</target>
+							<excludes>
+								<exclude>org/jboss/varia/stats/*JDK5.java</exclude>
+								<exclude>org/jboss/tm/plugins/tyrex/*.java</exclude>
+								<exclude>org/jboss/jdo/castor/*.java</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<dependencies>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
@@ -200,33 +234,4 @@
 		</dependency>
 	</dependencies>
 
-	<profiles>
-		<profile>
-			<id>jdk6</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<version>2.0.2</version>
-						<configuration>
-							<compilerArguments>
-								<g />
-							</compilerArguments>
-							<source>1.5</source>
-							<target>1.5</target>
-							<excludes>
-								<exclude>org/jboss/varia/stats/*JDK5.java</exclude>
-								<exclude>org/jboss/tm/plugins/tyrex/*.java</exclude>
-								<exclude>org/jboss/jdo/castor/*.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>

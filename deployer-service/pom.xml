@@ -110,9 +110,9 @@
 	</build>
 	<profiles>
 		<profile>
-			<id>jboss</id>
+			<id>deploy</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<build>
 				<plugins>
@@ -177,91 +177,6 @@
 											failonerror="false"
 											file="${basedir}/target/metadata-deployer-jboss-beans_bck.xml"
 											tofile="${env.JBOSS_HOME}/server/${node}/deployers//metadata-deployer-jboss-beans.xml" />
-
-
-										<delete
-											verbose="true"
-											dir="${jboss.dir}/server/${node}/deployers/snmp-adaptor-deployer" />
-
-
-									</tasks>
-								</configuration>
-								<goals>
-									<goal>run</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-dependency-plugin</artifactId> <executions> <execution> <id>copy-to-jboss-lib</id> 
-						<phase>package</phase> <goals> <goal>copy-dependencies</goal> </goals> <configuration> <includeArtifactIds>adaptor-core</includeArtifactIds> 
-						<outputDirectory>${env.JBOSS_HOME}/server/${node}/deployers/snmp.deployer</outputDirectory> </configuration> </execution> </executions> </plugin> -->
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>jboss-distro</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<version>1.1</version>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<configuration>
-									<tasks>
-										<condition
-											property="jboss.dir"
-											value="${jboss.home}"
-											else="${env.JBOSS_HOME}">
-											<isset
-												property="jboss.home" />
-										</condition>
-										<!-- make local backup -->
-										<copy
-											verbose="true"
-											overwrite="true"
-											file="${env.JBOSS_HOME}/server/${node}/deployers//metadata-deployer-jboss-beans.xml"
-											tofile="${basedir}/target/metadata-deployer-jboss-beans_bck.xml" />
-
-
-										<copy
-											verbose="true"
-											overwrite="true"
-											file="${basedir}/overrides/metadata-deployer-jboss-beans.xml"
-											todir="${env.JBOSS_HOME}/server/${node}/deployers/" />
-
-										<unjar
-											src="${project.build.directory}/${artifactId}-${project.version}-sar.jar"
-											dest="${jboss.dir}/server/${node}/deployers/snmp-adaptor-deployer" />
-
-									</tasks>
-								</configuration>
-								<goals>
-									<goal>run</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>pre-clean</id>
-								<phase>pre-clean</phase>
-								<configuration>
-									<tasks>
-										<condition
-											property="jboss.dir"
-											value="${jboss.home}"
-											else="${env.JBOSS_HOME}">
-											<isset
-												property="jboss.home" />
-										</condition>
-										<!-- make local backup -->
-										<copy
-											verbose="true"
-											overwrite="true"
-											file="${basedir}/target/metadata-deployer-jboss-beans_bck.xml"
-											tofile="${env.JBOSS_HOME}/server/${node}/deployers//metadata-deployer-jboss-beans.xml" />
-
-
 										<delete
 											verbose="true"
 											dir="${jboss.dir}/server/${node}/deployers/snmp-adaptor-deployer" />

@@ -1,0 +1,1 @@
+To deploy services(adaptor and deployer) use -Pdeploy
