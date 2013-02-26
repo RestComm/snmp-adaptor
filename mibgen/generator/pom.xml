@@ -11,10 +11,15 @@
 	</parent>
 
 	<artifactId>generator</artifactId>
-	<packaging>jar</packaging>
 
-
-	<url>http://maven.apache.org</url>
+	<properties>
+		<!-- redefine in your POM if you want to change in manifest file -->
+        <manifest.url>http://www.mobicents.org</manifest.url>
+       	<manifest.implementation.title>${project.groupId}:${project.artifactId}</manifest.implementation.title>
+    	<manifest.implementation.version>${project.version}</manifest.implementation.version>
+    	<manifest.implementation.vendor>TeleStax, Inc.</manifest.implementation.vendor>  
+	</properties>
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.jboss</groupId>
@@ -25,6 +30,7 @@
 			<artifactId>jboss-logging</artifactId>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -36,6 +42,28 @@
 					<target>1.5</target>
 				</configuration>
 			</plugin>
+			<plugin>
+                                <groupId>org.apache.maven.plugins</groupId>
+                                <artifactId>maven-jar-plugin</artifactId>
+                                <configuration>
+                                        <archive>                                               
+                                                <manifestEntries>
+                                                    <Implementation-Title>
+                                                        ${manifest.implementation.title}
+                                                    </Implementation-Title>
+                                                        <Implementation-Version>
+                                                                ${manifest.implementation.version}
+                                                        </Implementation-Version>
+                                                        <Implementation-Vendor-Id>
+                                                                ${manifest.implementation.vendor}
+                                                        </Implementation-Vendor-Id>
+                                                        <Implementation-URL>
+                                                                ${manifest.url}
+                                                        </Implementation-URL>                                                   
+                                                </manifestEntries>
+                                        </archive>
+                                </configuration>
+                        </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -60,6 +88,6 @@
 				</executions>
 			</plugin>
 		</plugins>
-
 	</build>
+	
 </project>

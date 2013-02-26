@@ -10,11 +10,11 @@
 		<version>6.1.3-TelScale-SNAPSHOT</version>
 	</parent>
 
-    <name>Mobicents :: SNMP :: MIB :: Parent</name>
-
-
     <groupId>org.mobicents.tools.snmp.mib</groupId>
     <artifactId>mib-parent</artifactId>
+
+	<name>MIB Generator / Maven Plugin Build</name>
+  	<description>Controls the building of the MIB Generator and the corresponding Maven Plugin</description>
 
 	<packaging>pom</packaging>
 
@@ -42,5 +42,15 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	
+	<build>
+  		<plugins>
+    		<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+				<inherited>false</inherited>
+	     	</plugin>
+  		</plugins>
+	</build>
 
 </project>
