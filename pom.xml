@@ -2,17 +2,23 @@
 	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<!-- <parent> <groupId>org.jboss.jbossas</groupId> <artifactId>jboss-as-parent</artifactId> <version>5.1.0.GA</version> </parent> -->
+	
 	<modelVersion>4.0.0</modelVersion>
+		
+	<parent>
+		<groupId>org.mobicents</groupId>
+		<artifactId>mobicents-parent</artifactId>
+		<version>6.1.2.GA-TelScale</version>
+	</parent>
+		
 	<groupId>org.mobicents.tools.snmp</groupId>
 	<artifactId>snmp-parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>6.1.3-TelScale-SNAPSHOT</version>
+	
 	<packaging>pom</packaging>
 	<name>Mobicents :: SNMP :: Parent</name> 
 
 	<description>SNMP Parent</description>
-
-
 
 	<properties>
 		<!-- node to which adaptor/deployer will be deployed -->
@@ -26,8 +32,6 @@
 		<module>deployer-core</module>
 		<module>deployer-service</module>
 	</modules>
-
-
 
 	<dependencyManagement>
 		<dependencies>
@@ -110,61 +114,81 @@
 		</profile>
 	</profiles>
 
-	<distributionManagement>
-		<repository>
-			<id>jboss-releases-repository</id>
-			<name>JBoss Releases Repository</name>
-			<url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</url>
-		</repository>
-		<snapshotRepository>
-			<id>jboss-snapshots-repository</id>
-			<name>JBoss Snapshots Repository</name>
-			<url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-release-plugin</artifactId>
-				<configuration>
-					<tagBase>https://mobicents.googlecode.com/svn/tags/tools/snmp-adaptor</tagBase>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-
-	<!-- repositories -->
+	<scm>
+                <connection>scm:git:https://code.google.com/p/commscale.snmp-adaptor</connection>
+                <developerConnection>scm:git:https://code.google.com/p/commscale.snmp-adaptor</developerConnection>
+                <url>https://code.google.com/p/commscale.snmp-adaptor</url>
+        </scm>
+        
 	<repositories>
-		<repository>
-			<id>jboss-public-repository-group</id>
-			<name>JBoss Public Maven Repository Group</name>
-			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>snmp4j-repository</id>
-			<name>SNMP4J Maven Repository Release</name>
-			<url>https://server.oosnmp.net/dist/release/</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-		</repository>
-	</repositories>
-
+                <repository>
+                  <id>telscale-releases-repository</id>
+                  <name>TelScale Releases Repository</name>
+                  <url>http://telestax.artifactoryonline.com/telestax/releases</url>
+                  <releases>
+                    <enabled>true</enabled>
+                    <updatePolicy>never</updatePolicy>
+                  </releases>
+                  <snapshots>
+                    <enabled>false</enabled>
+                    <updatePolicy>never</updatePolicy>
+                  </snapshots>                            
+                </repository>
+                <repository>
+                  <id>telscale-snapshots-repository</id>
+                  <name>TelScale Snapshots Repository</name>
+                  <url>http://telestax.artifactoryonline.com/telestax/snapshots</url>
+                  <releases>
+                    <enabled>false</enabled>
+                    <updatePolicy>never</updatePolicy>
+                  </releases>
+                  <snapshots>
+                    <enabled>true</enabled>
+                    <updatePolicy>never</updatePolicy>
+                  </snapshots>                            
+                </repository>
+                <repository>
+                        <id>jboss-public-repository-group</id>
+                        <name>JBoss Public Maven Repository Group</name>
+                        <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+                        <layout>default</layout>
+                        <releases>
+                                <enabled>true</enabled>
+                                <updatePolicy>never</updatePolicy>
+                        </releases>
+                        <snapshots>
+                                <enabled>true</enabled>
+                                <updatePolicy>never</updatePolicy>
+                        </snapshots>
+                </repository>
+                <repository>
+                        <id>snmp4j-repository</id>
+                        <name>SNMP4J Maven Repository Release</name>
+                        <url>https://server.oosnmp.net/dist/release/</url>
+                        <layout>default</layout>
+                        <releases>
+                                <enabled>true</enabled>
+                                <updatePolicy>never</updatePolicy>
+                        </releases>
+                        <snapshots>
+                                <enabled>false</enabled>
+                                <updatePolicy>never</updatePolicy>
+                        </snapshots>
+                </repository>
+                <repository>
+          <id>jboss-deprecated-repository</id>
+          <name>JBoss Deprecated Maven Repository</name>
+          <url>https://repository.jboss.org/nexus/content/repositories/deprecated/</url>
+          <layout>default</layout>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+            <updatePolicy>never</updatePolicy>
+          </snapshots>
+        </repository>
+        </repositories>
 
 </project>
