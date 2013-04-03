@@ -31,7 +31,7 @@
 
 		<!-- node to which adaptor will be deployed -->
 		<node>default</node>
-		<mibgen.plugin.version>${pom.version}</mibgen.plugin.version>
+		<mibgen.plugin.version>6.1.3.GA-TelScale</mibgen.plugin.version>
 	</properties>
 	<build>
 
