@@ -4,7 +4,7 @@
 	<parent>			
 		<groupId>org.mobicents.tools.snmp.mib</groupId>
     	<artifactId>mib-parent</artifactId>
-    	<version>6.1.3-TelScale-SNAPSHOT</version>
+    	<version>6.1.3.GA-TelScale</version>
 	</parent>
 
 	<artifactId>maven-plugin</artifactId>
