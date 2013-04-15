@@ -126,9 +126,9 @@
 	</profiles>
 
 	<scm>
-                <connection>scm:git:https://code.google.com/p/commscale.snmp-adaptor</connection>
-                <developerConnection>scm:git:https://code.google.com/p/commscale.snmp-adaptor</developerConnection>
-                <url>https://code.google.com/p/commscale.snmp-adaptor</url>
+                <connection>scm:git:git@bitbucket.org:telestax/telscale-snmp-adaptor.git</connection>
+                <developerConnection>scm:git:git@bitbucket.org:telestax/telscale-snmp-adaptor.git</developerConnection>
+                <url>https://bitbucket.org/telestax/telscale-snmp-adaptor</url>
         </scm>
         
 	<repositories>
