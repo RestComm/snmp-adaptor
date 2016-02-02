@@ -8,7 +8,7 @@
 		<artifactId>mib-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-	<name>Mobicents :: SNMP :: MIB :: Generator</name>
+	<name>Restcomm :: SNMP :: MIB :: Generator</name>
 
 	<artifactId>generator</artifactId>
 	<packaging>jar</packaging>

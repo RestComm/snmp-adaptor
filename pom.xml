@@ -3,15 +3,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-         <artifactId>mobicents-parent</artifactId>
+         <artifactId>restcomm-parent</artifactId>
          <groupId>org.mobicents</groupId>
-         <version>2.27.21</version>                
+         <version>2.27.26</version>                
     </parent>
 	<groupId>org.mobicents.tools.snmp</groupId>
 	<artifactId>snmp-parent</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Mobicents :: SNMP :: Parent</name> 
+	<name>Restcomm :: SNMP :: Parent</name> 
 
 	<description>SNMP Parent</description>
 
@@ -192,8 +192,8 @@
         
         <repositories>
                 <repository>
-                  <id>mobicents-public-repository-group</id>
-                  <name>Mobicens Public Maven Repository Group</name>
+                  <id>restcomm-public-repository-group</id>
+                  <name>Restcomm Public Maven Repository Group</name>
                   <url>https://oss.sonatype.org/content/groups/public</url>
                   <layout>default</layout>
                   <releases>

@@ -8,7 +8,7 @@
         <artifactId>mib-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <name>Mobicents :: SNMP :: MIB :: Maven-Plugin</name>
+    <name>Restcomm :: SNMP :: MIB :: Maven-Plugin</name>
 
 	<artifactId>maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>

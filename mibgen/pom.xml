@@ -9,7 +9,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <name>Mobicents :: SNMP :: MIB :: Parent</name>
+    <name>Restcomm :: SNMP :: MIB :: Parent</name>
 
 
     <groupId>org.mobicents.tools.snmp.mib</groupId>

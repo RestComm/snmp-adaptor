@@ -10,7 +10,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<name>Mobicents :: SNMP :: Adaptor :: Core</name>
+	<name>Restcomm :: SNMP :: Adaptor :: Core</name>
 
 
 	<groupId>org.mobicents.tools.snmp.adaptor</groupId>
@@ -21,7 +21,7 @@
 
 	<properties>
 		<!-- redefine in your POM if you want to change in manifest file  -->
-		<manifest.url>http://www.mobicents.org</manifest.url>
+		<manifest.url>http://www.restcomm.org</manifest.url>
 		<manifest.implementation.title>${pom.groupId}:${pom.artifactId}</manifest.implementation.title>
 		<manifest.implementation.version>${pom.version}</manifest.implementation.version>
 		<manifest.implementation.vendor>JBoss, a Red Hat division</manifest.implementation.vendor>
